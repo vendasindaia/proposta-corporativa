@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Proposta DIMY · Indaiá Eventos</title>
+<meta name="description" content="Proposta interativa corporativa — DIMY · 24/09/2026 · Salão de Eventos, Itapema/SC.">
+<meta name="robots" content="noindex,nofollow,noai">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23242B33'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-style='italic' font-size='16' fill='%23B09A6E' text-anchor='middle'%3Ein%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Protótipo: fontes via CDN. Em produção, self-hosted. -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* =================================================================
+   PROPOSTA INTERATIVA CORPORATIVA — protótipo navegável
+   ORC-2026-01837 · DIMY · Indaiá Eventos
+   Paleta neutra (a página recebe logo de cliente): tokens com os
+   mesmos nomes do template da casa, remapeados para grafite+dourado.
+   ================================================================= */
+:root{
+  --cream:#F7F8F9; --cream-2:#EFF1F3; --sand:#E3E6E9; --bege:#C9CFD6; --nude:#E8EBEE;
+  --taupe:#5A636D; --brown:#3E4750; --brown-deep:#242B33; --ink:#14181D;
+  --gold:#9A8354; --gold-soft:#B09A6E; --gold-deep:#6E5C38;
+  --line:rgba(36,43,51,.14); --line-soft:rgba(36,43,51,.09);
+  --wa:#4c8c5a; --wa-deep:#3c7449; --night:#14181D;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'Montserrat',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1200px; --radius:8px; --ease-lux:cubic-bezier(.16,1,.3,1);
+  /* sombras tingidas do grafite (nunca preto puro) */
+  --sh-1:0 1px 2px rgba(36,43,51,.05),0 4px 14px rgba(36,43,51,.07);
+  --sh-2:0 8px 18px rgba(36,43,51,.08),0 22px 50px rgba(36,43,51,.13);
+  --sh-3:0 30px 80px rgba(20,24,29,.30);
+  /* bolinhas de dieta (mesmos tons do cardápio publicado) */
+  --sg:#C4763B; --sl:#5F7E9E; --vg:#6E8B57;
+  --linha-clara:rgba(247,248,249,.16);
+}
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+body{
+  margin:0;font-family:var(--sans);font-weight:400;color:var(--ink);background:var(--cream);
+  line-height:1.65;letter-spacing:.005em;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  padding-bottom:76px; /* respiro para a tierbar fixa */
+}
+img{display:block;max-width:100%;}
+button{font-family:inherit;cursor:pointer;}
+a{color:inherit;text-decoration:none;}
+::selection{background:var(--bege);color:var(--brown-deep);}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+.escuro :focus-visible,.tierbar :focus-visible,.ovl :focus-visible{outline-color:var(--gold-soft);}
+.wrap{width:100%;max-width:var(--maxw);margin-inline:auto;padding-inline:clamp(20px,5vw,56px);}
+.ic{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+.skip-link{position:fixed;top:-60px;left:16px;z-index:300;background:var(--brown-deep);color:var(--cream);
+  padding:10px 18px;border-radius:0 0 8px 8px;transition:top .25s;}
+.skip-link:focus{top:0;}
+
+/* ---------- tipografia utilitária ---------- */
+.eyebrow{font-family:var(--sans);font-weight:500;font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--taupe);margin:0 0 1rem;display:inline-flex;align-items:center;gap:.9em;}
+.eyebrow::before{content:"";width:34px;height:1px;background:var(--gold);opacity:.75;}
+.escuro .eyebrow{color:var(--gold-soft);}
+.escuro .eyebrow::before{background:var(--gold-soft);}
+.sec{position:relative;padding-block:clamp(56px,8vw,110px);scroll-margin-top:84px;}
+.sec__head{max-width:680px;margin-bottom:clamp(30px,4.5vw,56px);}
+.sec__meta{display:flex;gap:1.1rem;align-items:baseline;}
+.sec__num{font-family:var(--serif);font-style:italic;font-size:1rem;color:var(--gold-deep);opacity:.85;}
+.escuro .sec__num{color:var(--gold-soft);}
+.sec__title{font-family:var(--serif);font-weight:600;font-size:clamp(2rem,4.8vw,3.4rem);line-height:1.05;
+  letter-spacing:-.01em;margin:.5rem 0 .9rem;color:var(--brown-deep);}
+.sec__title em{font-style:italic;color:var(--gold-deep);}
+.escuro .sec__title{color:var(--cream);}
+.escuro .sec__title em{color:var(--gold-soft);}
+.sec__intro{font-size:1.02rem;color:var(--brown);max-width:56ch;margin:0;}
+.escuro .sec__intro{color:rgba(247,248,249,.82);}
+
+/* ---------- reveals (IO; fallback: tudo visível) ---------- */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease-lux),transform .9s var(--ease-lux);}
+.reveal.in-view{opacity:1;transform:none;}
+.reveal[data-d="1"]{transition-delay:.1s}
+.reveal[data-d="2"]{transition-delay:.2s}
+.reveal[data-d="3"]{transition-delay:.32s} /* teto 320ms */
+html.sem-io .reveal{opacity:1;transform:none;}
+.trocando{opacity:.25;transition:opacity .16s;}
+
+/* ---------- botões ---------- */
+.btn{display:inline-flex;align-items:center;gap:.6em;font-family:var(--sans);font-weight:500;font-size:.88rem;
+  letter-spacing:.08em;padding:.9em 1.7em;border-radius:999px;border:1px solid transparent;line-height:1;white-space:nowrap;
+  transition:transform .35s var(--ease-lux),background .3s,color .3s,box-shadow .35s,border-color .3s;}
+.btn:active{transform:scale(.97);}
+.btn--solid{background:var(--brown-deep);color:var(--cream);box-shadow:var(--sh-1);}
+.btn--solid:hover{background:var(--ink);box-shadow:var(--sh-2);transform:translateY(-2px);}
+.btn--ghost{background:transparent;color:var(--brown-deep);border-color:var(--line);}
+.btn--ghost:hover{background:var(--cream-2);border-color:var(--taupe);}
+.btn--ghost-light{background:rgba(255,255,255,.06);color:var(--cream);border-color:rgba(247,248,249,.4);}
+.btn--ghost-light:hover{background:rgba(255,255,255,.14);border-color:var(--cream);transform:translateY(-2px);}
+.btn--wa{background:var(--wa-deep);color:#fff;box-shadow:0 6px 18px rgba(60,116,73,.28);}
+.btn--wa:hover{background:#33623f;transform:translateY(-2px);}
+.btn--gold{background:var(--gold-soft);color:var(--ink);}
+.btn--gold:hover{background:#c2ac82;transform:translateY(-2px);}
+.btn--lg{font-size:.98rem;padding:1.05em 2em;}
+
+/* ---------- topbar ---------- */
+.topbar{position:sticky;top:0;z-index:90;background:rgba(247,248,249,.78);backdrop-filter:blur(12px) saturate(1.1);
+  border-bottom:1px solid transparent;transition:border-color .3s,box-shadow .3s,background .3s;}
+.topbar.is-stuck{border-color:var(--line-soft);box-shadow:var(--sh-1);background:rgba(247,248,249,.92);}
+.topbar__inner{display:flex;align-items:center;justify-content:space-between;gap:20px;height:64px;}
+.brand__mono{font-family:var(--serif);font-weight:700;font-size:1.3rem;letter-spacing:.34em;color:var(--brown-deep);
+  padding-left:.34em; /* compensa o tracking da última letra */}
+.topbar__by{font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:var(--taupe);}
+.topbar__by b{font-weight:500;color:var(--brown-deep);}
+
+/* ---------- hero (claro) ---------- */
+.hero{position:relative;padding-block:clamp(72px,12vh,140px) clamp(56px,9vh,110px);
+  background:linear-gradient(180deg,var(--cream) 0%,var(--cream-2) 100%);overflow:hidden;}
+.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:1px;background:var(--line-soft);}
+.hero__inner{max-width:820px;}
+.hero__title{font-family:var(--serif);font-weight:600;font-size:clamp(2.6rem,7.6vw,5.2rem);line-height:1.02;
+  letter-spacing:-.015em;color:var(--brown-deep);margin:.2rem 0 1.2rem;}
+.hero__title em{font-style:italic;color:var(--gold-deep);}
+.hero__sub{font-size:1.06rem;color:var(--brown);max-width:52ch;margin:0 0 2rem;}
+.hero__actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center;}
+.hero__validade{display:inline-flex;align-items:center;gap:.6em;margin-top:2rem;font-size:.7rem;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--taupe);
+  border:1px solid var(--line);border-radius:999px;padding:.55em 1.1em;background:var(--cream);}
+.hero__validade .ic{color:var(--gold-deep);}
+
+/* ---------- resumo do evento ---------- */
+.resumo__grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));align-items:stretch;}
+.rcard{background:var(--cream);border:1px solid var(--line-soft);border-radius:var(--radius);
+  padding:24px 24px 22px;box-shadow:var(--sh-1);display:flex;flex-direction:column;gap:6px;}
+.rcard__lbl{font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--taupe);margin:0;}
+.rcard__val{font-family:var(--serif);font-weight:600;font-size:clamp(1.5rem,2.6vw,1.9rem);line-height:1.12;color:var(--brown-deep);margin:0;}
+.rcard__sub{font-size:.82rem;color:var(--taupe);margin:0;}
+/* stepper de convidados */
+.stepper{display:inline-flex;align-items:center;gap:6px;margin-top:2px;}
+.stepper__btn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--cream);
+  color:var(--brown-deep);font-size:1.25rem;line-height:1;display:flex;align-items:center;justify-content:center;
+  transition:background .25s,border-color .25s,transform .2s;}
+.stepper__btn:hover:not(:disabled){background:var(--cream-2);border-color:var(--taupe);}
+.stepper__btn:active:not(:disabled){transform:scale(.94);}
+.stepper__btn:disabled{opacity:.35;cursor:not-allowed;}
+.stepper__val{font-family:var(--serif);font-weight:700;font-size:2.4rem;color:var(--brown-deep);
+  width:3.2ch;text-align:center;border:0;background:transparent;padding:0;-moz-appearance:textfield;appearance:textfield;}
+.stepper__val::-webkit-inner-spin-button,.stepper__val::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+/* pills do dia da semana */
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.pill{font-size:.76rem;letter-spacing:.05em;color:var(--brown);padding:.62em 1.1em;border-radius:999px;
+  background:transparent;border:1px solid var(--line);transition:all .25s;min-height:38px;}
+.pill:hover{border-color:var(--taupe);color:var(--brown-deep);}
+.pill[aria-pressed="true"]{background:var(--brown-deep);border-color:var(--brown-deep);color:var(--cream);box-shadow:var(--sh-1);}
+.rcard__nota{font-size:.78rem;color:var(--brown);line-height:1.55;margin:10px 0 0;}
+.rcard__aviso{font-size:.72rem;color:var(--taupe);line-height:1.5;margin:4px 0 0;}
+
+/* ---------- bloco escuro: cardápios ---------- */
+.escuro{background:var(--night);color:var(--cream);}
+.gbloco{padding-block:clamp(26px,4vw,44px);}
+.gbloco+.gbloco{border-top:1px solid var(--linha-clara);}
+.gbloco__head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:1.2rem;}
+.gbloco__title{font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.05;margin:0;color:var(--cream);}
+.gbloco__title em{font-style:italic;color:var(--gold-soft);}
+.gbloco__hint{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(247,248,249,.6);margin:0;}
+.niveis{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
+.nivel{position:relative;text-align:left;font-family:inherit;color:var(--cream);cursor:pointer;
+  background:rgba(255,255,255,.045);border:1px solid rgba(247,248,249,.22);border-radius:var(--radius);
+  padding:1.25rem 1.15rem 1.1rem;display:flex;flex-direction:column;gap:.5rem;
+  transition:border-color .35s,background .35s,transform .35s var(--ease-lux),box-shadow .35s;}
+.nivel:hover{transform:translateY(-4px);border-color:rgba(247,248,249,.5);background:rgba(255,255,255,.075);}
+.nivel__nome{font-family:var(--serif);font-weight:600;font-size:1.28rem;line-height:1.1;margin:0;}
+.nivel__preco{font-family:var(--serif);font-weight:600;font-size:1.14rem;color:var(--gold-soft);margin:0;}
+.nivel__preco small{font-family:var(--sans);font-weight:500;font-size:.56rem;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(247,248,249,.72);margin-left:.4em;}
+.nivel__res{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;line-height:1.8;color:rgba(247,248,249,.82);margin:0;}
+.nivel__inclui{margin:auto 0 0;padding-top:.55rem;border-top:1px solid rgba(247,248,249,.16);
+  font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-soft);line-height:1.7;}
+/* selecionado: inverte pro claro — o destaque mais forte que existe no escuro */
+.nivel[aria-pressed="true"]{background:var(--cream);border-color:var(--cream);color:var(--ink);box-shadow:0 3px 0 var(--gold-soft);}
+.nivel[aria-pressed="true"] .nivel__preco{color:var(--gold-deep);}
+.nivel[aria-pressed="true"] .nivel__preco small{color:var(--taupe);}
+.nivel[aria-pressed="true"] .nivel__res{color:var(--brown);}
+.nivel[aria-pressed="true"] .nivel__inclui{color:var(--gold-deep);border-top-color:var(--line);}
+.nivel[aria-pressed="true"]::after{content:"Selecionado";position:absolute;top:-1px;right:-1px;
+  font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;
+  background:var(--gold-soft);color:var(--ink);padding:.4em .8em;border-radius:0 var(--radius) 0 var(--radius);}
+.gbloco__foot{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:1.2rem;}
+.gbloco__nota{font-size:.8rem;color:rgba(247,248,249,.78);margin:0;max-width:52ch;line-height:1.55;}
+
+/* ---------- extras e estrutura ---------- */
+.itens{list-style:none;margin:0;padding:0;border:1px solid var(--line-soft);border-radius:var(--radius);
+  background:var(--cream);box-shadow:var(--sh-1);overflow:hidden;}
+.item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px 22px;align-items:center;
+  padding:16px clamp(16px,3vw,28px);}
+.item+.item{border-top:1px solid var(--line-soft);}
+.item__nome{font-family:var(--serif);font-weight:600;font-size:1.18rem;color:var(--brown-deep);margin:0;line-height:1.2;}
+.item__preco{font-size:.78rem;color:var(--taupe);margin:2px 0 0;}
+.item__total{font-family:var(--serif);font-weight:600;font-size:1.1rem;color:var(--brown-deep);margin:0;
+  min-width:7.5ch;text-align:right;font-variant-numeric:tabular-nums;}
+.trava{display:inline-flex;align-items:center;gap:.55em;font-size:.7rem;letter-spacing:.06em;color:var(--taupe);
+  background:var(--nude);border:1px solid var(--line-soft);border-radius:999px;padding:.55em 1em;}
+.trava .ic{color:var(--gold-deep);width:1.1em;height:1.1em;}
+.trava b{font-weight:500;color:var(--brown-deep);font-variant-numeric:tabular-nums;}
+.qtd{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:999px;padding:2px;}
+.qtd__btn{width:40px;height:40px;border-radius:50%;border:0;background:transparent;color:var(--brown-deep);
+  font-size:1.15rem;line-height:1;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.qtd__btn:hover:not(:disabled){background:var(--cream-2);}
+.qtd__btn:disabled{opacity:.3;cursor:not-allowed;}
+.qtd__val{font-family:var(--serif);font-weight:600;font-size:1.15rem;color:var(--brown-deep);
+  min-width:2.6ch;text-align:center;font-variant-numeric:tabular-nums;}
+.extras__micro{margin-top:1.4rem;padding:1rem 1.3rem;border-left:2px solid var(--gold);background:var(--cream-2);
+  border-radius:0 var(--radius) var(--radius) 0;font-size:.9rem;color:var(--brown);max-width:64ch;line-height:1.6;}
+.extras__micro b{font-weight:500;color:var(--brown-deep);}
+
+/* ---------- planta interativa (editor de mesas) ---------- */
+.planta{border:1px solid var(--line-soft);border-radius:var(--radius);background:var(--cream);box-shadow:var(--sh-1);
+  padding:clamp(14px,2.5vw,22px);}
+.planta__bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px;}
+.planta__bar .btn{padding:.72em 1.2em;font-size:.78rem;}
+.planta__cont{margin:0 0 0 auto;font-size:.86rem;color:var(--brown);font-variant-numeric:tabular-nums;}
+.planta__cont.ok{color:var(--wa-deep);font-weight:500;}
+.planta__aviso{margin:0 0 10px;font-size:.78rem;color:#8a5f10;display:flex;gap:.5em;align-items:center;}
+.planta__aviso .ic{color:#b07818;width:1.15em;height:1.15em;}
+.planta__scroll{overflow-x:auto;border:1px solid var(--line-soft);border-radius:var(--radius);background:#fff;
+  scrollbar-width:thin;scrollbar-color:var(--bege) transparent;}
+.planta__canvas{position:relative;min-width:1000px;}
+.planta__canvas>img{width:100%;display:block;}
+.planta__canvas>svg{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-x pan-y;}
+.planta__nota{font-size:.76rem;color:var(--taupe);margin:12px 0 0;line-height:1.6;}
+/* peças do SVG */
+.regua__linha{stroke:var(--taupe);stroke-width:2.5;fill:none;opacity:.7;}
+.regua__txt{font-family:var(--sans);font-size:24px;letter-spacing:.12em;fill:var(--taupe);opacity:.85;}
+.mesa{cursor:grab;touch-action:none;outline:none;}
+.mesa--drag{cursor:grabbing;}
+.mesa__tampo{fill:rgba(255,255,255,.94);stroke:#4a545e;stroke-width:1.4;}
+.mesa__toalha{fill:none;stroke:rgba(74,84,94,.35);stroke-width:1;}
+.mesa__cadeira{fill:rgba(244,242,238,.92);stroke:#4a545e;stroke-width:1;}
+.mesa__anel{fill:rgba(255,255,255,0);stroke:transparent;stroke-width:3;transition:stroke .2s;}
+.mesa--sel .mesa__anel,.mesa:focus-visible .mesa__anel{stroke:var(--gold);}
+.mesa--perto .mesa__anel{stroke:#c7841c;stroke-dasharray:7 5;}
+.mesa__x{opacity:0;pointer-events:none;cursor:pointer;}
+.mesa--sel .mesa__x{opacity:1;pointer-events:auto;}
+.mesa__x-hit{fill:rgba(255,255,255,0);}
+.mesa__x-fundo{fill:var(--brown-deep);stroke:var(--cream);stroke-width:1.5;}
+.mesa__x-tra{stroke:var(--cream);stroke-width:3.2;stroke-linecap:round;fill:none;}
+
+/* ---------- galeria (mosaico + lightbox) ---------- */
+.galeria{columns:2;column-gap:12px;}
+@media(min-width:900px){.galeria{columns:3;column-gap:16px;}}
+@media(min-width:1200px){.galeria{columns:4;}}
+.gfoto{position:relative;display:block;width:100%;break-inside:avoid;margin:0 0 12px;padding:0;
+  border:1px solid var(--line-soft);border-radius:var(--radius);overflow:hidden;background:var(--sand);
+  cursor:zoom-in;text-align:left;}
+@media(min-width:900px){.gfoto{margin-bottom:16px;}}
+.gfoto::before{content:"";position:absolute;inset:0;z-index:0;
+  background:linear-gradient(100deg,var(--sand) 30%,var(--cream-2) 50%,var(--sand) 70%);
+  background-size:220% 100%;animation:shimmer 1.5s linear infinite;}
+.gfoto img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;opacity:0;
+  transform:scale(1.04);transition:opacity .6s var(--ease-lux),transform .8s var(--ease-lux);}
+.gfoto.is-loaded img{opacity:1;transform:scale(1);}
+.gfoto.is-loaded::before{animation:none;opacity:0;}
+.gfoto:hover img{transform:scale(1.05);}
+.gfoto__badge{position:absolute;top:10px;left:10px;z-index:2;display:inline-flex;align-items:center;gap:.4em;
+  font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;
+  padding:.45em .8em;border-radius:999px;background:rgba(247,248,249,.92);color:var(--brown-deep);
+  border:1px solid rgba(255,255,255,.55);backdrop-filter:blur(6px);}
+.gfoto__badge--salao{color:var(--gold-deep);}
+.lux{position:fixed;inset:0;z-index:230;background:rgba(20,24,29,.97);display:flex;align-items:center;
+  justify-content:center;padding:clamp(12px,3vw,40px);opacity:0;visibility:hidden;
+  transition:opacity .35s var(--ease-lux),visibility .35s;}
+.lux.aberto{opacity:1;visibility:visible;}
+.lux__fig{margin:0;display:flex;flex-direction:column;align-items:center;gap:14px;max-width:100%;}
+.lux__fig img{max-width:min(92vw,1200px);max-height:74svh;object-fit:contain;border-radius:var(--radius);
+  opacity:0;transition:opacity .45s var(--ease-lux);box-shadow:0 30px 80px rgba(0,0,0,.4);}
+.lux__fig img.is-loaded{opacity:1;}
+.lux__cap{color:rgba(247,248,249,.92);font-size:.84rem;text-align:center;max-width:60ch;line-height:1.5;}
+.lux__cap b{display:block;font-family:var(--serif);font-weight:600;font-size:1.15rem;color:var(--cream);}
+.lux__cap small{display:block;margin-top:.3em;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold-soft);}
+.lux__btn{position:fixed;z-index:5;width:46px;height:46px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:1px solid rgba(247,248,249,.35);color:var(--cream);
+  display:flex;align-items:center;justify-content:center;transition:background .25s,border-color .25s;}
+.lux__btn:hover{background:var(--gold-soft);border-color:var(--gold-soft);color:var(--ink);}
+.lux__btn .ic{width:18px;height:18px;}
+.lux__fechar{top:14px;right:16px;}
+.lux__ante{left:12px;top:50%;transform:translateY(-50%);}
+.lux__prox{right:12px;top:50%;transform:translateY(-50%);}
+
+/* ---------- investimento ---------- */
+.inv{max-width:760px;margin-inline:auto;background:var(--cream);border:1px solid var(--line-soft);
+  border-radius:12px;box-shadow:var(--sh-2);padding:clamp(24px,4vw,44px);}
+.inv__linha{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+  padding:.85rem 0;border-bottom:1px solid var(--line-soft);}
+.inv__linha span{font-size:.92rem;color:var(--brown);}
+.inv__linha b{font-family:var(--serif);font-weight:600;font-size:1.2rem;color:var(--brown-deep);font-variant-numeric:tabular-nums;}
+.inv__inclusos{margin:1.1rem 0;padding:1rem 1.2rem;background:var(--nude);border:1px solid var(--line-soft);border-radius:var(--radius);}
+.inv__inclusos>p{font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-deep);
+  font-weight:500;margin:0 0 .6rem;}
+.inv__inclusos ul{list-style:none;margin:0;padding:0;display:grid;gap:.35rem .8rem;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));}
+.inv__inclusos li{display:flex;justify-content:space-between;gap:12px;font-size:.84rem;color:var(--brown);}
+.inv__inclusos li b{font-weight:500;color:var(--brown-deep);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.inv__total{display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;
+  padding-top:1.3rem;margin-top:.4rem;}
+.inv__total span{font-size:.72rem;letter-spacing:.24em;text-transform:uppercase;color:var(--taupe);font-weight:500;}
+.inv__total strong{font-family:var(--serif);font-weight:700;font-size:clamp(2rem,5vw,2.9rem);line-height:1;
+  color:var(--brown-deep);font-variant-numeric:tabular-nums;letter-spacing:-.01em;}
+.inv__nota{font-size:.78rem;color:var(--taupe);margin:1rem 0 0;line-height:1.6;}
+.inv__reset{margin-top:1rem;background:none;border:0;padding:0;font-size:.74rem;letter-spacing:.04em;
+  color:var(--taupe);text-decoration:underline;text-underline-offset:3px;}
+.inv__reset:hover{color:var(--brown-deep);}
+
+/* ---------- como funciona ---------- */
+.passos{list-style:none;margin:0;padding:0;display:grid;gap:clamp(16px,3vw,28px);grid-template-columns:repeat(auto-fit,minmax(230px,1fr));counter-reset:passo;}
+.passos li{border-top:1px solid var(--line);padding-top:1.2rem;}
+.passos__ic{display:block;width:36px;height:36px;color:var(--gold-deep);margin-bottom:.9rem;}
+.passos__ic .ic{width:36px;height:36px;stroke-width:1.1;}
+.passos h3{font-family:var(--serif);font-weight:600;font-size:1.35rem;margin:0 0 .4rem;color:var(--brown-deep);line-height:1.15;}
+.passos h3::before{counter-increment:passo;content:counter(passo,decimal-leading-zero)" · ";
+  font-style:italic;font-weight:400;color:var(--gold-deep);font-size:1rem;}
+.passos p{font-size:.9rem;color:var(--brown);margin:0;max-width:40ch;}
+
+/* ---------- CTA final ---------- */
+.cta{position:relative;overflow:hidden;color:#fff;text-align:center;padding-block:clamp(72px,12vw,140px);}
+.cta__media{position:absolute;inset:0;z-index:0;background:var(--night);}
+.cta__media img{width:100%;height:100%;object-fit:cover;object-position:center 40%;}
+.cta__veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,24,29,.72),rgba(20,24,29,.86));}
+.cta__inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;}
+.cta .eyebrow{color:var(--gold-soft);}
+.cta .eyebrow::before{display:none;}
+.cta__title{font-family:var(--serif);font-weight:600;font-size:clamp(2rem,5.6vw,3.8rem);line-height:1.08;
+  margin:0 0 1.1rem;color:#fff;text-shadow:0 4px 40px rgba(20,24,29,.4);}
+.cta__title em{font-style:italic;color:var(--gold-soft);}
+.cta__lede{font-size:1.02rem;color:rgba(255,255,255,.88);max-width:46ch;margin:0 0 2rem;}
+.cta__fine{margin-top:1.2rem;font-size:.74rem;letter-spacing:.06em;color:rgba(255,255,255,.66);}
+
+/* ---------- rodapé ---------- */
+.footer{background:var(--brown-deep);color:var(--cream);padding-block:38px;}
+.footer__inner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;}
+.footer .brand__mono{color:var(--cream);font-size:1.1rem;}
+.footer__fine{font-size:.74rem;color:rgba(247,248,249,.6);margin:0;max-width:60ch;line-height:1.6;}
+
+/* ---------- tierbar (barra fixa inferior) ---------- */
+.tierbar{position:fixed;left:0;right:0;bottom:0;z-index:120;transform:translateY(105%);
+  transition:transform .5s var(--ease-lux);background:rgba(20,24,29,.96);backdrop-filter:blur(12px);
+  color:var(--cream);border-top:1px solid var(--linha-clara);}
+.tierbar.on{transform:none;}
+.tierbar__in{max-width:var(--maxw);margin-inline:auto;padding:10px clamp(16px,4vw,40px);
+  display:flex;align-items:center;gap:14px 22px;justify-content:space-between;flex-wrap:wrap;}
+.tierbar__resumo{display:flex;align-items:baseline;gap:8px 14px;flex-wrap:wrap;min-width:0;}
+.tierbar__meta{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,248,249,.75);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52vw;}
+.tierbar__total{font-family:var(--serif);font-weight:700;font-size:1.35rem;color:var(--gold-soft);
+  font-variant-numeric:tabular-nums;white-space:nowrap;}
+.tierbar .btn{padding:.8em 1.5em;font-size:.8rem;}
+
+/* ---------- overlay de cardápio ---------- */
+.ovl{position:fixed;inset:0;z-index:200;background:var(--night);color:var(--cream);overflow-y:auto;
+  opacity:0;visibility:hidden;transition:opacity .4s var(--ease-lux),visibility .4s;}
+.ovl.aberto{opacity:1;visibility:visible;}
+.ovl__fechar{position:fixed;top:14px;right:16px;z-index:5;width:46px;height:46px;border-radius:50%;
+  background:rgba(255,255,255,.08);border:1px solid rgba(247,248,249,.35);color:var(--cream);
+  display:flex;align-items:center;justify-content:center;transition:background .25s,border-color .25s;}
+.ovl__fechar:hover{background:var(--gold-soft);border-color:var(--gold-soft);color:var(--ink);}
+.ovl__fechar .ic{width:18px;height:18px;}
+.ovl__in{max-width:var(--maxw);margin-inline:auto;padding:clamp(56px,9vh,90px) clamp(20px,5vw,56px) clamp(48px,7vh,72px);}
+.ovl__eyebrow{font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;font-weight:500;color:var(--gold-soft);margin:0 0 .8rem;}
+.ovl__titulo{font-family:var(--serif);font-weight:600;font-size:clamp(2rem,5.4vw,3.4rem);line-height:1.02;margin:0 0 .4rem;color:var(--cream);}
+.ovl__preco{font-family:var(--serif);font-weight:600;font-size:1.3rem;color:var(--gold-soft);margin:0 0 1.6rem;}
+.ovl__preco small{font-family:var(--sans);font-weight:500;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(247,248,249,.72);margin-left:.5em;}
+/* faixa de fotos */
+.fotostrip{display:flex;gap:clamp(10px,1.8vw,18px);overflow-x:auto;scroll-snap-type:x mandatory;
+  padding-bottom:14px;margin-bottom:clamp(20px,4vh,36px);scrollbar-width:thin;scrollbar-color:var(--gold-soft) transparent;}
+.fotostrip::-webkit-scrollbar{height:3px;}
+.fotostrip::-webkit-scrollbar-thumb{background:var(--gold-soft);}
+.ph{position:relative;flex:0 0 auto;width:min(70vw,280px);aspect-ratio:1/1;overflow:hidden;border-radius:var(--radius);
+  background:#20262d;scroll-snap-align:start;margin:0;}
+.ph::before{content:"";position:absolute;inset:0;z-index:0;
+  background:linear-gradient(100deg,#20262d 30%,#2a323a 50%,#20262d 70%);background-size:220% 100%;
+  animation:shimmer 1.5s linear infinite;}
+@keyframes shimmer{to{background-position:-220% 0;}}
+.ph img{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .7s var(--ease-lux);}
+.ph.is-loaded img{opacity:1;}
+.ph.is-loaded::before{animation:none;opacity:0;}
+.ph.is-error::before{animation:none;}
+.ph__cap{position:absolute;left:.9rem;right:.9rem;bottom:.8rem;z-index:2;color:#fff;}
+.ph__cap::before{content:"";position:absolute;left:-.9rem;right:-.9rem;bottom:-.8rem;top:auto;height:500%;z-index:-1;
+  background:linear-gradient(0deg,rgba(12,15,19,.94),rgba(12,15,19,.88) 16%,rgba(12,15,19,.55) 48%,rgba(12,15,19,.24) 72%,transparent);}
+.ph__nome{font-family:var(--serif);font-weight:600;font-size:1.12rem;line-height:1.12;margin:0;text-shadow:0 1px 10px rgba(0,0,0,.5);}
+.ph__selo{font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;opacity:.85;margin:.2rem 0 0;}
+/* listas por categoria */
+.cats{display:grid;gap:clamp(18px,3vw,30px);grid-template-columns:repeat(auto-fit,minmax(270px,1fr));}
+.cat__head{display:flex;align-items:baseline;justify-content:space-between;gap:.7rem;
+  border-top:1px solid var(--cream);padding-top:.8rem;margin-bottom:.4rem;}
+.cat__nome{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;font-weight:500;margin:0;}
+.cat__n{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-soft);
+  white-space:nowrap;border:1px solid var(--gold-soft);border-radius:999px;padding:.35em .8em;}
+.cat ul{list-style:none;margin:0;padding:0;}
+.cat li{display:flex;align-items:baseline;gap:.7rem;padding:.55rem 0;border-bottom:1px solid rgba(247,248,249,.14);
+  font-family:var(--serif);font-weight:600;font-size:1.14rem;line-height:1.3;}
+.cat li .dots{margin-left:auto;display:inline-flex;gap:4px;flex-shrink:0;transform:translateY(-2px);}
+.d{width:7px;height:7px;border-radius:50%;display:inline-block;}
+.d--sg{background:var(--sg);}.d--sl{background:var(--sl);}.d--vg{background:var(--vg);}
+.legenda{margin-top:1.6rem;display:flex;gap:1rem 1.6rem;flex-wrap:wrap;align-items:center;
+  font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,248,249,.8);}
+.legenda span{display:inline-flex;align-items:center;gap:.45rem;}
+.ovl__nota{margin-top:1.8rem;padding:1rem 1.2rem;border-left:2px solid var(--gold-soft);
+  background:rgba(255,255,255,.05);font-size:.86rem;line-height:1.6;color:rgba(247,248,249,.92);max-width:62ch;border-radius:0 var(--radius) var(--radius) 0;}
+.ovl__nota strong{color:var(--gold-soft);font-weight:500;}
+
+/* ---------- modal de confirmação ---------- */
+.modal{position:fixed;inset:0;z-index:210;display:flex;align-items:center;justify-content:center;padding:clamp(14px,3vw,40px);}
+.modal[hidden]{display:none;}
+.modal__backdrop{position:absolute;inset:0;background:rgba(20,24,29,.6);backdrop-filter:blur(5px);}
+.modal__panel{position:relative;z-index:2;width:min(560px,100%);max-height:92svh;overflow-y:auto;
+  background:var(--cream);border-radius:12px;box-shadow:var(--sh-3);padding:clamp(24px,4vw,40px);}
+.modal__titulo{font-family:var(--serif);font-weight:600;font-size:1.8rem;color:var(--brown-deep);margin:0 0 1rem;line-height:1.1;}
+.modal__lista{list-style:none;margin:0 0 1.1rem;padding:0;}
+.modal__lista li{display:flex;justify-content:space-between;gap:14px;padding:.5rem 0;
+  border-bottom:1px solid var(--line-soft);font-size:.9rem;color:var(--brown);}
+.modal__lista li b{font-weight:500;color:var(--brown-deep);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.modal__lista li.total{border-bottom:0;padding-top:.8rem;}
+.modal__lista li.total b{font-family:var(--serif);font-weight:700;font-size:1.4rem;}
+.modal__aviso{font-size:.82rem;color:var(--taupe);line-height:1.6;margin:0 0 1.4rem;}
+.modal__acoes{display:flex;gap:12px;flex-wrap:wrap;}
+.modal__fechar{position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:50%;
+  background:var(--cream-2);border:1px solid var(--line);color:var(--brown-deep);
+  display:flex;align-items:center;justify-content:center;transition:transform .3s;}
+.modal__fechar:hover{transform:rotate(90deg);}
+.modal__fechar .ic{width:16px;height:16px;}
+.modal__ok{text-align:center;padding:1.4rem 0 .6rem;}
+.modal__ok .ic{width:52px;height:52px;color:var(--wa-deep);stroke-width:1.2;margin-inline:auto;}
+.modal__ok h4{font-family:var(--serif);font-weight:600;font-size:1.6rem;color:var(--brown-deep);margin:.8rem 0 .4rem;}
+.modal__ok p{font-size:.88rem;color:var(--brown);margin:0 auto;max-width:40ch;}
+.modal__ok small{display:block;margin-top:1rem;font-size:.68rem;color:var(--taupe);letter-spacing:.06em;}
+
+/* ---------- responsivo ---------- */
+@media (max-width:760px){
+  body{padding-bottom:124px;} /* tierbar mobile tem 2 linhas: nada de conteúdo coberto */
+  .topbar__inner{height:58px;}
+  .item{grid-template-columns:minmax(0,1fr) auto;}
+  .item__info{grid-column:1/-1;}
+  .item__total{text-align:right;}
+  .qtd__btn{width:44px;height:44px;}           /* alvo de toque confortável */
+  .tierbar__meta{max-width:100%;font-size:.62rem;}
+  .tierbar__in{padding-block:8px;gap:6px 14px;}
+  .tierbar__resumo{width:100%;justify-content:space-between;}
+  .tierbar .btn{width:100%;justify-content:center;padding:.72em 1.2em;font-size:.76rem;}
+  .ovl__in{padding-top:72px;}
+  .ph{width:min(78vw,300px);}
+  .hero__actions .btn{width:100%;justify-content:center;}
+  .cta .btn{width:100%;max-width:420px;justify-content:center;}
+  .planta__bar .btn{flex:1 1 auto;justify-content:center;}
+  .planta__cont{margin:4px 0 0;width:100%;}
+  .lux__fig img{max-height:64svh;}
+  .lux__ante{left:6px;}
+  .lux__prox{right:6px;}
+}
+@media (max-width:560px){
+  .niveis{grid-template-columns:1fr;}
+}
+/* ---------- movimento reduzido ---------- */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  .reveal{opacity:1;transform:none;transition:none;}
+  .nivel,.btn,.tierbar{transition:none;}
+  .ph::before{animation:none;}
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+<!-- ===== TOPBAR ===== -->
+<header class="topbar" id="topbar">
+  <div class="wrap topbar__inner">
+    <a class="brand" href="#topo" aria-label="DIMY — voltar ao início da proposta">
+      <span class="brand__mono">DIMY</span>
+    </a>
+    <span class="topbar__by">Proposta · <b>Indaiá Eventos</b></span>
+  </div>
+</header>
+
+<main id="conteudo">
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="topo">
+  <div class="wrap hero__inner">
+    <p class="eyebrow reveal">Proposta corporativa · DIMY · Setembro 2026</p>
+    <h1 class="hero__title reveal" data-d="1">Uma noite à altura<br>da sua <em>equipe</em>.</h1>
+    <p class="hero__sub reveal" data-d="2">Salão de Eventos · Itapema/SC — 24 de setembro de 2026.
+      Ajuste a proposta do seu jeito: o investimento recalcula na hora.</p>
+    <div class="hero__actions reveal" data-d="3">
+      <a class="btn btn--solid btn--lg" href="#resumo">Ver a proposta
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m0 0 6-6m-6 6-6-6"/></svg></a>
+      <a class="btn btn--ghost btn--lg js-wa" href="#" target="_blank" rel="noopener">Falar com a consultora</a>
+    </div>
+    <p class="hero__validade reveal" data-d="3">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      ORC-2026-01837 · Proposta válida até 25/08/2026
+    </p>
+  </div>
+</section>
+
+<!-- ===== 01 · RESUMO DO EVENTO ===== -->
+<section class="sec" id="resumo">
+  <div class="wrap">
+    <div class="sec__head reveal">
+      <div class="sec__meta"><span class="sec__num">01</span><p class="eyebrow">O seu evento</p></div>
+      <h2 class="sec__title">Tudo <em>combinado</em>, num olhar.</h2>
+      <p class="sec__intro">Data, lugar e tamanho da festa. O número de convidados é seu: mexa nele e veja a proposta acompanhar.</p>
+    </div>
+    <div class="resumo__grid">
+      <div class="rcard reveal">
+        <p class="rcard__lbl">Data do evento</p>
+        <p class="rcard__val">24/09/2026</p>
+        <p class="rcard__sub">quinta-feira · a partir das 19h</p>
+      </div>
+      <div class="rcard reveal" data-d="1">
+        <p class="rcard__lbl">Local</p>
+        <p class="rcard__val">Salão de Eventos</p>
+        <p class="rcard__sub">Itapema · Santa Catarina</p>
+      </div>
+      <div class="rcard reveal" data-d="2">
+        <p class="rcard__lbl">Convidados</p>
+        <div class="stepper">
+          <button type="button" class="stepper__btn" id="convMenos" aria-label="Menos 10 convidados">−</button>
+          <input type="number" class="stepper__val" id="convVal" value="200" min="30" max="500" step="10"
+                 inputmode="numeric" aria-label="Número de convidados (de 30 a 500)">
+          <button type="button" class="stepper__btn" id="convMais" aria-label="Mais 10 convidados">+</button>
+        </div>
+        <p class="rcard__sub">de 30 a 500 · os itens por pessoa acompanham</p>
+      </div>
+      <div class="rcard reveal" data-d="3">
+        <p class="rcard__lbl">Simule o dia da semana</p>
+        <div class="pills" role="group" aria-label="Simular dia da semana" id="pillsDia"></div>
+        <p class="rcard__nota">Neste espaço, o investimento é o mesmo em qualquer dia da semana.</p>
+        <p class="rcard__aviso">Mudança de data sujeita a disponibilidade — confirme com seu consultor.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 02 · CARDÁPIOS (bloco escuro) ===== -->
+<section class="sec escuro" id="cardapios">
+  <div class="wrap">
+    <div class="sec__head reveal">
+      <div class="sec__meta"><span class="sec__num">02</span><p class="eyebrow">Gastronomia &amp; bar</p></div>
+      <h2 class="sec__title">A mesa que <em>conduz</em> a noite.</h2>
+      <p class="sec__intro">Três escolhas, todas suas: o coquetel de chegada, o jantar e o bar. Troque à vontade — o total responde na hora.</p>
+    </div>
+
+    <div class="gbloco reveal" id="bloco-coquetel">
+      <div class="gbloco__head">
+        <h3 class="gbloco__title">Coquetel <em>volante</em></h3>
+        <p class="gbloco__hint">Servido na chegada · por pessoa</p>
+      </div>
+      <div class="niveis" role="group" aria-label="Escolha o pacote de coquetel" id="cardsCoquetel"></div>
+      <div class="gbloco__foot">
+        <button type="button" class="btn btn--ghost-light" data-ver="coquetel" id="verCoquetel">Ver cardápio</button>
+        <p class="gbloco__nota">As escolhas finais são feitas na Reunião de Alinhamento, cerca de 30 dias antes do evento.</p>
+      </div>
+    </div>
+
+    <div class="gbloco reveal" id="bloco-menu">
+      <div class="gbloco__head">
+        <h3 class="gbloco__title">O <em>jantar</em></h3>
+        <p class="gbloco__hint">Buffet completo · por pessoa</p>
+      </div>
+      <div class="niveis" role="group" aria-label="Escolha o menu do jantar" id="cardsMenu"></div>
+      <div class="gbloco__foot">
+        <button type="button" class="btn btn--ghost-light" data-ver="menu" id="verMenu">Ver cardápio</button>
+        <p class="gbloco__nota">As escolhas finais são feitas na Reunião de Alinhamento, cerca de 30 dias antes do evento.</p>
+      </div>
+    </div>
+
+    <div class="gbloco reveal" id="bloco-openbar">
+      <div class="gbloco__head">
+        <h3 class="gbloco__title">O <em>bar</em> da noite</h3>
+        <p class="gbloco__hint">À vontade durante a festa · por pessoa</p>
+      </div>
+      <div class="niveis" role="group" aria-label="Escolha o pacote de open bar" id="cardsOpenbar"></div>
+      <div class="gbloco__foot">
+        <button type="button" class="btn btn--ghost-light" data-ver="openbar" id="verOpenbar">Ver cardápio</button>
+        <p class="gbloco__nota">As escolhas finais são feitas na Reunião de Alinhamento, cerca de 30 dias antes do evento.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 03 · EXTRAS E ESTRUTURA ===== -->
+<section class="sec" id="extras">
+  <div class="wrap">
+    <div class="sec__head reveal">
+      <div class="sec__meta"><span class="sec__num">03</span><p class="eyebrow">Extras &amp; estrutura</p></div>
+      <h2 class="sec__title">Os <em>detalhes</em> que sustentam a noite.</h2>
+      <p class="sec__intro">O que já está na proposta. Ajuste as quantidades do que é ajustável — o que acompanha o número de convidados se ajusta sozinho.</p>
+    </div>
+    <ul class="itens reveal" id="listaItens"></ul>
+    <p class="extras__micro reveal" data-d="1">Quer incluir algo que não está aqui (decoração, ativações)?
+      <b>Fale com a consultora — a gente desenha junto.</b></p>
+  </div>
+</section>
+
+<!-- ===== 04 · PLANTA DO SALÃO (editor de mesas) ===== -->
+<section class="sec" id="planta" style="padding-top:0;">
+  <div class="wrap">
+    <div class="sec__head reveal">
+      <div class="sec__meta"><span class="sec__num">04</span><p class="eyebrow">O espaço</p></div>
+      <h2 class="sec__title">Monte o seu <em>salão</em>.</h2>
+      <p class="sec__intro">Arraste as mesas e visualize o seu evento na proporção real do espaço.</p>
+    </div>
+    <div class="planta reveal">
+      <div class="planta__bar" role="toolbar" aria-label="Editor de mesas">
+        <button type="button" class="btn btn--ghost" id="btnAddMesa">+ Adicionar mesa</button>
+        <button type="button" class="btn btn--ghost" id="btnDistribuir">Distribuir automaticamente</button>
+        <button type="button" class="btn btn--ghost" id="btnLimparMesas">Limpar</button>
+        <p class="planta__cont" id="plantaCont" aria-live="polite">—</p>
+      </div>
+      <p class="planta__aviso" id="plantaAviso" hidden>
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2.8 20h18.4Z"/><path d="M12 10v5m0 2.6v.4"/></svg>
+        Mesas muito próximas: deixe ao menos 30 cm entre elas.
+      </p>
+      <div class="planta__scroll">
+        <div class="planta__canvas">
+          <img src="assets/planta-salao-eventos.jpg" alt="Planta do Salão de Eventos de Itapema vista de cima" width="1920" height="1080" loading="lazy" decoding="async">
+          <svg id="plantaSvg" viewBox="0 0 1920 1080" aria-label="Editor de mesas sobre a planta do salão">
+            <defs>
+              <!-- mesa redonda vista de cima: 100 unidades = footprint (tampo + cadeiras) -->
+              <symbol id="simboloMesa" viewBox="-50 -50 100 100">
+                <g id="cadeirasMesa"></g>
+                <circle class="mesa__tampo" r="30.8"/>
+                <circle class="mesa__toalha" r="24"/>
+              </symbol>
+            </defs>
+            <g id="reguaCamada" class="regua" aria-hidden="true"></g>
+            <g id="mesasCamada"></g>
+          </svg>
+        </div>
+      </div>
+      <p class="planta__nota">Mesa redonda: tampo de 1,60 m · 8 lugares · footprint de 2,60 m com cadeiras.
+        Layout final validado pela nossa equipe de operações.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 05 · O ESPAÇO AO VIVO (galeria) ===== -->
+<section class="sec" id="galeria">
+  <div class="wrap">
+    <div class="sec__head reveal">
+      <div class="sec__meta"><span class="sec__num">05</span><p class="eyebrow">O espaço ao vivo</p></div>
+      <h2 class="sec__title">Onde a sua festa <em>acontece</em>.</h2>
+      <p class="sec__intro">Fotos reais: o Salão de Eventos de Itapema e os eventos corporativos que a Indaiá já entregou.</p>
+    </div>
+    <div class="galeria reveal" id="galeriaGrid"></div>
+  </div>
+</section>
+
+<!-- ===== 06 · INVESTIMENTO ===== -->
+<section class="sec" id="investimento" style="background:var(--cream-2);">
+  <div class="wrap">
+    <div class="sec__head reveal" style="margin-inline:auto;text-align:center;max-width:680px;">
+      <div class="sec__meta" style="justify-content:center;"><span class="sec__num">06</span><p class="eyebrow" style="margin-bottom:0;">Investimento</p></div>
+      <h2 class="sec__title">Transparente do começo ao <em>brinde</em>.</h2>
+    </div>
+    <div class="inv reveal" id="invCard">
+      <div class="inv__linha"><span>Gastronomia &amp; bar <small id="invPP" style="color:var(--taupe);"></small></span><b id="subGastro">—</b></div>
+      <div class="inv__linha"><span>Estrutura &amp; extras</span><b id="subEstrutura">—</b></div>
+      <div class="inv__linha"><span>Serviços e taxas inclusos</span><b id="subServicos">—</b></div>
+      <div class="inv__inclusos">
+        <p>Já incluso no investimento</p>
+        <ul id="listaServicos"></ul>
+      </div>
+      <div class="inv__total">
+        <span>Total do investimento</span>
+        <strong id="totalGeral" aria-live="polite">—</strong>
+      </div>
+      <p class="inv__nota">Valores para <b id="invConvidados">200</b> convidados · Proposta válida até 25/08/2026 · Sem surpresas: taxas já inclusas.</p>
+      <button type="button" class="inv__reset" id="btnReset">Restaurar a proposta original</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 07 · COMO FUNCIONA ===== -->
+<section class="sec" id="como-funciona">
+  <div class="wrap">
+    <div class="sec__head reveal">
+      <div class="sec__meta"><span class="sec__num">07</span><p class="eyebrow">Como funciona</p></div>
+      <h2 class="sec__title">Do ajuste ao <em>contrato</em>, sem fricção.</h2>
+    </div>
+    <ol class="passos">
+      <li class="reveal">
+        <span class="passos__ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h8M18 8h2M4 16h4M12 16h8"/><circle cx="15" cy="8" r="2.4"/><circle cx="9" cy="16" r="2.4"/></svg></span>
+        <h3>Você ajusta aqui</h3>
+        <p>Convidados, cardápios, bar e extras. O total acompanha cada escolha, sem letra miúda.</p>
+      </li>
+      <li class="reveal" data-d="1">
+        <span class="passos__ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/><path d="m9.2 15.5 2 2 3.6-3.8"/></svg></span>
+        <h3>A consultora valida e reserva a data</h3>
+        <p>Ela recebe os seus ajustes, confirma a disponibilidade e fecha os detalhes com você.</p>
+      </li>
+      <li class="reveal" data-d="2">
+        <span class="passos__ic"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-.7 6.2a3.6 3.6 0 0 1-4.6 0Z"/><path d="M12 12.4V20M8.5 21h7"/></svg></span>
+        <h3>Contrato e brinde</h3>
+        <p>Assinatura simples e a data é sua. O resto da produção fica com a gente.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===== CTA FINAL ===== -->
+<section class="cta" id="contato">
+  <div class="cta__media" aria-hidden="true">
+    <img src="https://cardapio-buffet-lime.vercel.app/fotos/openbar/bar.jpg" alt="" loading="lazy" decoding="async">
+    <div class="cta__veil"></div>
+  </div>
+  <div class="wrap cta__inner">
+    <p class="eyebrow reveal">DIMY · 24 de setembro de 2026</p>
+    <h2 class="cta__title reveal" data-d="1">Vamos confirmar a <em>data</em> do seu evento?</h2>
+    <p class="cta__lede reveal" data-d="2">A sua proposta já está pronta do seu jeito. Falta só a agenda.</p>
+    <a class="btn btn--wa btn--lg js-wa reveal" data-d="3" href="#" target="_blank" rel="noopener">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z"/><path d="M8.8 9.2c0 3.3 2.7 6 6 6 .5 0 1-.2 1.2-.6l.4-.8c.2-.4 0-.9-.4-1.1l-1.3-.6c-.3-.2-.7-.1-1 .2l-.3.3a4.7 4.7 0 0 1-2-2l.3-.3c.3-.3.4-.7.2-1l-.6-1.3c-.2-.4-.7-.6-1.1-.4l-.8.4c-.4.2-.6.7-.6 1.2Z"/></svg>
+      Chamar a consultora no WhatsApp</a>
+    <p class="cta__fine reveal" data-d="3">A mensagem já vai com o resumo dos seus ajustes.</p>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== RODAPÉ ===== -->
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <span class="brand__mono">DIMY</span>
+    <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até 25/08/2026.
+      Protótipo de proposta interativa — este material não substitui o contrato.</p>
+  </div>
+</footer>
+
+<!-- ===== TIERBAR ===== -->
+<div class="tierbar" id="tierbar" role="region" aria-label="Resumo da proposta">
+  <div class="tierbar__in">
+    <div class="tierbar__resumo">
+      <span class="tierbar__meta" id="tbResumo">—</span>
+      <span class="tierbar__total" id="tbTotal">—</span>
+    </div>
+    <button type="button" class="btn btn--gold" id="btnConfirmar">Confirmar ajustes</button>
+  </div>
+</div>
+
+<!-- ===== OVERLAY: CARDÁPIO ===== -->
+<div class="ovl" id="ovl" role="dialog" aria-modal="true" aria-labelledby="ovlTitulo" aria-hidden="true">
+  <button type="button" class="ovl__fechar" id="ovlFechar" aria-label="Fechar cardápio">
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+  </button>
+  <div class="ovl__in" id="ovlIn"></div>
+</div>
+
+<!-- ===== MODAL: CONFIRMAR AJUSTES (fake no protótipo) ===== -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitulo" hidden>
+  <div class="modal__backdrop" data-fecha-modal></div>
+  <div class="modal__panel" id="modalPanel"></div>
+</div>
+
+<!-- ===== LIGHTBOX: GALERIA ===== -->
+<div class="lux" id="lux" role="dialog" aria-modal="true" aria-label="Foto ampliada" aria-hidden="true">
+  <button type="button" class="lux__btn lux__fechar" id="luxFechar" aria-label="Fechar foto">
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+  </button>
+  <button type="button" class="lux__btn lux__ante" id="luxAnte" aria-label="Foto anterior">
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+  </button>
+  <button type="button" class="lux__btn lux__prox" id="luxProx" aria-label="Próxima foto">
+    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+  </button>
+  <figure class="lux__fig">
+    <img id="luxImg" alt="">
+    <figcaption class="lux__cap" id="luxCap"></figcaption>
+  </figure>
+</div>
+
+<script>
+'use strict';
+/* =================================================================
+   DADOS — conteúdo real dos cardápios publicados + preços do CRM
+   (ORC-2026-01837). Fotos hot-linkadas do site publicado.
+   ================================================================= */
+const IMG = 'https://cardapio-buffet-lime.vercel.app/';
+const WA_NUM = '554797634124';
+
+/* fotos do buffet: chave → arquivo no site publicado */
+const FOTO = {
+  paella:'fotos/hero-paella.jpg', moranga:'fotos/moranga.jpg', entradinhas:'fotos/entradinhas.jpg',
+  gnocchi:'fotos/gnocchi.jpg', penne:'fotos/penne.jpg', batataassada:'fotos/batata-assada.jpg',
+  batatapalha:'fotos/arroz.jpg', noisette:'fotos/noisette.jpg', aipim:'fotos/pure-aipim.jpg',
+  legumesvapor:'fotos/legumes-vapor.jpg', legumessalt:'fotos/legumes-salteados.jpg',
+  saladagrande:'fotos/salada-grande.jpg', caprese:'fotos/caprese.jpg', arrozbranco:'fotos/arroz-branco.jpg',
+  esccam:'fotos/entrada-premium.jpg', frango:'fotos/frango.jpg', strog:'fotos/strogonoff.jpg',
+  filetm:'fotos/filet-medalhao.jpg', camarao:'fotos/camarao.jpg', carre:'fotos/carre.jpg',
+  burger:'fotos/mini-burger.jpg', porcoes:'fotos/porcoes.jpg', medit1:'fotos/mediterranea-1.jpg'
+};
+
+/* item de cardápio: 'Nome|sg,sl' (dietas opcionais depois do pipe) */
+
+/* ---- MENUS DO JANTAR (conteúdo do cardápio publicado; preços do CRM 2026) ---- */
+const MENUS = [
+ {id:'m1', nome:'Menu Superior I', curto:'Superior I', preco:14990, inclui:[], secoes:[
+   {label:'Pratos principais', curto:'principais', n:3, itens:['Frango bechamel c/ bacon','Frango strogonoff','Picanha Suína mostarda e mel|sg,sl','Picanha Suína barbecue c/ cebola|sg,sl','Filet strogonoff|sg']},
+   {label:'Massas', curto:'massas', n:1, itens:['Spaghetti ao molho Pomodoro c/ manjericão|vg','Spaghetti ao pesto de manjericão|vg','Penne ao molho suíço|vg','Penne na manteiga|vg']},
+   {label:'Guarnições', curto:'guarnições', n:3, itens:['Arroz branco na manteiga|sg,sl','Batatas assadas c/ alecrim|sg,vg','Batata palha','Arroz à grega|sg,sl','Arroz c/ brócolis e nozes|sg,vg','Legumes ao vapor c/ tomilho|sg,sl,vg','Farofa de pão, bacon, castanhas e passas','Purê de batata c/ ervas finas']},
+   {label:'Saladas', curto:'saladas', n:4, itens:['Salada de maçã','Salpicão de frango','Mix de folhas verdes|sg,sl,vg','Rúcula c/ tomate seco|sg,sl,vg','Mix de folhas c/ mostarda, mel e gorgonzola|sg','Folhas nobres c/ amêndoas, parmesão e balsâmico|sg']}
+  ], fotos:[['frango','Frango bechamel c/ bacon'],['penne','Penne na manteiga'],['strog','Strogonoff'],['batataassada','Batatas assadas c/ alecrim'],['noisette','Batata noissete'],['legumesvapor','Legumes ao vapor'],['batatapalha','Batata palha'],['saladagrande','Mix de folhas']]},
+ {id:'m2', nome:'Menu Superior II', curto:'Superior II', preco:16990, inclui:[], secoes:[
+   {label:'Entradas', curto:'entradas', n:2, itens:['Escondidinho de Carne Seca','Pães caseiros c/ patês (linguiça e truta)','Mini Risoto de alecrim c/ cogumelos|sg','Batata Noissete ao molho tártaro|vg','Queijo de colono em cubos|sg,vg','Mini Risoto Gorgonzola|sg,vg']},
+   {label:'Pratos principais', curto:'principais', n:3, itens:['Frango bechamel c/ bacon','Frango strogonoff','Picanha Suína mostarda e mel|sg,sl','Picanha Suína barbecue c/ cebola|sg,sl','Camarão ao molho catupiry','Camarão na moranga','Filet ao molho mostarda|sg','Filet ao molho madeira']},
+   {label:'Massas', curto:'massas', n:2, itens:['Gnocchi ao molho Suíço','Gnocchi ao molho de Champignons','Spaghetti ao Frutos do Mar c/ Açafrão|sl','Spaghetti c/ Bacon e manjericão','Penne ao molho de Camarões c/ limão','Penne na Manteiga']},
+   {label:'Guarnições', curto:'guarnições', n:4, itens:['Arroz branco na manteiga|sg,sl','Batatas assadas c/ alecrim|sg,vg','Batata palha','Arroz à grega|sg,sl','Arroz c/ brócolis e nozes|sg,vg','Legumes ao vapor c/ tomilho|sg,sl,vg','Farofa de pão, bacon, castanhas e passas','Purê de batata c/ ervas finas','Purê de aipim c/ bacon']},
+   {label:'Saladas', curto:'saladas', n:5, itens:['Salada de maçã','Salpicão de frango','Ovos de codorna|sg,sl','Salada de folhas c/ camarões e tomate seco|sg,sl,vg','Mix de folhas c/ mostarda, mel e gorgonzola|sg','Folhas c/ palmito, frango, bacon e parmesão','Tomate cereja c/ azeitona e champignon|sg,sl,vg','Folhas nobres c/ amêndoas, parmesão e balsâmico|sg']}
+  ], fotos:[['moranga','Camarão na moranga','center 83%'],['noisette','Batata noissete'],['filetm','Filet ao molho madeira'],['gnocchi','Gnocchi'],['batatapalha','Batata palha'],['camarao','Camarão ao molho catupiry'],['aipim','Purê de aipim c/ bacon'],['arrozbranco','Arroz branco na manteiga'],['caprese','Tomate cereja c/ azeitona'],['saladagrande','Mix de folhas']]},
+ {id:'m3', nome:'Menu Premium', curto:'Premium', preco:17990, inclui:[], secoes:[
+   {label:'Entradas', curto:'entradas', n:3, itens:['Bolinho de peixe','Pães caseiros c/ patês (linguiça e truta)','Mini risoto de alecrim c/ cogumelos|sg','Batata Noissete ao molho tártaro|vg','Escondidinho de Filet|vg','Mini risoto de alho poró|sg']},
+   {label:'Pratos principais', curto:'principais', n:4, itens:['Frango bechamel c/ bacon','Frango strogonoff','Picanha Suína mostarda e mel|sg,sl','Picanha Suína barbecue c/ cebola|sg,sl','Camarão ao molho catupiry','Camarões ao creme de moranga, dendê e crocante de alho poró','Filet ao molho mostarda|sg','Filet ao molho madeira']},
+   {label:'Massas', curto:'massas', n:2, itens:['Gnocchi ao molho suíço','Gnocchi ao molho de champignons','Spaghetti ao frutos do mar c/ açafrão|sl','Spaghetti c/ bacon e manjericão','Penne ao molho de camarão c/ limão','Penne na manteiga','Caneloni de frango c/ catupiry','Caneloni de Camarão c/ catupiry']},
+   {label:'Guarnições', curto:'guarnições', n:5, itens:['Paella de frutos do mar|sg,sl','Arroz branco na manteiga|sg,sl','Batatas assadas c/ alecrim|sg,vg','Batata palha|sg','Arroz à grega|sg,sl','Arroz c/ brócolis e nozes|sg,vg','Legumes ao vapor c/ tomilho|sg,sl,vg','Farofa de pão, bacon, castanhas e passas','Purê de batata c/ ervas finas','Purê de aipim c/ bacon']},
+   {label:'Saladas', curto:'saladas', n:5, itens:['Pupunha laminada c/ camarões e vinagrete de frutas amarelas|sg,sl','Burrata artesanal c/ folhas baby, parma e tomates ao pesto','Salada de maçã','Salpicão de frango|sg,sl,vg','Ovos de codorna|sg,sl','Salada de folhas c/ camarões e tomate seco|sg,sl,vg','Mix de folhas c/ mostarda, mel e gorgonzola|sg','Folhas c/ palmito, frango, bacon e parmesão','Tomate cereja c/ azeitona e champignon|sg,sl,vg']}
+  ], fotos:[['moranga','Camarões na moranga','center 83%'],['entradinhas','Bolinho de peixe'],['filetm','Filet ao molho madeira'],['paella','Paella de frutos do mar'],['camarao','Camarão ao molho catupiry'],['aipim','Purê de aipim c/ bacon'],['gnocchi','Gnocchi'],['legumesvapor','Legumes ao vapor'],['caprese','Tomate cereja c/ azeitona']]},
+ {id:'m4', nome:'Menu Privilege', curto:'Privilege', preco:24990, inclui:['Decoração Elegance','Lanche da Madrugada'], secoes:[
+   {label:'Entradas', curto:'entradas', n:4, itens:['Bolinho de peixe','Pães caseiros c/ patês (linguiça e truta)','Mini risoto de salmão|sg','Escondidinho de camarão c/ catupiry','Mini paella de frutos do mar|sg,sl','Batata Noissete ao molho tártaro|sl,vg','Queijo de colono em cubos|sg,vg','Mini caldeirada de frutos do mar|sg,sl']},
+   {label:'Pratos principais', curto:'principais', n:4, itens:['Frango bechamel c/ bacon','Frango strogonoff','Picanha Suína mostarda e mel|sg,sl','Picanha Suína barbecue c/ cebola|sg,sl','Salmão à Belle Meunière|sg','Salmão ao molho de camarão','Filet ao molho mostarda|sg','Filet ao molho madeira','Camarão ao molho catupiry','Camarões ao creme de moranga, dendê e alho poró','Carré de Cordeiro ao vinho e ervas|sg','Carré de Cordeiro na manteiga e alho|sg']},
+   {label:'Massas', curto:'massas', n:2, itens:['Gnocchi ao molho suíço','Gnocchi ao molho de champignons','Caneloni de frango c/ catupiry','Caneloni de camarão c/ catupiry','Penne ao molho de camarão c/ limão','Penne na manteiga','Spaghetti ao frutos do mar c/ açafrão|sl','Spaghetti c/ bacon e manjericão']},
+   {label:'Guarnições', curto:'guarnições', n:5, itens:['Paella de frutos do mar|sg,sl','Arroz branco na manteiga|sg,sl','Purê de aipim c/ bacon','Batata palha','Arroz à grega|sg,sl','Arroz c/ brócolis e nozes|sg,vg','Farofa de camarão','Arroz c/ nozes','Farofa de pão, bacon, castanhas e passas','Purê de batata c/ ervas finas|sg,vg','Batatas assadas c/ alecrim|sg,sl,vg','Legumes ao vapor c/ tomilho|sg,sl,vg','Legumes salteados c/ bacon e tomilho|sg,sl','Coração de palmito in natura ao vapor|sg,sl,vg']},
+   {label:'Saladas', curto:'saladas', n:6, itens:['Pupunha laminada c/ camarões e vinagrete de frutas amarelas|sg,sl','Burrata artesanal c/ folhas baby, parma e tomates ao pesto','Salada de folhas c/ camarões e tomate seco','Mix de folhas c/ mostarda, mel e gorgonzola','Folhas c/ palmito, frango, bacon e parmesão','Tomate cereja c/ azeitona e champignon','Folhas c/ peras, gorgonzola e nozes|sg','Carpaccio de Filet c/ rúcula e alcaparras|sg','Salada de maçã','Salpicão de frango','Ovos de codorna|sg,sl','Salada de frutos do mar|sg,sl']}
+  ], fotos:[['carre','Carré de cordeiro'],['moranga','Camarões na moranga','center 83%'],['camarao','Camarão ao molho catupiry'],['esccam','Escondidinho de camarão'],['entradinhas','Bolinho de peixe'],['filetm','Filet ao molho madeira'],['paella','Paella de frutos do mar'],['legumessalt','Legumes salteados'],['caprese','Tomate cereja c/ azeitona'],['saladagrande','Mix de folhas'],['burger','Lanche da Madrugada (incluso)']]},
+ {id:'m5', nome:'Menu Excellence', curto:'Excellence', preco:27990, inclui:['Decoração Elegance','Lanche da Madrugada','Mesa Mediterrânea'], secoes:[
+   {label:'Entradas', curto:'entradas', n:4, itens:['Bolinho de peixe','Pães caseiros c/ patês (linguiça e truta)','Mini risoto de salmão|sg','Escondidinho de camarão c/ catupiry','Mini paella de frutos do mar|sg,sl','Batata Noissete ao molho tártaro|vg','Queijo de colono em cubos|sg','Mini caldeirada de frutos do mar|sg,sl']},
+   {label:'Pratos principais', curto:'principais', n:4, itens:['Frango bechamel c/ bacon','Frango strogonoff','Picanha Suína mostarda e mel|sg,sl','Picanha Suína barbecue c/ cebola|sg,sl','Salmão à Belle Meunière|sg','Salmão ao molho de camarão','Filet ao molho mostarda|sg','Filet ao molho madeira','Camarão ao molho catupiry','Camarões ao creme de moranga, dendê e alho poró','Carré de Cordeiro ao vinho e ervas|sg','Carré de Cordeiro na manteiga e alho|sg']},
+   {label:'Massas', curto:'massas', n:2, itens:['Gnocchi ao molho suíço','Gnocchi ao molho de champignons','Caneloni de frango c/ catupiry','Caneloni de camarão c/ catupiry','Penne ao molho de camarão c/ limão','Penne na manteiga','Spaghetti ao frutos do mar c/ açafrão|sl','Spaghetti c/ bacon e manjericão']},
+   {label:'Guarnições', curto:'guarnições', n:5, itens:['Paella de frutos do mar|sg,sl','Arroz branco na manteiga|sg,sl','Purê de aipim c/ bacon','Batata palha','Arroz à grega|sg,sl','Arroz c/ brócolis e nozes|sg,vg','Farofa de camarão','Arroz c/ nozes','Farofa de pão, bacon, castanhas e passas','Purê de batata c/ ervas finas','Batatas assadas c/ alecrim|sg,vg','Legumes ao vapor c/ tomilho|sg,sl,vg','Legumes salteados c/ bacon e tomilho|sg,sl','Coração de palmito in natura ao vapor|sg,sl,vg']},
+   {label:'Saladas', curto:'saladas', n:6, itens:['Pupunha laminada c/ camarões e vinagrete de frutas amarelas|sg,sl','Burrata artesanal c/ folhas baby, parma e tomates ao pesto','Salada de folhas c/ camarões e tomate seco','Mix de folhas c/ mostarda, mel e gorgonzola','Folhas c/ palmito, frango, bacon e parmesão','Tomate cereja c/ azeitona e champignon','Folhas c/ peras, gorgonzola e nozes|sg','Carpaccio de Filet c/ rúcula e alcaparras|sg','Salada de maçã','Salpicão de frango','Ovos de codorna|sg,sl','Salada de frutos do mar|sg,sl']}
+  ], fotos:[['carre','Carré de cordeiro'],['moranga','Camarões na moranga','center 83%'],['camarao','Camarão ao molho catupiry'],['esccam','Escondidinho de camarão'],['entradinhas','Bolinho de peixe'],['filetm','Filet ao molho madeira'],['paella','Paella de frutos do mar'],['caprese','Tomate cereja c/ azeitona'],['medit1','Mesa Mediterrânea (inclusa)'],['burger','Lanche da Madrugada (incluso)'],['porcoes','Lanche da Madrugada (incluso)']]}
+];
+
+/* ---- COQUETEL VOLANTE (conteúdo do cardápio publicado; preços do CRM) ---- */
+const CQ = 'fotos/coq/';
+const COQUETEIS = [
+ {id:'c1', nome:'Pacote 1', curto:'Coquetel 1', preco:13900, secoes:[
+   {label:'Crocantes e entradas', itens:['Purê de aipim c/ bacon','Batatas rústicas c/ fondue de queijos','Creme de abóbora c/ carne seca']},
+   {label:'Massas e risotos', itens:['Mini risoto de gorgonzola','Penne bechamel c/ crocante de linguiça Blumenau','Penne ao molho gorgonzola']},
+   {label:'Carnes', itens:['Mini cubos de frango ao molho de curry']}
+  ], fotos:[[CQ+'mini-cubos-de-frango-ao-molho-de-curry.jpg','Mini cubos de frango ao curry'],[CQ+'penne-ao-molho-bechamel-com-crocante-de-lingui.jpg','Penne bechamel c/ linguiça Blumenau'],[CQ+'mini-risoto-de-gorgonzola.jpg','Mini risoto de gorgonzola'],[CQ+'batata-rustica-com-fondue-de-queijos.jpg','Batatas rústicas c/ fondue de queijos'],[CQ+'pure-de-aipim-com-bacon.jpg','Purê de aipim c/ bacon'],[CQ+'penne-ao-molho-de-gorgonzola.jpg','Penne ao molho gorgonzola']]},
+ {id:'c2', nome:'Pacote 2', curto:'Coquetel 2', preco:15900, secoes:[
+   {label:'Crocantes e entradas', itens:['Purê de aipim c/ bacon','Batatas rústicas c/ fondue de queijos','Creme de abóbora c/ carne seca','Croquette de linguiça c/ catupiry','Croquette de aipim e bacon','Croquette de aipim e calabresa','Dadinho de tapioca c/ geleia de pimenta','Batatas rústicas c/ fondue de queijos, cheddar e bacon','Bolinho de peixe','Chips de batata doce','Mini pastelzinho de carne seca c/ catupiry']},
+   {label:'Saladas', itens:['Salpicão de frango','Folhas c/ palmito, cubos de frango, bacon e parmesão']},
+   {label:'Massas e risotos', itens:['Mini risoto de gorgonzola','Penne bechamel c/ crocante de linguiça Blumenau','Penne ao molho gorgonzola','Mini risoto de salmão']},
+   {label:'Carnes', itens:['Mini cubos de frango ao molho de curry','Mini hambúrguer de picanha c/ queijo azul e cebola caramelizada','Escondidinho de carne seca']},
+   {label:'Frutos do mar', itens:['Escondidinho de camarão c/ catupiry']}
+  ], fotos:[[CQ+'mini-hamburguer-de-picanha-com-queijo-azul-e-c.jpg','Mini hambúrguer de picanha'],[CQ+'escondidinho-de-camarao-com-catupiry.jpg','Escondidinho de camarão c/ catupiry'],[CQ+'bolinho-de-peixe.jpg','Bolinho de peixe'],[CQ+'croquette-de-linguica-com-catupiry.jpg','Croquette de linguiça c/ catupiry'],[CQ+'dadinho-de-tapioca-com-geleia-de-pimenta.jpg','Dadinho de tapioca c/ geleia de pimenta'],[CQ+'mini-risoto-de-salmao.jpg','Mini risoto de salmão'],[CQ+'mini-pastelzinho-de-carne-seca-com-catupiry.jpg','Mini pastelzinho de carne seca'],[CQ+'salpicao-de-frango.jpg','Salpicão de frango'],[CQ+'mini-cubos-de-frango-ao-molho-de-curry.jpg','Mini cubos de frango ao curry'],[CQ+'chips-de-batata-doce.jpg','Chips de batata doce']]},
+ {id:'c3', nome:'Pacote 3', curto:'Coquetel 3', preco:17900, secoes:[
+   {label:'Crocantes e entradas', itens:['Purê de aipim c/ bacon','Batatas rústicas c/ fondue de queijos','Creme de abóbora c/ carne seca','Croquette de linguiça c/ catupiry','Croquette de aipim e bacon','Croquette de aipim e calabresa','Dadinho de tapioca c/ geleia de pimenta','Batatas rústicas c/ fondue de queijos, cheddar e bacon','Bolinho de peixe','Chips de batata doce','Mini pastelzinho de carne seca c/ catupiry']},
+   {label:'Saladas', itens:['Salpicão de frango','Folhas c/ palmito, cubos de frango, bacon e parmesão','Rúcula c/ camarão, tomate cereja, tomate seco e champignon','Mix de folhas c/ cubos de mignon, mostarda, mel e gorgonzola']},
+   {label:'Massas e risotos', itens:['Mini risoto de gorgonzola','Penne bechamel c/ crocante de linguiça Blumenau','Penne ao molho gorgonzola','Mini risoto de salmão','Penne ao gorgonzola c/ mini cubos de mignon','Penne ao molho de camarão c/ toque de limão']},
+   {label:'Carnes', itens:['Mini cubos de frango ao molho de curry','Mini hambúrguer de picanha c/ queijo azul e cebola caramelizada','Escondidinho de carne seca','Mini cubos de mignon c/ rúcula e lascas de parmesão','Cubos de mignon c/ fondue de gorgonzola e nozes']},
+   {label:'Frutos do mar', itens:['Escondidinho de camarão c/ catupiry','Camarões c/ catupiry','Camarões ao pesto de manjericão','Cubos de salmão c/ alcaparras e broto de rúcula','Paella de frutos do mar']},
+   {label:'Ilhas de serviço', itens:['Ilha de caldo de mandioquinha c/ crocante de linguiça','Ilha de creme de mandioquinha c/ carne seca','Ilha de risoto de linguiça Blumenau']},
+   {label:'Doces', itens:['Verrine de chocolate c/ frutas','Mini churros','Mini sorvete']}
+  ], fotos:[[CQ+'camaroes-com-catupiry.jpg','Camarões c/ catupiry'],[CQ+'paella-de-frutos-do-mar.jpg','Paella de frutos do mar'],[CQ+'cubos-de-mignon-com-fondue-de-gorgonzola-e-noz.jpg','Cubos de mignon c/ gorgonzola e nozes'],[CQ+'camaroes-ao-pesto-de-manjericao.jpg','Camarões ao pesto de manjericão'],[CQ+'cubos-de-salmao-com-molho-de-alcaparras-e-brot.jpg','Cubos de salmão c/ alcaparras'],[CQ+'penne-ao-molho-de-camarao-com-toque-de-limao.jpg','Penne ao molho de camarão'],[CQ+'mini-hamburguer-de-picanha-com-queijo-azul-e-c.jpg','Mini hambúrguer de picanha'],[CQ+'mix-de-folhas-com-cubos-de-mignon-ao-molho-de-.jpg','Mix de folhas c/ cubos de mignon'],[CQ+'verrine-de-chocolate-com-frutas.jpg','Verrine de chocolate c/ frutas'],[CQ+'mini-churros.jpg','Mini churros']]},
+ {id:'c4', nome:'Pacote 4', curto:'Coquetel 4', preco:19900, secoes:[
+   {label:'Crocantes e entradas', itens:['Purê de aipim c/ bacon','Batatas rústicas c/ fondue de queijos','Creme de abóbora c/ carne seca','Croquette de linguiça c/ catupiry','Croquette de aipim e bacon','Croquette de aipim e calabresa','Dadinho de tapioca c/ geleia de pimenta','Batatas rústicas c/ fondue de queijos, cheddar e bacon','Bolinho de peixe','Chips de batata doce','Mini pastelzinho de carne seca c/ catupiry']},
+   {label:'Saladas', itens:['Salpicão de frango','Folhas c/ palmito, cubos de frango, bacon e parmesão','Rúcula c/ camarão, tomate cereja, tomate seco e champignon','Mix de folhas c/ cubos de mignon, mostarda, mel e gorgonzola']},
+   {label:'Massas e risotos', itens:['Mini risoto de gorgonzola','Penne bechamel c/ crocante de linguiça Blumenau','Penne ao molho gorgonzola','Mini risoto de salmão','Penne ao gorgonzola c/ mini cubos de mignon','Penne ao molho de camarão c/ toque de limão']},
+   {label:'Carnes', itens:['Mini cubos de frango ao molho de curry','Mini hambúrguer de picanha c/ queijo azul e cebola caramelizada','Escondidinho de carne seca','Mini cubos de mignon c/ rúcula e lascas de parmesão','Cubos de mignon c/ fondue de gorgonzola e nozes']},
+   {label:'Frutos do mar', itens:['Escondidinho de camarão c/ catupiry','Camarões c/ catupiry','Camarões ao pesto de manjericão','Cubos de salmão c/ alcaparras e broto de rúcula','Paella de frutos do mar']},
+   {label:'Ilhas de serviço', itens:['Ilha de caldo de mandioquinha c/ crocante de linguiça','Ilha de creme de mandioquinha c/ carne seca','Ilha de risoto de linguiça Blumenau']},
+   {label:'Racletteiras', itens:['Queijo c/ batatas, salames e pepino','Queijo c/ carne seca','Queijo c/ camarões','Queijo c/ mignon']},
+   {label:'Doces', itens:['Ilha de fondue de chocolate','Verrine de chocolate c/ frutas','Mini churros','Mini sorvete']}
+  ], fotos:[[CQ+'ilhas-com-servico-de-raclatteira.jpg','Racletteira: queijo c/ batatas e salames'],[CQ+'camaroes-com-catupiry.jpg','Camarões c/ catupiry'],['fotos/fondue.jpg','Ilha de fondue de chocolate'],[CQ+'cubos-de-mignon-com-fondue-de-gorgonzola-e-noz.jpg','Cubos de mignon c/ gorgonzola e nozes'],[CQ+'paella-de-frutos-do-mar.jpg','Paella de frutos do mar'],[CQ+'mini-hamburguer-de-picanha-com-queijo-azul-e-c.jpg','Mini hambúrguer de picanha'],[CQ+'camaroes-ao-pesto-de-manjericao.jpg','Camarões ao pesto de manjericão'],[CQ+'mini-sorvete.jpg','Mini sorvete'],[CQ+'verrine-de-chocolate-com-frutas.jpg','Verrine de chocolate c/ frutas'],[CQ+'mini-churros.jpg','Mini churros']]}
+];
+
+/* ---- OPEN BAR (matriz do cardápio publicado; preços do CRM) ---- */
+const SOFT = ['Coca-Cola e Coca Zero','Guaraná e Guaraná Zero','Água com e sem gás'];
+const SOFT_S = SOFT.concat(['Suco de laranja']);
+const DRINKS = ['Bourbon Peach','Cosmopolitan','Gin Tônica Clássico','Gin Tônica Maracujá','Gin Tônica Morango','Strawberry Julep Cremoso','New York Sour','Moscow Mule','Negroni','Mojito'];
+const OPENBARS = [
+ {id:'b1', nome:'Open bar 1', curto:'Open bar 1', preco:6990, secoes:[
+   {label:'Soft', itens:SOFT}]},
+ {id:'b2', nome:'Open bar 2', curto:'Open bar 2', preco:8590, secoes:[
+   {label:'Soft', itens:SOFT},{label:'Cerveja', itens:['Brahma litro']}]},
+ {id:'b3', nome:'Open bar 3', curto:'Open bar 3', preco:11290, secoes:[
+   {label:'Soft', itens:SOFT},{label:'Cerveja', itens:['Brahma litro']},
+   {label:'Destilados', itens:['Vodka Smirnoff','Whisky Passport']}]},
+ {id:'b4', nome:'Open bar 4', curto:'Open bar 4', preco:16990, secoes:[
+   {label:'Soft', itens:SOFT},{label:'Cerveja', itens:['Brahma litro']},
+   {label:'Destilados', itens:['Vodka Smirnoff','Whisky Passport']},
+   {label:'Espumante', itens:['Sanjo, Moscatel ou Brut']},{label:'Energético', itens:['Baly litro']}]},
+ {id:'b5', nome:'Open bar 5', curto:'Open bar 5', preco:25990, secoes:[
+   {label:'Soft', itens:SOFT_S},{label:'Cerveja', itens:['Heineken long neck']},
+   {label:'Destilados', itens:['Vodka Absolut','Whisky J. Walker Red Label']},
+   {label:'Espumante', itens:['Perini, Moscatel ou Brut']},{label:'Energético', itens:['Red Bull']},
+   {label:'Open Drinks Classic', itens:DRINKS},
+   {label:'Balcão de pista', itens:['Balcão de apoio montado perto da pista']}]},
+ {id:'b6', nome:'Open bar 6', curto:'Open bar 6', preco:29990, secoes:[
+   {label:'Soft', itens:SOFT_S},{label:'Cerveja', itens:['Heineken long neck']},
+   {label:'Destilados', itens:['Vodka Absolut','Whisky J. Walker Red Label']},
+   {label:'Espumante', itens:['Perini, Moscatel ou Brut']},{label:'Energético', itens:['Red Bull']},
+   {label:'Open Drinks Classic', itens:DRINKS},
+   {label:'Balcão de pista', itens:['Balcão de apoio montado perto da pista']},
+   {label:'Open Caipirinha Classic', itens:['Vinho','Morango','Tropical','Limão','Framboesa']},
+   {label:'Welcome Drink', itens:['Taça de espumante na chegada dos convidados']}]}
+];
+const FOTOS_OPENBAR = [
+  ['fotos/openbar/bar.jpg','O bar'],['fotos/openbar/cerveja.jpg','Sempre gelada'],
+  ['fotos/openbar/bandeja.jpg','Serviço volante'],['fotos/openbar/drinks.jpg','Open Drinks Classic (pacotes 5 e 6)'],
+  ['fotos/openbar/caipirinha.jpg','Open Caipirinha Classic (pacote 6)']
+];
+
+/* ---- itens por pessoa travados (qtd = convidados) e extras editáveis ---- */
+const ITENS_TRAVADOS = [
+  {id:'coffeeSup', nome:'Coffee Superior',       preco:6291},
+  {id:'coffeeExt', nome:'Coffee Extra Superior', preco:9891},
+  {id:'cadeira',   nome:'Cadeira de Madeira',    preco:1000},
+  {id:'sousplat',  nome:'Sousplat',              preco:700}
+];
+const ITENS_EDITAVEIS = [
+  {id:'cafe',   nome:'Café (Térmica) 1,5L',  preco:5000,   min:0, max:60,  padrao:20},
+  {id:'toalha', nome:'Toalha para Mesa',     preco:3500,   min:0, max:60,  padrao:20},
+  {id:'av',     nome:'Crédito - Audiovisual',preco:50000,  min:0, max:100, padrao:44},
+  {id:'dj',     nome:'DJ - Essencial',       preco:700000, min:0, max:1,   padrao:1},
+  {id:'hora',   nome:'Hora extra (Locação)', preco:150000, min:0, max:10,  padrao:7}
+];
+const SERVICOS = [
+  ['Locação do Espaço',2000000],['Equipe',1670220],['Gerador de Energia',250000],
+  ['Taxa de Segurança',100000],['Taxa de Limpeza',100000],['Taxa de Ecad',75000],
+  ['Taxa de Estacionamento',50000]
+];
+const DIAS = [['seg-qui','Seg–Qui'],['sexta','Sexta'],['sabado','Sábado'],['domingo','Domingo']];
+
+/* =================================================================
+   PLANTA — calibração da imagem assets/planta-salao-eventos.jpg
+   =================================================================
+   COMO RECALIBRAR: abra a imagem (1920×1080) num editor com régua de
+   pixels e meça as faces INTERNAS do piso do salão principal:
+     x0 = parede da sala de madeira (esquerda) · x1 = caixilho de
+     vidro (direita) · y0 = topo do braço superior · y1 = fachada de
+     vidro (baixo) · xDegrau/yTopoDir = degrau do teto no topo direito
+     (à direita de xDegrau o piso só começa em yTopoDir).
+   (x1−x0) corresponde aos 24,50 m da largura inferior (planta da
+   arquiteta); (y1−y0) corresponde aos 12,75 m da borda direita
+   (4,00 m do braço + 8,75 m da parte baixa).
+   ⚠ VERIFICAÇÃO DOS EIXOS (feita em 18/08): o render NÃO é isométrico
+   à planta — o eixo Y medido dá ≈51,8 px/m contra ≈43,6 px/m no X
+   (~19% esticado na vertical). Adotamos a escala HORIZONTAL como
+   oficial (px/metro único: círculo continua círculo) e os LIMITES de
+   arrasto vêm dos retângulos medidos em px, então nenhuma mesa sai do
+   piso visível. Se sair um render em escala, basta atualizar CAL.
+   ================================================================= */
+const CAL  = { x0:765, y0:205, x1:1832, y1:866, metros:24.5, xDegrau:1400, yTopoDir:240 };
+const MESA = { tampo:1.6, footprint:2.6, lugares:8 };  // medidas a confirmar pelo dono
+const pxm  = (CAL.x1 - CAL.x0) / CAL.metros;           // ≈ 43,55 px por metro
+const MESA_R    = MESA.footprint * pxm / 2;            // raio do footprint, em px da imagem
+const CORREDOR  = 1.5;                                 // corredor da distribuição automática (m)
+const FOLGA_MIN = 0.30 * pxm;                          // 30 cm borda a borda
+/* área útil de arrasto = 2 retângulos: braço alto (até o degrau) + bloco principal */
+const AREA = [
+  {x0:CAL.x0, x1:CAL.xDegrau, y0:CAL.y0,       y1:CAL.y1},
+  {x0:CAL.x0, x1:CAL.x1,      y0:CAL.yTopoDir, y1:CAL.y1}
+];
+function clampMesa(x, y){
+  let melhor = {x, y}, menor = Infinity;
+  for(const a of AREA){
+    const cx = limita(x, a.x0 + MESA_R, a.x1 - MESA_R);
+    const cy = limita(y, a.y0 + MESA_R, a.y1 - MESA_R);
+    const d = (cx-x)*(cx-x) + (cy-y)*(cy-y);
+    if(d < menor){ menor = d; melhor = {x:cx, y:cy}; }
+  }
+  return {x: Math.round(melhor.x), y: Math.round(melhor.y)};
+}
+function paresPertos(mesas){
+  const perto = new Set(), lim = 2*MESA_R + FOLGA_MIN;
+  for(let i=0;i<mesas.length;i++) for(let j=i+1;j<mesas.length;j++){
+    if(Math.hypot(mesas[i].x-mesas[j].x, mesas[i].y-mesas[j].y) < lim){ perto.add(i); perto.add(j); }
+  }
+  return perto;
+}
+
+/* =================================================================
+   ESTADO — um objeto só, persistido em localStorage
+   ================================================================= */
+const CHAVE = 'proposta_dimy_prototipo';
+const PADRAO = {convidados:200, dia:'seg-qui', coquetel:'c4', menu:'m2', openbar:'b1',
+  extras:{cafe:20, toalha:20, av:44, dj:1, hora:7}, mesas:[]};
+let PROPOSTA = carregar();
+
+function carregar(){
+  try{
+    const raw = localStorage.getItem(CHAVE);
+    if(!raw) return JSON.parse(JSON.stringify(PADRAO));
+    const s = JSON.parse(raw);
+    return {
+      convidados: limita(parseInt(s.convidados,10)||PADRAO.convidados, 30, 500),
+      dia: DIAS.some(d=>d[0]===s.dia) ? s.dia : PADRAO.dia,
+      coquetel: COQUETEIS.some(c=>c.id===s.coquetel) ? s.coquetel : PADRAO.coquetel,
+      menu: MENUS.some(m=>m.id===s.menu) ? s.menu : PADRAO.menu,
+      openbar: OPENBARS.some(b=>b.id===s.openbar) ? s.openbar : PADRAO.openbar,
+      extras: Object.fromEntries(ITENS_EDITAVEIS.map(it=>{
+        const v = s.extras && Number.isInteger(s.extras[it.id]) ? s.extras[it.id] : it.padrao;
+        return [it.id, limita(v, it.min, it.max)];
+      })),
+      mesas: (Array.isArray(s.mesas) ? s.mesas : []).slice(0,60)
+        .filter(m=>m && Number.isFinite(m.x) && Number.isFinite(m.y))
+        .map(m=>clampMesa(m.x, m.y))
+    };
+  }catch(e){ return JSON.parse(JSON.stringify(PADRAO)); }
+}
+function salvar(){ try{ localStorage.setItem(CHAVE, JSON.stringify(PROPOSTA)); }catch(e){} }
+function limita(v,min,max){ return Math.min(max, Math.max(min, v)); }
+
+/* =================================================================
+   CÁLCULO — funções puras, tudo em centavos
+   ================================================================= */
+const porId = (lista,id)=>lista.find(x=>x.id===id)||lista[0];
+function calcular(s){
+  const coq = porId(COQUETEIS,s.coquetel), menu = porId(MENUS,s.menu), bar = porId(OPENBARS,s.openbar);
+  const ppGastro = coq.preco + menu.preco + bar.preco +
+    ITENS_TRAVADOS.filter(i=>i.id==='coffeeSup'||i.id==='coffeeExt').reduce((a,i)=>a+i.preco,0);
+  const gastro = ppGastro * s.convidados;
+  const ppEstrutura = ITENS_TRAVADOS.filter(i=>i.id==='cadeira'||i.id==='sousplat').reduce((a,i)=>a+i.preco,0);
+  const extras = ITENS_EDITAVEIS.reduce((a,it)=>a + it.preco * s.extras[it.id], 0);
+  const estrutura = ppEstrutura * s.convidados + extras;
+  const servicos = SERVICOS.reduce((a,x)=>a+x[1],0);
+  return {coq, menu, bar, gastro, estrutura, servicos, total: gastro + estrutura + servicos};
+}
+const fmtBRL = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
+const fmtBRL0 = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+const fmt  = c=>fmtBRL.format(c/100);
+const fmt0 = c=>fmtBRL0.format(Math.round(c/100));
+
+/* =================================================================
+   RENDER — cards de seleção, itens, totais, tierbar, WhatsApp
+   ================================================================= */
+const $ = s=>document.querySelector(s);
+const esc = t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const SINGULAR = {entradas:'entrada', principais:'principal', massas:'massa', 'guarnições':'guarnição', saladas:'salada'};
+
+/* composição curta de cada card, gerada dos dados (nunca desencontra da lista) */
+function resumoMenu(m){
+  return m.secoes.map(s=>`${s.n} ${s.n===1 ? (SINGULAR[s.curto]||s.curto) : s.curto}`).join('<br>');
+}
+function resumoCoquetel(c){
+  const n = c.secoes.reduce((a,s)=>a+s.itens.length,0);
+  return `${n} itens · ${c.secoes.length} categorias<br>` +
+    esc(c.secoes.map(s=>s.label).join(' · '));
+}
+function resumoOpenbar(b){
+  return esc(b.secoes.map(s=>s.label).join(' · '));
+}
+
+const GRUPOS = {
+  coquetel:{lista:COQUETEIS, alvo:'#cardsCoquetel', botao:'#verCoquetel', resumo:resumoCoquetel,
+    selo:'Foto ilustrativa', tipoLabel:'Coquetel volante · servido na chegada'},
+  menu:{lista:MENUS, alvo:'#cardsMenu', botao:'#verMenu', resumo:resumoMenu,
+    selo:'Foto real', tipoLabel:'Menu do jantar · buffet completo'},
+  openbar:{lista:OPENBARS, alvo:'#cardsOpenbar', botao:'#verOpenbar', resumo:resumoOpenbar,
+    selo:'Foto ilustrativa', tipoLabel:'Open bar · à vontade durante a festa'}
+};
+
+function montarCards(tipo){
+  const g = GRUPOS[tipo], box = $(g.alvo);
+  box.innerHTML = '';
+  g.lista.forEach(op=>{
+    const b = document.createElement('button');
+    b.type='button'; b.className='nivel'; b.dataset.id=op.id; b.setAttribute('aria-pressed','false');
+    b.innerHTML = `<p class="nivel__nome">${esc(op.nome)}</p>
+      <p class="nivel__preco">${fmt(op.preco)}<small>por pessoa</small></p>
+      <p class="nivel__res">${g.resumo(op)}</p>` +
+      (op.inclui && op.inclui.length ? `<p class="nivel__inclui">Inclui: ${esc(op.inclui.join(', '))}</p>` : '');
+    b.addEventListener('click', ()=>selecionar(tipo, op.id));
+    box.appendChild(b);
+  });
+}
+
+function pintarSelecao(tipo){
+  const g = GRUPOS[tipo], sel = PROPOSTA[tipo];
+  $(g.alvo).querySelectorAll('.nivel').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.id===sel)));
+  const op = porId(g.lista, sel);
+  $(g.botao).textContent = `Ver cardápio · ${op.nome}`;
+}
+
+function selecionar(tipo, id){
+  if(PROPOSTA[tipo]===id) return;
+  PROPOSTA[tipo]=id; salvar();
+  pintarSelecao(tipo);
+  /* fade de 160ms na troca (mesmo gesto do cardápio publicado) */
+  const alvos=[$('#invCard'), $(GRUPOS[tipo].botao)];
+  alvos.forEach(el=>el.classList.add('trocando'));
+  setTimeout(()=>{ atualizarTotais(); alvos.forEach(el=>el.classList.remove('trocando')); },160);
+}
+
+/* ---- lista de extras e estrutura ---- */
+function montarItens(){
+  const ul = $('#listaItens'); ul.innerHTML='';
+  ITENS_TRAVADOS.forEach(it=>{
+    const li = document.createElement('li'); li.className='item'; li.dataset.trava=it.id;
+    li.innerHTML = `<div class="item__info"><p class="item__nome">${esc(it.nome)}</p>
+        <p class="item__preco">${fmt(it.preco)} por pessoa</p></div>
+      <span class="trava"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        <b class="trava__qtd">—</b>&nbsp;· acompanha o nº de convidados</span>
+      <p class="item__total">—</p>`;
+    ul.appendChild(li);
+  });
+  ITENS_EDITAVEIS.forEach(it=>{
+    const li = document.createElement('li'); li.className='item'; li.dataset.edit=it.id;
+    li.innerHTML = `<div class="item__info"><p class="item__nome">${esc(it.nome)}</p>
+        <p class="item__preco">${fmt(it.preco)} a unidade</p></div>
+      <span class="qtd" role="group" aria-label="Quantidade de ${esc(it.nome)}">
+        <button type="button" class="qtd__btn" data-passo="-1" aria-label="Diminuir ${esc(it.nome)}">−</button>
+        <span class="qtd__val" aria-live="polite">—</span>
+        <button type="button" class="qtd__btn" data-passo="1" aria-label="Aumentar ${esc(it.nome)}">+</button>
+      </span>
+      <p class="item__total">—</p>`;
+    li.querySelectorAll('.qtd__btn').forEach(btn=>btn.addEventListener('click', ()=>{
+      const v = limita(PROPOSTA.extras[it.id] + Number(btn.dataset.passo), it.min, it.max);
+      if(v===PROPOSTA.extras[it.id]) return;
+      PROPOSTA.extras[it.id]=v; salvar(); atualizarTotais();
+    }));
+    ul.appendChild(li);
+  });
+}
+
+function montarServicos(){
+  $('#listaServicos').innerHTML = SERVICOS.map(([n,v])=>
+    `<li><span>${esc(n)}</span><b>${fmt(v)}</b></li>`).join('');
+}
+
+function montarPills(){
+  const box = $('#pillsDia'); box.innerHTML='';
+  DIAS.forEach(([id,rotulo])=>{
+    const b=document.createElement('button');
+    b.type='button'; b.className='pill'; b.dataset.id=id; b.textContent=rotulo;
+    b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',()=>{ PROPOSTA.dia=id; salvar(); pintarPills(); atualizarTotais(); });
+    box.appendChild(b);
+  });
+}
+function pintarPills(){
+  $('#pillsDia').querySelectorAll('.pill').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.id===PROPOSTA.dia)));
+}
+
+/* ---- totais + tierbar + WhatsApp (o coração do recálculo) ---- */
+function atualizarTotais(){
+  const r = calcular(PROPOSTA);
+  const C = PROPOSTA.convidados;
+  $('#subGastro').textContent = fmt(r.gastro);
+  $('#invPP').textContent = `· ${fmt(r.gastro/C)} por pessoa`;
+  $('#subEstrutura').textContent = fmt(r.estrutura);
+  $('#subServicos').textContent = fmt(r.servicos);
+  $('#totalGeral').textContent = fmt(r.total);
+  $('#invConvidados').textContent = C;
+  $('#convVal').value = C;
+  /* itens travados acompanham os convidados */
+  ITENS_TRAVADOS.forEach(it=>{
+    const li = document.querySelector(`[data-trava="${it.id}"]`);
+    li.querySelector('.trava__qtd').textContent = C;
+    li.querySelector('.item__total').textContent = fmt(it.preco*C);
+  });
+  ITENS_EDITAVEIS.forEach(it=>{
+    const li = document.querySelector(`[data-edit="${it.id}"]`);
+    const q = PROPOSTA.extras[it.id];
+    li.querySelector('.qtd__val').textContent = q;
+    li.querySelector('.item__total').textContent = fmt(it.preco*q);
+    li.querySelector('[data-passo="-1"]').disabled = q<=it.min;
+    li.querySelector('[data-passo="1"]').disabled  = q>=it.max;
+  });
+  /* tierbar */
+  $('#tbResumo').textContent = `${C} convidados · ${r.coq.curto} + ${r.menu.nome} + ${r.bar.nome}`;
+  $('#tbTotal').textContent = fmt0(r.total);
+  /* WhatsApp com resumo pré-preenchido (a pergunta é sempre a última linha) */
+  const nMesas = PROPOSTA.mesas.length;
+  const msg = `Olá! Aqui é da DIMY. Estou vendo a proposta ORC-2026-01837 (24/09/2026 · Salão de Eventos, Itapema).\n`+
+    `Meus ajustes: ${C} convidados · Coquetel ${r.coq.nome} · ${r.menu.nome} · ${r.bar.nome}.\n`+
+    (nMesas ? `Layout: ${nMesas} mesas de ${MESA.lugares} lugares.\n` : '')+
+    `Total estimado: ${fmt(r.total)}.\n`+
+    `Podemos confirmar a disponibilidade da data?`;
+  const href = `https://wa.me/${WA_NUM}?text=${encodeURIComponent(msg)}`;
+  document.querySelectorAll('.js-wa').forEach(a=>a.href=href);
+  pintarPlanta(); /* contador de lugares compara com os convidados */
+  return r;
+}
+
+/* ---- stepper de convidados ---- */
+function mudarConvidados(v){
+  const novo = limita(v, 30, 500);
+  if(novo===PROPOSTA.convidados){ $('#convVal').value = novo; return; }
+  PROPOSTA.convidados = novo; salvar(); atualizarTotais();
+  $('#convMenos').disabled = novo<=30;
+  $('#convMais').disabled = novo>=500;
+}
+$('#convMenos').addEventListener('click', ()=>mudarConvidados(PROPOSTA.convidados-10));
+$('#convMais').addEventListener('click', ()=>mudarConvidados(PROPOSTA.convidados+10));
+$('#convVal').addEventListener('change', e=>{
+  const v = parseInt(e.target.value,10);
+  mudarConvidados(Number.isFinite(v)?v:PROPOSTA.convidados);
+});
+
+/* =================================================================
+   OVERLAY — cardápio completo da seleção atual
+   ================================================================= */
+const ovl = $('#ovl'), ovlIn = $('#ovlIn');
+let focoAnterior = null;
+
+function figuraFoto(src, cap, selo, pos){
+  return `<figure class="ph">
+    <img src="${IMG}${src}" alt="${esc(cap)}" loading="lazy" decoding="async"${pos?` style="object-position:${pos}"`:''}
+      onload="this.parentElement.classList.add('is-loaded')" onerror="this.parentElement.classList.add('is-error');this.style.display='none'">
+    <figcaption class="ph__cap"><p class="ph__nome">${esc(cap)}</p><p class="ph__selo">${selo}</p></figcaption>
+  </figure>`;
+}
+const dot = d=>`<i class="d d--${d}" aria-hidden="true"></i>`;
+function itemLinha(str){
+  const [nome, dietas] = str.split('|');
+  const ds = dietas ? dietas.split(',') : [];
+  return `<li>${esc(nome)}${ds.length?`<span class="dots" role="img" aria-label="${ds.map(d=>({sg:'sem glúten',sl:'sem lactose',vg:'vegetariano'}[d])).join(', ')}">${ds.map(dot).join('')}</span>`:''}</li>`;
+}
+
+function abrirCardapio(tipo){
+  const g = GRUPOS[tipo];
+  const op = porId(g.lista, PROPOSTA[tipo]);
+  const temDietas = tipo==='menu';
+  const fotos = tipo==='openbar' ? FOTOS_OPENBAR
+              : tipo==='menu' ? op.fotos.map(f=>[FOTO[f[0]], f[1], f[2]])
+              : op.fotos;
+  const nomeCompleto = tipo==='coquetel' ? `Coquetel · ${op.nome}` : op.nome;
+  ovlIn.innerHTML = `
+    <p class="ovl__eyebrow">${g.tipoLabel}</p>
+    <h2 class="ovl__titulo" id="ovlTitulo">${esc(nomeCompleto)}</h2>
+    <p class="ovl__preco">${fmt(op.preco)}<small>por pessoa</small></p>
+    <div class="fotostrip" aria-label="Fotos dos pratos">${fotos.map(f=>figuraFoto(f[0],f[1],g.selo,f[2])).join('')}</div>
+    <div class="cats">${op.secoes.map(s=>`
+      <div class="cat">
+        <div class="cat__head"><p class="cat__nome">${esc(s.label)}</p>${s.n?`<span class="cat__n">Escolha ${s.n}</span>`:''}</div>
+        <ul>${s.itens.map(itemLinha).join('')}</ul>
+      </div>`).join('')}
+    </div>
+    ${temDietas?`<div class="legenda">
+      <span>${dot('sg')} sem glúten</span><span>${dot('sl')} sem lactose</span><span>${dot('vg')} vegetariano</span>
+    </div>`:''}
+    ${op.inclui && op.inclui.length?`<p class="ovl__nota"><strong>Este menu inclui:</strong> ${esc(op.inclui.join(' · '))}.</p>`:''}
+    <p class="ovl__nota"><strong>Bom saber.</strong> As escolhas finais são feitas na Reunião de Alinhamento, cerca de 30 dias antes do evento.</p>`;
+  focoAnterior = document.activeElement;
+  ovl.classList.add('aberto'); ovl.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+  ovl.scrollTop = 0;
+  $('#ovlFechar').focus();
+}
+function fecharCardapio(){
+  ovl.classList.remove('aberto'); ovl.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  if(focoAnterior && focoAnterior.focus) focoAnterior.focus();
+}
+document.querySelectorAll('[data-ver]').forEach(b=>b.addEventListener('click',()=>abrirCardapio(b.dataset.ver)));
+$('#ovlFechar').addEventListener('click', fecharCardapio);
+
+/* =================================================================
+   MODAL — confirmar ajustes (envio FAKE no protótipo)
+   ================================================================= */
+const modal = $('#modal'), panel = $('#modalPanel');
+let focoModal = null;
+
+function abrirModal(){
+  const r = calcular(PROPOSTA);
+  const extras = ITENS_EDITAVEIS.filter(it=>PROPOSTA.extras[it.id]>0)
+    .map(it=>`${PROPOSTA.extras[it.id]}× ${it.nome}`).join(' · ') || 'nenhum';
+  const diaRotulo = DIAS.find(d=>d[0]===PROPOSTA.dia)[1];
+  panel.innerHTML = `
+    <button type="button" class="modal__fechar" data-fecha-modal aria-label="Fechar">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    <h3 class="modal__titulo" id="modalTitulo">Confirmar ajustes</h3>
+    <ul class="modal__lista">
+      <li><span>Convidados</span><b>${PROPOSTA.convidados}</b></li>
+      <li><span>Dia simulado</span><b>${diaRotulo}</b></li>
+      <li><span>Coquetel ${esc(r.coq.nome)}</span><b>${fmt(r.coq.preco)} /pessoa</b></li>
+      <li><span>${esc(r.menu.nome)}</span><b>${fmt(r.menu.preco)} /pessoa</b></li>
+      <li><span>${esc(r.bar.nome)}</span><b>${fmt(r.bar.preco)} /pessoa</b></li>
+      <li><span>Extras ajustáveis</span><b style="white-space:normal;text-align:right;max-width:56%;">${esc(extras)}</b></li>
+      <li><span>Layout do salão</span><b>${PROPOSTA.mesas.length
+        ? `${PROPOSTA.mesas.length} mesas de ${MESA.lugares} lugares`
+        : 'ainda sem mesas'}</b></li>
+      <li class="total"><span>Total do investimento</span><b>${fmt(r.total)}</b></li>
+    </ul>
+    <p class="modal__aviso">Ao confirmar, sua consultora recebe os ajustes e retorna em até 1 dia útil.
+      A data segue sujeita a disponibilidade.</p>
+    <div class="modal__acoes">
+      <button type="button" class="btn btn--solid" id="btnEnviar">Enviar para a consultora</button>
+      <button type="button" class="btn btn--ghost" data-fecha-modal>Continuar ajustando</button>
+    </div>`;
+  panel.querySelector('#btnEnviar').addEventListener('click', ()=>{
+    panel.innerHTML = `
+      <button type="button" class="modal__fechar" data-fecha-modal aria-label="Fechar">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      <div class="modal__ok" role="status">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m7.5 12.5 3 3 6-6.5"/></svg>
+        <h4 id="modalTitulo">Ajustes enviados!</h4>
+        <p>Sua consultora recebe os ajustes e retorna em até 1 dia útil para confirmar a disponibilidade da data.</p>
+        <small>Protótipo: nenhum dado foi enviado de verdade.</small>
+      </div>`;
+    panel.querySelector('.modal__fechar').focus();
+  });
+  focoModal = document.activeElement;
+  modal.hidden = false;
+  document.body.style.overflow='hidden';
+  panel.querySelector('.modal__fechar').focus();
+}
+function fecharModal(){
+  modal.hidden = true;
+  document.body.style.overflow='';
+  if(focoModal && focoModal.focus) focoModal.focus();
+}
+$('#btnConfirmar').addEventListener('click', abrirModal);
+modal.addEventListener('click', e=>{ if(e.target.closest('[data-fecha-modal]')) fecharModal(); });
+
+/* ---- Esc fecha + setas no lightbox + focus trap (dialogs) ---- */
+addEventListener('keydown', e=>{
+  const luxAberto = lux.classList.contains('aberto');
+  const ovlAberto = ovl.classList.contains('aberto');
+  const modalAberto = !modal.hidden;
+  if(e.key==='Escape'){
+    if(luxAberto) fecharLux();
+    else if(modalAberto) fecharModal();
+    else if(ovlAberto) fecharCardapio();
+    return;
+  }
+  if(luxAberto && (e.key==='ArrowLeft' || e.key==='ArrowRight')){
+    e.preventDefault();
+    mostrarLux(luxIdx + (e.key==='ArrowRight' ? 1 : -1));
+    return;
+  }
+  if(e.key!=='Tab' || (!ovlAberto && !modalAberto && !luxAberto)) return;
+  const raiz = luxAberto ? lux : (modalAberto ? modal : ovl);
+  /* getClientRects: offsetParent é null em position:fixed e escondia os botões fixos */
+  const focaveis = [...raiz.querySelectorAll('button, a[href], input, [tabindex]:not([tabindex="-1"])')]
+    .filter(el=>!el.disabled && el.getClientRects().length>0);
+  if(!focaveis.length) return;
+  const primeiro = focaveis[0], ultimo = focaveis[focaveis.length-1];
+  if(e.shiftKey && document.activeElement===primeiro){ e.preventDefault(); ultimo.focus(); }
+  else if(!e.shiftKey && document.activeElement===ultimo){ e.preventDefault(); primeiro.focus(); }
+});
+
+/* =================================================================
+   PLANTA INTERATIVA — editor de mesas (arrastar, teclado, automático)
+   ================================================================= */
+const svgPlanta = $('#plantaSvg');
+let mesaSel = -1;
+let dragMesa = null;
+
+function montarPlanta(){
+  /* 8 cadeiras a cada 45° em volta do tampo (coordenadas do símbolo) */
+  document.getElementById('cadeirasMesa').innerHTML = Array.from({length:8},(_,i)=>
+    `<g transform="rotate(${i*45})"><rect class="mesa__cadeira" x="-8.5" y="-45.5" width="17" height="10.5" rx="4"/></g>`).join('');
+  /* régua de escala: 5 m na escala calibrada, canto inferior esquerdo do piso */
+  const L = Math.round(5*pxm*10)/10;
+  const regua = $('#reguaCamada');
+  regua.setAttribute('transform', `translate(${CAL.x0+22},${CAL.y1-20})`);
+  regua.innerHTML = `<path class="regua__linha" d="M0 0 H${L} M0 -7 V7 M${L} -7 V7"/>
+    <text class="regua__txt" x="${L/2}" y="-14" text-anchor="middle">5 m</text>`;
+}
+
+function renderMesas(){
+  const bx = (MESA_R*0.72).toFixed(1), by = (-MESA_R*0.72).toFixed(1);
+  $('#mesasCamada').innerHTML = PROPOSTA.mesas.map((m,i)=>`
+    <g class="mesa" data-i="${i}" tabindex="0" role="button"
+      aria-label="Mesa ${i+1}, ${MESA.lugares} lugares. Arraste ou use as setas; Delete remove."
+      transform="translate(${m.x},${m.y})">
+      <circle class="mesa__anel" r="${(MESA_R+4).toFixed(1)}"/>
+      <use href="#simboloMesa" x="${(-MESA_R).toFixed(1)}" y="${(-MESA_R).toFixed(1)}"
+        width="${(2*MESA_R).toFixed(1)}" height="${(2*MESA_R).toFixed(1)}"/>
+      <g class="mesa__x" aria-hidden="true">
+        <circle class="mesa__x-hit" cx="${bx}" cy="${by}" r="42"/>
+        <circle class="mesa__x-fundo" cx="${bx}" cy="${by}" r="19"/>
+        <path class="mesa__x-tra" d="M${bx-6.5} ${by-6.5} l13 13 M${+bx+6.5} ${by-6.5} l-13 13"/>
+      </g>
+    </g>`).join('');
+  pintarPlanta();
+}
+
+/* contador vivo + marcação de proximidade (chamado também pelo recálculo) */
+function pintarPlanta(){
+  const camada = $('#mesasCamada');
+  if(!camada) return;
+  const perto = paresPertos(PROPOSTA.mesas);
+  [...camada.children].forEach((g,i)=>{
+    g.classList.toggle('mesa--sel', i===mesaSel);
+    g.classList.toggle('mesa--perto', perto.has(i));
+  });
+  $('#plantaAviso').hidden = perto.size===0;
+  const n = PROPOSTA.mesas.length, lug = n*MESA.lugares, conv = PROPOSTA.convidados;
+  const el = $('#plantaCont');
+  el.textContent = n===0
+    ? 'Nenhuma mesa ainda — comece pelo distribuir automático.'
+    : `${n} ${n===1?'mesa':'mesas'} · ${n}×${MESA.lugares} = ${lug} lugares — ` +
+      (lug>=conv ? `atende os ${conv} convidados` : `faltam ${conv-lug}`);
+  el.classList.toggle('ok', n>0 && lug>=conv);
+}
+
+function selecionarMesa(i){ mesaSel = i; pintarPlanta(); }
+function removerMesa(i){
+  PROPOSTA.mesas.splice(i,1);
+  mesaSel = -1;
+  salvar(); renderMesas(); atualizarTotais();
+}
+function svgPonto(ev){
+  const pt = svgPlanta.createSVGPoint();
+  pt.x = ev.clientX; pt.y = ev.clientY;
+  return pt.matrixTransform(svgPlanta.getScreenCTM().inverse());
+}
+svgPlanta.addEventListener('pointerdown', ev=>{
+  const alvo = ev.target.closest('.mesa');
+  if(!alvo){ selecionarMesa(-1); return; }
+  const i = +alvo.dataset.i;
+  if(ev.target.closest('.mesa__x')){ removerMesa(i); return; }
+  selecionarMesa(i);
+  alvo.focus({preventScroll:true});
+  const p = svgPonto(ev);
+  dragMesa = {i, el:alvo, dx:PROPOSTA.mesas[i].x-p.x, dy:PROPOSTA.mesas[i].y-p.y};
+  alvo.setPointerCapture(ev.pointerId);
+  alvo.classList.add('mesa--drag');
+});
+svgPlanta.addEventListener('pointermove', ev=>{
+  if(!dragMesa) return;
+  const p = svgPonto(ev);
+  const m = clampMesa(p.x+dragMesa.dx, p.y+dragMesa.dy);
+  PROPOSTA.mesas[dragMesa.i] = m;
+  dragMesa.el.setAttribute('transform', `translate(${m.x},${m.y})`);
+  pintarPlanta();
+});
+function fimDragMesa(){
+  if(!dragMesa) return;
+  dragMesa.el.classList.remove('mesa--drag');
+  dragMesa = null;
+  salvar(); atualizarTotais();
+}
+svgPlanta.addEventListener('pointerup', fimDragMesa);
+svgPlanta.addEventListener('pointercancel', fimDragMesa);
+
+/* teclado: setas movem 0,25 m; Delete remove */
+svgPlanta.addEventListener('keydown', ev=>{
+  const alvo = ev.target.closest('.mesa'); if(!alvo) return;
+  const i = +alvo.dataset.i;
+  if(ev.key==='Delete' || ev.key==='Backspace'){ ev.preventDefault(); removerMesa(i); return; }
+  const passo = 0.25*pxm;
+  const dir = {ArrowUp:[0,-passo], ArrowDown:[0,passo], ArrowLeft:[-passo,0], ArrowRight:[passo,0]}[ev.key];
+  if(!dir) return;
+  ev.preventDefault();
+  const m = clampMesa(PROPOSTA.mesas[i].x+dir[0], PROPOSTA.mesas[i].y+dir[1]);
+  PROPOSTA.mesas[i] = m;
+  mesaSel = i;
+  alvo.setAttribute('transform', `translate(${m.x},${m.y})`);
+  pintarPlanta(); salvar(); atualizarTotais();
+});
+
+$('#btnAddMesa').addEventListener('click', ()=>{
+  /* nasce no centro do salão; se ocupado, procura vaga em espiral */
+  const c = clampMesa((CAL.x0+CAL.x1)/2, (CAL.yTopoDir+CAL.y1)/2);
+  const livre = p=>!PROPOSTA.mesas.some(o=>Math.hypot(o.x-p.x,o.y-p.y) < 2*MESA_R);
+  let m = {...c};
+  for(let t=1; !livre(m) && t<=220; t++){
+    const ang = t*2.4, raio = 14*Math.sqrt(t);
+    m = clampMesa(c.x+raio*Math.cos(ang), c.y+raio*Math.sin(ang));
+  }
+  PROPOSTA.mesas.push(m);
+  mesaSel = PROPOSTA.mesas.length-1;
+  salvar(); renderMesas(); atualizarTotais();
+});
+$('#btnDistribuir').addEventListener('click', ()=>{
+  /* grade centrada no salão principal, corredores de 1,5 m */
+  const a = AREA[1];
+  const passo = (MESA.footprint+CORREDOR)*pxm;
+  const need = Math.ceil(PROPOSTA.convidados/MESA.lugares);
+  const cols = Math.floor(((a.x1-a.x0)-2*MESA_R)/passo)+1;
+  const rows = Math.floor(((a.y1-a.y0)-2*MESA_R)/passo)+1;
+  const cx = (a.x0+a.x1)/2, cy = (a.y0+a.y1)/2;
+  const totalRows = Math.min(rows, Math.ceil(need/cols));
+  const mesas = [];
+  for(let ri=0; ri<totalRows && mesas.length<need; ri++){
+    const nRow = Math.min(cols, need-mesas.length);
+    const y = cy + (ri-(totalRows-1)/2)*passo;
+    for(let ci=0; ci<nRow; ci++){
+      mesas.push(clampMesa(cx + (ci-(nRow-1)/2)*passo, y));
+    }
+  }
+  PROPOSTA.mesas = mesas;
+  mesaSel = -1;
+  salvar(); renderMesas(); atualizarTotais();
+});
+$('#btnLimparMesas').addEventListener('click', ()=>{
+  PROPOSTA.mesas = [];
+  mesaSel = -1;
+  salvar(); renderMesas(); atualizarTotais();
+});
+
+/* =================================================================
+   GALERIA — fotos reais do banco de mídias (Supabase, hot-link)
+   Curadoria: as 2 fotos do evento corporativo B. Fabbriani NESTE
+   salão (2022) primeiro, depois o salão institucional e um mix da
+   coleção corporativa da casa (outros espaços — legenda genérica,
+   sem afirmar local).
+   ================================================================= */
+const MID = 'https://wnhdvlavbtljjyzevocz.supabase.co/storage/v1/object/public/midias/chat/';
+const gfoto = (id,w,h,cap,badge,badgeCls)=>({
+  thumb:`${MID}thumb/chat-${id}.jpg`, url:`${MID}full/chat-${id}.jpg`, w, h, cap, badge, badgeCls});
+const GALERIA = [
+  gfoto('1101',3000,2000,'Evento corporativo realizado neste salão · B. Fabbriani, 2022','Evento corporativo · neste salão','salao'),
+  gfoto('1100',3000,2000,'Evento corporativo realizado neste salão · B. Fabbriani, 2022','Evento corporativo · neste salão','salao'),
+  gfoto('0679',1600,1066,'Salão de Eventos · Itapema/SC'),
+  gfoto('0202',6608,4405,'Salão de Eventos · Itapema/SC'),
+  gfoto('0192',3500,2333,'Salão de Eventos · Itapema/SC'),
+  gfoto('0180',5724,3821,'Salão de Eventos · Itapema/SC'),
+  gfoto('0754',852,1280,'Eventos corporativos Indaiá — decoração','Corporativo · Indaiá'),
+  gfoto('1055',5000,3035,'Eventos corporativos Indaiá — decoração','Corporativo · Indaiá'),
+  gfoto('1039',3333,5000,'Eventos corporativos Indaiá — decoração','Corporativo · Indaiá'),
+  gfoto('0052',6720,4480,'Eventos corporativos Indaiá — coffee break','Corporativo · Indaiá'),
+  gfoto('0293',4480,6720,'Eventos corporativos Indaiá — coffee break','Corporativo · Indaiá'),
+  gfoto('0012',5885,3923,'Eventos corporativos Indaiá — coffee break','Corporativo · Indaiá'),
+  gfoto('2714',2000,3000,'Eventos corporativos Indaiá','Corporativo · Indaiá'),
+  gfoto('2102',3000,2000,'Eventos corporativos Indaiá','Corporativo · Indaiá')
+];
+function montarGaleria(){
+  const grid = $('#galeriaGrid');
+  grid.innerHTML = GALERIA.map((f,i)=>`
+    <button type="button" class="gfoto" data-i="${i}" style="aspect-ratio:${f.w}/${f.h}"
+      aria-label="Ampliar foto: ${esc(f.cap)}">
+      ${f.badge?`<span class="gfoto__badge${f.badgeCls==='salao'?' gfoto__badge--salao':''}">${esc(f.badge)}</span>`:''}
+      <img src="${f.thumb}" alt="${esc(f.cap)}" loading="lazy" decoding="async"
+        onload="this.parentElement.classList.add('is-loaded')"
+        onerror="this.parentElement.classList.add('is-loaded');this.style.display='none'">
+    </button>`).join('');
+  grid.addEventListener('click', ev=>{
+    const b = ev.target.closest('.gfoto');
+    if(b) abrirLux(+b.dataset.i);
+  });
+}
+const lux = $('#lux'), luxImg = $('#luxImg'), luxCap = $('#luxCap');
+let luxIdx = 0, focoLux = null;
+function mostrarLux(i){
+  luxIdx = (i+GALERIA.length)%GALERIA.length;
+  const f = GALERIA[luxIdx];
+  luxImg.classList.remove('is-loaded');
+  luxImg.onload = ()=>luxImg.classList.add('is-loaded');
+  luxImg.src = f.url;
+  luxImg.alt = f.cap;
+  luxCap.innerHTML = `<b>${esc(f.cap)}</b><small>${luxIdx+1} de ${GALERIA.length} · Foto real</small>`;
+  /* pré-carrega as vizinhas para navegar sem espera */
+  [1,-1].forEach(d=>{ const v=new Image(); v.src=GALERIA[(luxIdx+d+GALERIA.length)%GALERIA.length].url; });
+}
+function abrirLux(i){
+  focoLux = document.activeElement;
+  mostrarLux(i);
+  lux.classList.add('aberto'); lux.setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+  $('#luxFechar').focus();
+}
+function fecharLux(){
+  lux.classList.remove('aberto'); lux.setAttribute('aria-hidden','true');
+  luxImg.removeAttribute('src');
+  document.body.style.overflow = '';
+  if(focoLux && focoLux.focus) focoLux.focus();
+}
+$('#luxFechar').addEventListener('click', fecharLux);
+$('#luxAnte').addEventListener('click', ()=>mostrarLux(luxIdx-1));
+$('#luxProx').addEventListener('click', ()=>mostrarLux(luxIdx+1));
+lux.addEventListener('click', ev=>{ if(ev.target===lux) fecharLux(); });
+
+/* =================================================================
+   COMPORTAMENTO DE PÁGINA — topbar, tierbar, reveals
+   ================================================================= */
+const topbar = $('#topbar'), tierbar = $('#tierbar'), hero = $('#topo');
+function aoRolar(){
+  topbar.classList.toggle('is-stuck', scrollY > 8);
+  tierbar.classList.toggle('on', scrollY > hero.offsetTop + hero.offsetHeight - 120);
+}
+addEventListener('scroll', aoRolar, {passive:true});
+addEventListener('resize', aoRolar, {passive:true});
+
+/* reveals com IO; sem IO, tudo visível */
+if('IntersectionObserver' in window){
+  const io = new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); } });
+  },{threshold:.12, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+}else{
+  document.documentElement.classList.add('sem-io');
+}
+
+/* ---- restaurar a proposta original ---- */
+$('#btnReset').addEventListener('click', ()=>{
+  PROPOSTA = JSON.parse(JSON.stringify(PADRAO));
+  mesaSel = -1;
+  try{ localStorage.removeItem(CHAVE); }catch(e){}
+  Object.keys(GRUPOS).forEach(pintarSelecao);
+  pintarPills();
+  renderMesas();
+  atualizarTotais();
+});
+
+/* =================================================================
+   ARRANQUE
+   ================================================================= */
+Object.keys(GRUPOS).forEach(montarCards);
+montarItens();
+montarServicos();
+montarPills();
+montarPlanta();
+montarGaleria();
+Object.keys(GRUPOS).forEach(pintarSelecao);
+pintarPills();
+renderMesas();
+$('#convMenos').disabled = PROPOSTA.convidados<=30;
+$('#convMais').disabled = PROPOSTA.convidados>=500;
+atualizarTotais();
+aoRolar();
+</script>
+</body>
+</html>
