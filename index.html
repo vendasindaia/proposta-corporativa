@@ -1028,7 +1028,7 @@ const pxm  = (CAL.x1 - CAL.x0) / CAL.metros;           // ≈ 43,55 px por metro
 const MESA_R     = MESA.footprint * pxm / 2;           // raio do footprint, em px da imagem
 const CORREDOR   = 1.5;                                // corredor da distribuição automática (m)
 const FOLGA_MIN  = 0.30 * pxm;                         // 30 cm borda a borda entre mesas
-const FOLGA_BORDA= 0.20 * pxm;                         // ~20 cm do footprint até parede/divisa
+const FOLGA_BORDA= 0;                                  // mesa pode ENCOSTAR na parede/divisa (pedido do dono, 18/08)
 /* =================================================================
    ÁREA ÚTIL = o piso cinza INTEIRO do salão principal, medido na
    imagem em 18/08 pelas BASES das paredes (o render inclina as faces;
@@ -1039,17 +1039,21 @@ const FOLGA_BORDA= 0.20 * pxm;                         // ~20 cm do footprint at
      A3 bloco principal          A4 braço superior direito
    Fora, porque não é piso: sala de madeira + deck da árvore (abaixo
    de y≈420 à esquerda de x≈772), deck de luzes e teto de vidro
-   (y>856), cortinas/vidro (x>1768), paredes e exterior.
+   (y>862), cortinas/vidro (x>1746), paredes e exterior.
    Exceção medida: em A4 o piso real começa em y≈290 (base da parede),
    mas o teto rebaixado desenhado na imagem desce até y≈245; usamos
-   y0:252 para o layout padrão da casa (1ª fileira em y=329) continuar
+   y0:250 para o layout padrão da casa (1ª fileira em y=329) continuar
    válido — a mesa cobre só a face inclinada do teto, nunca a parede.
    ================================================================= */
+/* Bordas re-medidas em 18/08 por varredura de PIXELS da própria imagem
+   (classificador de piso cinza: luminância 150-232, croma <=30, corridas
+   contíguas por linha e coluna — script mapear-piso.mjs). Piso real:
+   entrada x>=~262/y>=~150; salão x 775-1745, y ~255-860. */
 const AREA = [
-  {x0:172,  x1:765,  y0:84,  y1:420},   // A1 braço da entrada
-  {x0:172,  x1:1400, y0:240, y1:420},   // A2 junção (piso contínuo)
-  {x0:772,  x1:1400, y0:240, y1:856},   // A3 bloco principal
-  {x0:1300, x1:1768, y0:252, y1:856}    // A4 braço superior direito
+  {x0:275,  x1:766,  y0:152, y1:420},   // A1 braço da entrada
+  {x0:262,  x1:1400, y0:248, y1:420},   // A2 junção (piso contínuo)
+  {x0:775,  x1:1400, y0:248, y1:862},   // A3 bloco principal
+  {x0:1290, x1:1746, y0:250, y1:862}    // A4 braço superior direito
 ];
 const SALAO_PRINCIPAL = AREA[2];
 function clampMesa(x, y){
