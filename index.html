@@ -227,8 +227,17 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .visao.ativa{visibility:visible;opacity:1;}
 .visao__frame{position:relative;aspect-ratio:16/10;overflow:hidden;border-radius:var(--radius);
   border:1px solid var(--line-soft);background:#fff;}
-.visao__frame--foto img{width:100%;height:100%;object-fit:cover;object-position:center;}
 .visao__frame--video{background:var(--night);border-color:rgba(20,24,29,.4);}
+/* maquete 3D: o canvas ocupa o quadro; touch-action none (o gesto é da órbita) */
+.visao__frame--tres{background:#ECEDEF;}
+.tres__canvasbox{position:absolute;inset:0;touch-action:none;cursor:grab;}
+.tres__canvasbox:active{cursor:grabbing;}
+.tres__canvasbox canvas{display:block;width:100%;height:100%;touch-action:none;}
+.tres__status{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-size:.78rem;
+  letter-spacing:.08em;color:var(--taupe);margin:0;pointer-events:none;}
+.tres__fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:16px;padding:24px;text-align:center;}
+.tres__fallback p{font-size:.9rem;color:var(--brown);max-width:44ch;margin:0;line-height:1.6;}
 .visao__frame--video video{width:100%;height:100%;object-fit:contain;display:block;}
 .tour__play{position:absolute;inset:0;margin:auto;width:84px;height:84px;border-radius:50%;
   background:rgba(20,24,29,.72);border:1.5px solid var(--gold-soft);color:var(--gold-soft);
@@ -266,7 +275,6 @@ html.sem-io .reveal{opacity:1;transform:none;}
 /* ---------- galeria (mosaico + lightbox) ---------- */
 .galeria{columns:2;column-gap:12px;}
 @media(min-width:900px){.galeria{columns:3;column-gap:16px;}}
-@media(min-width:1200px){.galeria{columns:4;}}
 .gfoto{position:relative;display:block;width:100%;break-inside:avoid;margin:0 0 12px;padding:0;
   border:1px solid var(--line-soft);border-radius:var(--radius);overflow:hidden;background:var(--sand);
   cursor:zoom-in;text-align:left;}
@@ -476,7 +484,6 @@ html.sem-io .reveal{opacity:1;transform:none;}
      em telas de 360px fica só nessa margem) */
   .visao__frame{aspect-ratio:1/1;}
   .planta__canvas{min-width:560px;}
-  .visao__frame--foto img{object-position:72% center;} /* o salão fica à direita do render */
   .tour__play{width:72px;height:72px;}
   .lux__fig img{max-height:64svh;}
   .lux__ante{left:6px;}
@@ -634,30 +641,18 @@ html.sem-io .reveal{opacity:1;transform:none;}
     <div class="sec__head reveal">
       <div class="sec__meta"><span class="sec__num">04</span><p class="eyebrow">O espaço</p></div>
       <h2 class="sec__title">O seu evento no <em>salão</em>.</h2>
-      <p class="sec__intro">Veja o salão montado no layout da casa, arraste as mesas do seu jeito ou passeie pela maquete em 3D.</p>
+      <p class="sec__intro">Arraste as mesas do seu jeito — e veja o seu layout ganhar volume na maquete 3D.</p>
     </div>
     <div class="planta reveal">
       <div class="visoes-pills" role="group" aria-label="Escolha a visão do salão">
-        <button type="button" class="pill" data-visao="v1" aria-pressed="true">Layout sugerido</button>
-        <button type="button" class="pill" data-visao="v2" aria-pressed="false">Personalizar em 2D</button>
-        <button type="button" class="pill" data-visao="v3" aria-pressed="false">Tour em 3D</button>
+        <button type="button" class="pill" data-visao="v2" aria-pressed="true">Personalizar em 2D</button>
+        <button type="button" class="pill" data-visao="v3d" aria-pressed="false">Ver em 3D</button>
+        <button type="button" class="pill" data-visao="v3" aria-pressed="false">Tour em vídeo</button>
       </div>
       <div class="visoes" id="visoes">
 
-        <!-- visão 1: render decorado do layout padrão -->
-        <div class="visao ativa" data-v="v1">
-          <div class="visao__frame visao__frame--foto">
-            <img src="assets/planta-layout-padrao.jpg" width="1422" height="1106" loading="lazy" decoding="async"
-              alt="Render do salão montado no layout padrão: três fileiras de mesas ao redor da pista central de luzes">
-          </div>
-          <div class="visao__foot">
-            <p class="visao__legenda">Layout padrão da casa — 19 mesas · 152 lugares ao redor da pista central.</p>
-            <button type="button" class="btn btn--ghost" id="btnPersonalizar">Personalizar este layout</button>
-          </div>
-        </div>
-
         <!-- visão 2: editor de mesas sobre a planta limpa -->
-        <div class="visao" data-v="v2">
+        <div class="visao ativa" data-v="v2">
           <div class="visao__frame visao__frame--editor">
             <div class="planta__scroll">
               <div class="planta__canvas">
@@ -695,17 +690,30 @@ html.sem-io .reveal{opacity:1;transform:none;}
           </div>
         </div>
 
-        <!-- visão 3: tour em vídeo pela maquete 3D -->
+        <!-- visão 3D: maquete interativa gerada do layout do cliente (three.js, lazy) -->
+        <div class="visao" data-v="v3d">
+          <div class="visao__frame visao__frame--tres">
+            <div class="tres__canvasbox" id="tresBox" tabindex="0" role="img"
+              aria-label="Maquete 3D do salão com as suas mesas. Arraste para girar, roda ou pinça para aproximar, toque duplo recentraliza; no teclado, setas giram e as teclas mais e menos aproximam."></div>
+            <p class="tres__status" id="tresStatus" hidden>Montando a maquete…</p>
+          </div>
+          <div class="visao__foot">
+            <p class="visao__legenda" id="tresLegenda">Maquete do seu layout · gire com o dedo</p>
+            <button type="button" class="btn btn--ghost" id="btn3dEditar">Ajustar as mesas em 2D</button>
+          </div>
+        </div>
+
+        <!-- visão 3: tour gravado em vídeo -->
         <div class="visao" data-v="v3">
           <div class="visao__frame visao__frame--video">
             <video id="tourVideo" src="assets/tour-salao-3d.mp4" poster="assets/tour-poster.jpg"
-              preload="none" playsinline aria-label="Tour em vídeo pela maquete 3D do salão montado"></video>
-            <button type="button" class="tour__play" id="tourPlay" aria-label="Assistir ao tour 3D do salão">
+              preload="none" playsinline aria-label="Tour em vídeo pelo salão montado no layout padrão"></video>
+            <button type="button" class="tour__play" id="tourPlay" aria-label="Assistir ao tour em vídeo do salão">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
             </button>
           </div>
           <div class="visao__foot">
-            <p class="visao__legenda">Maquete 3D do salão — em breve em alta definição.</p>
+            <p class="visao__legenda">Tour gravado do salão no layout padrão da casa — a maquete 3D ao lado reflete o seu layout.</p>
           </div>
         </div>
 
@@ -720,7 +728,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
     <div class="sec__head reveal">
       <div class="sec__meta"><span class="sec__num">05</span><p class="eyebrow">O espaço ao vivo</p></div>
       <h2 class="sec__title">Onde a sua festa <em>acontece</em>.</h2>
-      <p class="sec__intro">Fotos reais: o Salão de Eventos de Itapema e os eventos corporativos que a Indaiá já entregou.</p>
+      <p class="sec__intro">O layout padrão da casa em render — e fotos reais do Salão de Eventos de Itapema, incluindo um evento corporativo entregue nele.</p>
     </div>
     <div class="galeria reveal" id="galeriaGrid"></div>
   </div>
@@ -1006,38 +1014,50 @@ const DIAS = [['seg-qui','Seg–Qui'],['sexta','Sexta'],['sabado','Sábado'],['d
 /* =================================================================
    PLANTA — calibração da imagem assets/planta-salao-eventos.jpg
    =================================================================
-   COMO RECALIBRAR: abra a imagem (1920×1080) num editor com régua de
-   pixels e meça as faces INTERNAS do piso do salão principal:
-     x0 = parede da sala de madeira (esquerda) · x1 = caixilho de
-     vidro (direita) · y0 = topo do braço superior · y1 = fachada de
-     vidro (baixo) · xDegrau/yTopoDir = degrau do teto no topo direito
-     (à direita de xDegrau o piso só começa em yTopoDir).
-   (x1−x0) corresponde aos 24,50 m da largura inferior (planta da
-   arquiteta); (y1−y0) corresponde aos 12,75 m da borda direita
-   (4,00 m do braço + 8,75 m da parte baixa).
-   ⚠ VERIFICAÇÃO DOS EIXOS (feita em 18/08): o render NÃO é isométrico
-   à planta — o eixo Y medido dá ≈51,8 px/m contra ≈43,6 px/m no X
-   (~19% esticado na vertical). Adotamos a escala HORIZONTAL como
+   ESCALA: (x1−x0) = 24,50 m da largura inferior (planta da arquiteta),
+   medidos entre a parede da sala de madeira (x0) e o caixilho de vidro
+   (x1). ⚠ O render NÃO é isométrico à planta — o eixo Y medido dá
+   ~18% a mais de px/m que o X. Adotamos a escala HORIZONTAL como
    oficial (px/metro único: círculo continua círculo) e os LIMITES de
    arrasto vêm dos retângulos medidos em px, então nenhuma mesa sai do
    piso visível. Se sair um render em escala, basta atualizar CAL.
    ================================================================= */
-const CAL  = { x0:765, y0:205, x1:1832, y1:866, metros:24.5, xDegrau:1400, yTopoDir:240 };
+const CAL  = { x0:765, x1:1832, metros:24.5 };         // só escala (eixo X oficial)
 const MESA = { tampo:1.6, footprint:2.6, lugares:8 };  // medidas a confirmar pelo dono
 const pxm  = (CAL.x1 - CAL.x0) / CAL.metros;           // ≈ 43,55 px por metro
-const MESA_R    = MESA.footprint * pxm / 2;            // raio do footprint, em px da imagem
-const CORREDOR  = 1.5;                                 // corredor da distribuição automática (m)
-const FOLGA_MIN = 0.30 * pxm;                          // 30 cm borda a borda
-/* área útil de arrasto = 2 retângulos: braço alto (até o degrau) + bloco principal */
+const MESA_R     = MESA.footprint * pxm / 2;           // raio do footprint, em px da imagem
+const CORREDOR   = 1.5;                                // corredor da distribuição automática (m)
+const FOLGA_MIN  = 0.30 * pxm;                         // 30 cm borda a borda entre mesas
+const FOLGA_BORDA= 0.20 * pxm;                         // ~20 cm do footprint até parede/divisa
+/* =================================================================
+   ÁREA ÚTIL = o piso cinza INTEIRO do salão principal, medido na
+   imagem em 18/08 pelas BASES das paredes (o render inclina as faces;
+   a linha onde a parede encosta no piso é a que vale). União de 4
+   retângulos, com sobreposição de propósito para uma mesa poder
+   atravessar as emendas sem travar:
+     A1 braço da entrada (esq.)  A2 faixa de junção braço↔salão
+     A3 bloco principal          A4 braço superior direito
+   Fora, porque não é piso: sala de madeira + deck da árvore (abaixo
+   de y≈420 à esquerda de x≈772), deck de luzes e teto de vidro
+   (y>856), cortinas/vidro (x>1768), paredes e exterior.
+   Exceção medida: em A4 o piso real começa em y≈290 (base da parede),
+   mas o teto rebaixado desenhado na imagem desce até y≈245; usamos
+   y0:252 para o layout padrão da casa (1ª fileira em y=329) continuar
+   válido — a mesa cobre só a face inclinada do teto, nunca a parede.
+   ================================================================= */
 const AREA = [
-  {x0:CAL.x0, x1:CAL.xDegrau, y0:CAL.y0,       y1:CAL.y1},
-  {x0:CAL.x0, x1:CAL.x1,      y0:CAL.yTopoDir, y1:CAL.y1}
+  {x0:172,  x1:765,  y0:84,  y1:420},   // A1 braço da entrada
+  {x0:172,  x1:1400, y0:240, y1:420},   // A2 junção (piso contínuo)
+  {x0:772,  x1:1400, y0:240, y1:856},   // A3 bloco principal
+  {x0:1300, x1:1768, y0:252, y1:856}    // A4 braço superior direito
 ];
+const SALAO_PRINCIPAL = AREA[2];
 function clampMesa(x, y){
   let melhor = {x, y}, menor = Infinity;
+  const M = MESA_R + FOLGA_BORDA;
   for(const a of AREA){
-    const cx = limita(x, a.x0 + MESA_R, a.x1 - MESA_R);
-    const cy = limita(y, a.y0 + MESA_R, a.y1 - MESA_R);
+    const cx = limita(x, a.x0 + M, a.x1 - M);
+    const cy = limita(y, a.y0 + M, a.y1 - M);
     const d = (cx-x)*(cx-x) + (cy-y)*(cy-y);
     if(d < menor){ menor = d; melhor = {x:cx, y:cy}; }
   }
@@ -1446,7 +1466,7 @@ function montarPlanta(){
   /* régua de escala: 5 m na escala calibrada, canto inferior esquerdo do piso */
   const L = Math.round(5*pxm*10)/10;
   const regua = $('#reguaCamada');
-  regua.setAttribute('transform', `translate(${CAL.x0+22},${CAL.y1-20})`);
+  regua.setAttribute('transform', `translate(${SALAO_PRINCIPAL.x0+22},${SALAO_PRINCIPAL.y1-24})`);
   regua.innerHTML = `<path class="regua__linha" d="M0 0 H${L} M0 -7 V7 M${L} -7 V7"/>
     <text class="regua__txt" x="${L/2}" y="-14" text-anchor="middle">5 m</text>`;
 }
@@ -1548,8 +1568,8 @@ svgPlanta.addEventListener('keydown', ev=>{
 });
 
 $('#btnAddMesa').addEventListener('click', ()=>{
-  /* nasce no centro do salão; se ocupado, procura vaga em espiral */
-  const c = clampMesa((CAL.x0+CAL.x1)/2, (CAL.yTopoDir+CAL.y1)/2);
+  /* nasce no centro do salão principal; se ocupado, procura vaga em espiral */
+  const c = clampMesa((SALAO_PRINCIPAL.x0+SALAO_PRINCIPAL.x1)/2, (SALAO_PRINCIPAL.y0+SALAO_PRINCIPAL.y1)/2);
   const livre = p=>!PROPOSTA.mesas.some(o=>Math.hypot(o.x-p.x,o.y-p.y) < 2*MESA_R);
   let m = {...c};
   for(let t=1; !livre(m) && t<=220; t++){
@@ -1562,7 +1582,7 @@ $('#btnAddMesa').addEventListener('click', ()=>{
 });
 $('#btnDistribuir').addEventListener('click', ()=>{
   /* grade centrada no salão principal, corredores de 1,5 m */
-  const a = AREA[1];
+  const a = SALAO_PRINCIPAL;
   const passo = (MESA.footprint+CORREDOR)*pxm;
   const need = Math.ceil(PROPOSTA.convidados/MESA.lugares);
   const cols = Math.floor(((a.x1-a.x0)-2*MESA_R)/passo)+1;
@@ -1596,7 +1616,7 @@ $('#btnRemoverSel').addEventListener('click', ()=>{
 });
 
 /* ---- as três visões do salão (pills com fade de 160ms) ---- */
-let visaoAtual = 'v1';
+let visaoAtual = 'v2';
 function trocarVisao(v){
   if(visaoAtual===v) return;
   const box = $('#visoes');
@@ -1608,13 +1628,15 @@ function trocarVisao(v){
     /* saiu do tour: pausa o vídeo */
     const vd = $('#tourVideo');
     if(v!=='v3' && vd && !vd.paused) vd.pause();
+    /* maquete 3D: regenera ao entrar; o laço de render só roda enquanto está na tela */
+    if(v==='v3d') tresAtivar(); else tresParar();
     box.classList.remove('trocando');
   },160);
 }
 document.querySelectorAll('[data-visao]').forEach(b=>b.addEventListener('click', ()=>trocarVisao(b.dataset.visao)));
-$('#btnPersonalizar').addEventListener('click', ()=>trocarVisao('v2'));
+$('#btn3dEditar').addEventListener('click', ()=>trocarVisao('v2'));
 
-/* ---- tour 3D: nada baixa antes do play (preload=none); controls só depois ---- */
+/* ---- tour em vídeo: nada baixa antes do play (preload=none); controls só depois ---- */
 $('#tourPlay').addEventListener('click', ()=>{
   const vd = $('#tourVideo');
   vd.setAttribute('controls','');
@@ -1624,30 +1646,294 @@ $('#tourPlay').addEventListener('click', ()=>{
 });
 
 /* =================================================================
-   GALERIA — fotos reais do banco de mídias (Supabase, hot-link)
-   Curadoria: as 2 fotos do evento corporativo B. Fabbriani NESTE
-   salão (2022) primeiro, depois o salão institucional e um mix da
-   coleção corporativa da casa (outros espaços — legenda genérica,
-   sem afirmar local).
+   MAQUETE 3D — three.js self-hosted (assets/lib/three.min.js, r160),
+   carregado só na primeira vez que a visão abre. O piso é a própria
+   planta mapeada pela calibração (pxm → medidas reais em metros); as
+   mesas nascem de PROPOSTA.mesas a cada abertura, então o que foi
+   arrastado no 2D aparece aqui. Sem WebGL: mensagem + caminho pro 2D.
    ================================================================= */
-const MID = 'https://wnhdvlavbtljjyzevocz.supabase.co/storage/v1/object/public/midias/chat/';
-const gfoto = (id,w,h,cap,badge,badgeCls)=>({
-  thumb:`${MID}thumb/chat-${id}.jpg`, url:`${MID}full/chat-${id}.jpg`, w, h, cap, badge, badgeCls});
+const tresBox = $('#tresBox');
+const T3 = {
+  pronto:false, carregando:false, falhou:false, raf:0,
+  cena:null, cam:null, renderer:null, alvo:null, mesas3d:null,
+  orb:{theta:.35, phi:.8, raio:30}, orb0:{theta:.35, phi:.8, raio:30},
+  ponteiros:new Map(), pinca:0
+};
+const pxParaM = (px,py)=>({x:(px-960)/pxm, z:(py-540)/pxm});
+
+function tresTemWebGL(){
+  try{
+    const c = document.createElement('canvas');
+    return !!(window.WebGLRenderingContext && (c.getContext('webgl')||c.getContext('experimental-webgl')));
+  }catch(e){ return false; }
+}
+function tresFalhar(msg){
+  T3.falhou = true;
+  tresBox.innerHTML = `<div class="tres__fallback"><p>${msg}</p>
+    <button type="button" class="btn btn--solid" id="btn3dFallback">Personalizar em 2D</button></div>`;
+  tresBox.querySelector('#btn3dFallback').addEventListener('click', ()=>trocarVisao('v2'));
+  $('#tresLegenda').textContent = 'A maquete 3D não abre neste navegador — o editor 2D faz o mesmo trabalho.';
+}
+function carregarThree(){
+  return new Promise((res, rej)=>{
+    if(window.THREE) return res();
+    const s = document.createElement('script');
+    s.src = 'assets/lib/three.min.js';
+    s.onload = res; s.onerror = ()=>rej(new Error('three.min.js'));
+    document.head.appendChild(s);
+  });
+}
+function tresIniciar(){
+  const TH = window.THREE;
+  T3.renderer = new TH.WebGLRenderer({antialias:true});
+  T3.renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
+  T3.renderer.shadowMap.enabled = true;
+  T3.renderer.shadowMap.type = TH.PCFSoftShadowMap;
+  tresBox.appendChild(T3.renderer.domElement);
+
+  T3.cena = new TH.Scene();
+  T3.cena.background = new TH.Color(0xECEDEF);
+
+  /* piso = a planta inteira, 1:1 com a calibração (44,1 m × 24,8 m) */
+  const piso = new TH.Mesh(
+    new TH.PlaneGeometry(1920/pxm, 1080/pxm),
+    new TH.MeshStandardMaterial({color:0xffffff, roughness:.96, metalness:0}));
+  piso.rotation.x = -Math.PI/2;
+  piso.receiveShadow = true;
+  T3.cena.add(piso);
+  const img = new Image();
+  img.onload = ()=>{
+    try{
+      const tx = new TH.Texture(img);
+      tx.colorSpace = TH.SRGBColorSpace;
+      tx.anisotropy = Math.min(8, T3.renderer.capabilities.getMaxAnisotropy());
+      tx.needsUpdate = true;
+      T3.renderer.initTexture(tx);
+      piso.material.map = tx;
+      piso.material.color.set(0xffffff);
+      piso.material.needsUpdate = true;
+    }catch(e){ piso.material.color.set(0xD9DBDE); } /* sem textura (file://): piso liso */
+  };
+  img.onerror = ()=>piso.material.color.set(0xD9DBDE);
+  img.src = 'assets/planta-salao-eventos.jpg';
+
+  /* paredes simples no perímetro da área útil (bases medidas na planta);
+     o 3º campo marca trecho de VIDRO (fachada direita e de baixo) */
+  const PERIMETRO = [[172,84],[765,84],[765,240],[1400,240],[1400,252],[1768,252,1],[1768,856,1],[772,856],[772,420],[172,420]];
+  const matParede = new TH.MeshStandardMaterial({color:0x59626B, roughness:.92});
+  const matVidro  = new TH.MeshStandardMaterial({color:0xC9D8DE, roughness:.25, transparent:true, opacity:.28});
+  const ALT = 4, ESP = .18;
+  for(let i=0;i<PERIMETRO.length;i++){
+    const vidro = !!PERIMETRO[i][2];
+    const a = pxParaM(PERIMETRO[i][0], PERIMETRO[i][1]);
+    const prox = PERIMETRO[(i+1)%PERIMETRO.length];
+    const b = pxParaM(prox[0], prox[1]);
+    const L = Math.hypot(b.x-a.x, b.z-a.z);
+    const w = new TH.Mesh(new TH.BoxGeometry(L+ESP, ALT, ESP), vidro ? matVidro : matParede);
+    w.position.set((a.x+b.x)/2, ALT/2, (a.z+b.z)/2);
+    w.rotation.y = -Math.atan2(b.z-a.z, b.x-a.x);
+    w.castShadow = !vidro;
+    w.receiveShadow = true;
+    T3.cena.add(w);
+  }
+
+  /* luz ambiente + direcional quente com sombra suave */
+  T3.cena.add(new TH.AmbientLight(0xFFF3E0, .62));
+  const sol = new TH.DirectionalLight(0xFFE2B8, 1.5);
+  sol.position.set(10, 20, 14);
+  sol.castShadow = true;
+  sol.shadow.mapSize.set(1024, 1024);
+  sol.shadow.camera.left = -26; sol.shadow.camera.right = 26;
+  sol.shadow.camera.top = 26; sol.shadow.camera.bottom = -26;
+  sol.shadow.camera.far = 60; sol.shadow.bias = -0.0004;
+  T3.cena.add(sol);
+
+  /* câmera em órbita ao redor do centro do salão */
+  const centro = pxParaM(970, 470);
+  T3.alvo = new TH.Vector3(centro.x, 0, centro.z);
+  T3.cam = new TH.PerspectiveCamera(46, 1, .1, 300);
+  T3.pronto = true;
+}
+/* mesas em InstancedMesh (3 draw calls, qualquer nº de mesas) */
+function tresMesas(){
+  const TH = window.THREE;
+  if(T3.mesas3d){
+    T3.cena.remove(T3.mesas3d);
+    T3.mesas3d.traverse(o=>{ if(o.isMesh){ o.geometry.dispose(); o.material.dispose(); } });
+  }
+  const g = new TH.Group();
+  const n = PROPOSTA.mesas.length;
+  if(n){
+    const geoMesa    = new TH.CylinderGeometry(MESA.tampo/2, MESA.tampo/2, .78, 26);
+    const geoAssento = new TH.BoxGeometry(.42, .45, .40);
+    const geoEncosto = new TH.BoxGeometry(.42, .42, .05);
+    const matToalha  = new TH.MeshStandardMaterial({color:0xF3EFE7, roughness:.85});
+    const matMadeira = new TH.MeshStandardMaterial({color:0x8A6C4D, roughness:.8});
+    const mesas    = new TH.InstancedMesh(geoMesa, matToalha, n);
+    const assentos = new TH.InstancedMesh(geoAssento, matMadeira, n*8);
+    const encostos = new TH.InstancedMesh(geoEncosto, matMadeira, n*8);
+    const M = new TH.Matrix4(), Q = new TH.Quaternion(), UM = new TH.Vector3(1,1,1),
+          V = new TH.Vector3(), CIMA = new TH.Vector3(0,1,0);
+    PROPOSTA.mesas.forEach((m,i)=>{
+      const p = pxParaM(m.x, m.y);
+      M.compose(V.set(p.x, .39, p.z), Q.identity(), UM);
+      mesas.setMatrixAt(i, M);
+      for(let c=0;c<8;c++){
+        const ang = c*Math.PI/4, r = 1.02;
+        Q.setFromAxisAngle(CIMA, ang);
+        M.compose(V.set(p.x+Math.sin(ang)*r, .225, p.z+Math.cos(ang)*r), Q, UM);
+        assentos.setMatrixAt(i*8+c, M);
+        M.compose(V.set(p.x+Math.sin(ang)*(r+.2), .66, p.z+Math.cos(ang)*(r+.2)), Q, UM);
+        encostos.setMatrixAt(i*8+c, M);
+      }
+    });
+    mesas.castShadow = assentos.castShadow = encostos.castShadow = true;
+    mesas.receiveShadow = true;
+    g.add(mesas, assentos, encostos);
+  }
+  T3.mesas3d = g;
+  T3.cena.add(g);
+}
+function tresDimensionar(){
+  if(!T3.pronto) return;
+  const w = tresBox.clientWidth||2, h = tresBox.clientHeight||2;
+  T3.renderer.setSize(w, h, false);
+  T3.cam.aspect = w/h;
+  T3.cam.updateProjectionMatrix();
+}
+function tresCamera(){
+  const o = T3.orb;
+  o.phi  = limita(o.phi, .25, 1.22);
+  o.raio = limita(o.raio, 10, 55);
+  T3.cam.position.set(
+    T3.alvo.x + o.raio*Math.sin(o.phi)*Math.sin(o.theta),
+    T3.alvo.y + o.raio*Math.cos(o.phi),
+    T3.alvo.z + o.raio*Math.sin(o.phi)*Math.cos(o.theta));
+  T3.cam.lookAt(T3.alvo);
+}
+function tresLaco(){
+  T3.raf = requestAnimationFrame(tresLaco);
+  T3.renderer.render(T3.cena, T3.cam);
+}
+function tresParar(){
+  if(T3.raf){ cancelAnimationFrame(T3.raf); T3.raf = 0; }
+}
+function tresAbrir(){
+  tresMesas();
+  const n = PROPOSTA.mesas.length;
+  $('#tresLegenda').textContent = n
+    ? `Maquete do seu layout — ${n} ${n===1?'mesa':'mesas'} · gire com o dedo`
+    : 'Maquete do salão vazio — adicione mesas na visão 2D · gire com o dedo';
+  tresDimensionar();
+  tresCamera();
+  if(!T3.raf) tresLaco();
+}
+function tresAtivar(){
+  if(T3.falhou) return;
+  if(!tresTemWebGL()){
+    tresFalhar('Este navegador está sem WebGL, que é quem desenha a maquete. Sem drama: no 2D dá para montar o layout do mesmo jeito.');
+    return;
+  }
+  if(T3.pronto){ tresAbrir(); return; }
+  if(T3.carregando) return;
+  T3.carregando = true;
+  $('#tresStatus').hidden = false;
+  carregarThree().then(()=>{
+    T3.carregando = false;
+    tresIniciar();
+    $('#tresStatus').hidden = true;
+    if(visaoAtual==='v3d') tresAbrir();
+  }).catch(()=>{
+    T3.carregando = false;
+    $('#tresStatus').hidden = true;
+    tresFalhar('A maquete não carregou agora. Sem drama: no 2D dá para montar o layout do mesmo jeito.');
+  });
+}
+/* órbita: 1 dedo/mouse gira · 2 dedos = pinça · roda = zoom · duplo = reset */
+tresBox.addEventListener('pointerdown', ev=>{
+  if(!T3.pronto) return;
+  tresBox.setPointerCapture(ev.pointerId);
+  T3.ponteiros.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+  if(T3.ponteiros.size===2){
+    const p = [...T3.ponteiros.values()];
+    T3.pinca = Math.hypot(p[0].x-p[1].x, p[0].y-p[1].y);
+  }
+});
+tresBox.addEventListener('pointermove', ev=>{
+  const p = T3.ponteiros.get(ev.pointerId);
+  if(!p || !T3.pronto) return;
+  if(T3.ponteiros.size===1){
+    T3.orb.theta -= (ev.clientX-p.x)*.005;
+    T3.orb.phi   -= (ev.clientY-p.y)*.004;
+  }
+  p.x = ev.clientX; p.y = ev.clientY;
+  if(T3.ponteiros.size===2){
+    const q = [...T3.ponteiros.values()];
+    const d = Math.hypot(q[0].x-q[1].x, q[0].y-q[1].y);
+    if(T3.pinca && d>0) T3.orb.raio *= T3.pinca/d;
+    T3.pinca = d;
+  }
+  tresCamera();
+});
+const tresSoltar = ev=>{ T3.ponteiros.delete(ev.pointerId); T3.pinca = 0; };
+tresBox.addEventListener('pointerup', tresSoltar);
+tresBox.addEventListener('pointercancel', tresSoltar);
+tresBox.addEventListener('wheel', ev=>{
+  if(!T3.pronto) return;
+  ev.preventDefault();
+  T3.orb.raio *= 1 + ev.deltaY*.0012;
+  tresCamera();
+}, {passive:false});
+tresBox.addEventListener('dblclick', ()=>{
+  if(!T3.pronto) return;
+  T3.orb = {...T3.orb0};
+  tresCamera();
+});
+tresBox.addEventListener('keydown', ev=>{
+  if(!T3.pronto) return;
+  const o = T3.orb, k = ev.key;
+  if(k==='ArrowLeft') o.theta += .08;
+  else if(k==='ArrowRight') o.theta -= .08;
+  else if(k==='ArrowUp') o.phi -= .05;
+  else if(k==='ArrowDown') o.phi += .05;
+  else if(k==='+'||k==='=') o.raio /= 1.08;
+  else if(k==='-') o.raio *= 1.08;
+  else return;
+  ev.preventDefault();
+  tresCamera();
+});
+addEventListener('resize', ()=>{ if(visaoAtual==='v3d') tresDimensionar(); }, {passive:true});
+
+/* =================================================================
+   GALERIA — só este salão, poucas fotos e EM ALTA (URL cheia também
+   no grid; são 6 itens, o peso compensa a nitidez).
+   Curadoria 18/08: abre com o render do layout padrão da casa; depois
+   as 2 fotos do evento corporativo B. Fabbriani NESTE salão (2022) e
+   3 institucionais do Salão de Eventos escolhidas a olho — salão
+   montado de dia, pista com a chuva de cristais e o deck da figueira.
+   (chat-0180 ficou de fora: treliça de palco no quadro; chat-0679
+   sumiu do storage — 404.)
+   ================================================================= */
+const MID = 'https://wnhdvlavbtljjyzevocz.supabase.co/storage/v1/object/public/midias/chat/full/';
 const GALERIA = [
-  gfoto('1101',3000,2000,'Evento corporativo realizado neste salão · B. Fabbriani, 2022','Evento corporativo · neste salão','salao'),
-  gfoto('1100',3000,2000,'Evento corporativo realizado neste salão · B. Fabbriani, 2022','Evento corporativo · neste salão','salao'),
-  gfoto('0679',1600,1066,'Salão de Eventos · Itapema/SC'),
-  gfoto('0202',6608,4405,'Salão de Eventos · Itapema/SC'),
-  gfoto('0192',3500,2333,'Salão de Eventos · Itapema/SC'),
-  gfoto('0180',5724,3821,'Salão de Eventos · Itapema/SC'),
-  gfoto('0754',852,1280,'Eventos corporativos Indaiá — decoração','Corporativo · Indaiá'),
-  gfoto('1055',5000,3035,'Eventos corporativos Indaiá — decoração','Corporativo · Indaiá'),
-  gfoto('1039',3333,5000,'Eventos corporativos Indaiá — decoração','Corporativo · Indaiá'),
-  gfoto('0052',6720,4480,'Eventos corporativos Indaiá — coffee break','Corporativo · Indaiá'),
-  gfoto('0293',4480,6720,'Eventos corporativos Indaiá — coffee break','Corporativo · Indaiá'),
-  gfoto('0012',5885,3923,'Eventos corporativos Indaiá — coffee break','Corporativo · Indaiá'),
-  gfoto('2714',2000,3000,'Eventos corporativos Indaiá','Corporativo · Indaiá'),
-  gfoto('2102',3000,2000,'Eventos corporativos Indaiá','Corporativo · Indaiá')
+  {url:'assets/planta-layout-padrao.jpg', w:1422, h:1106,
+   cap:'Render do salão no layout padrão da casa — 19 mesas · 152 lugares',
+   selo:'Render da maquete', badge:'Layout padrão · 19 mesas', badgeCls:'salao'},
+  {url:`${MID}chat-1101.jpg`, w:3000, h:2000,
+   cap:'Evento corporativo realizado neste salão · B. Fabbriani, 2022',
+   badge:'Evento corporativo · neste salão', badgeCls:'salao'},
+  {url:`${MID}chat-1100.jpg`, w:3000, h:2000,
+   cap:'Evento corporativo realizado neste salão · B. Fabbriani, 2022',
+   badge:'Evento corporativo · neste salão', badgeCls:'salao'},
+  {url:`${MID}chat-0208.jpg`, w:1600, h:1066,
+   cap:'O salão montado para recepção · Salão de Eventos, Itapema/SC',
+   badge:'Salão de Eventos · Itapema'},
+  {url:`${MID}chat-0192.jpg`, w:3500, h:2333,
+   cap:'A pista e a chuva de cristais · Salão de Eventos, Itapema/SC',
+   badge:'Salão de Eventos · Itapema'},
+  {url:`${MID}chat-0202.jpg`, w:6608, h:4405,
+   cap:'O deck da figueira, anexo ao salão · Salão de Eventos, Itapema/SC',
+   badge:'Salão de Eventos · Itapema'}
 ];
 function montarGaleria(){
   const grid = $('#galeriaGrid');
@@ -1655,7 +1941,7 @@ function montarGaleria(){
     <button type="button" class="gfoto" data-i="${i}" style="aspect-ratio:${f.w}/${f.h}"
       aria-label="Ampliar foto: ${esc(f.cap)}">
       ${f.badge?`<span class="gfoto__badge${f.badgeCls==='salao'?' gfoto__badge--salao':''}">${esc(f.badge)}</span>`:''}
-      <img src="${f.thumb}" alt="${esc(f.cap)}" loading="lazy" decoding="async"
+      <img src="${f.url}" alt="${esc(f.cap)}" loading="lazy" decoding="async"
         onload="this.parentElement.classList.add('is-loaded')"
         onerror="this.parentElement.classList.add('is-loaded');this.style.display='none'">
     </button>`).join('');
@@ -1673,7 +1959,7 @@ function mostrarLux(i){
   luxImg.onload = ()=>luxImg.classList.add('is-loaded');
   luxImg.src = f.url;
   luxImg.alt = f.cap;
-  luxCap.innerHTML = `<b>${esc(f.cap)}</b><small>${luxIdx+1} de ${GALERIA.length} · Foto real</small>`;
+  luxCap.innerHTML = `<b>${esc(f.cap)}</b><small>${luxIdx+1} de ${GALERIA.length} · ${esc(f.selo||'Foto real')}</small>`;
   /* pré-carrega as vizinhas para navegar sem espera */
   [1,-1].forEach(d=>{ const v=new Image(); v.src=GALERIA[(luxIdx+d+GALERIA.length)%GALERIA.length].url; });
 }
@@ -1725,6 +2011,7 @@ $('#btnReset').addEventListener('click', ()=>{
   pintarPills();
   renderMesas();
   atualizarTotais();
+  if(visaoAtual==='v3d' && T3.pronto) tresAbrir(); /* maquete acompanha o reset */
 });
 
 /* =================================================================
