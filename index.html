@@ -219,12 +219,33 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .planta__cont.ok{color:var(--wa-deep);font-weight:500;}
 .planta__aviso{margin:0 0 10px;font-size:.78rem;color:#8a5f10;display:flex;gap:.5em;align-items:center;}
 .planta__aviso .ic{color:#b07818;width:1.15em;height:1.15em;}
-.planta__scroll{overflow-x:auto;border:1px solid var(--line-soft);border-radius:var(--radius);background:#fff;
+/* três visões do salão em pilha de grid: a altura da seção é a da mais alta
+   (trocar de pill não move o resto da página) */
+.visoes-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.visoes{display:grid;}
+.visao{grid-area:1/1;visibility:hidden;opacity:0;transition:opacity .16s;}
+.visao.ativa{visibility:visible;opacity:1;}
+.visao__frame{position:relative;aspect-ratio:16/10;overflow:hidden;border-radius:var(--radius);
+  border:1px solid var(--line-soft);background:#fff;}
+.visao__frame--foto img{width:100%;height:100%;object-fit:cover;object-position:center;}
+.visao__frame--video{background:var(--night);border-color:rgba(20,24,29,.4);}
+.visao__frame--video video{width:100%;height:100%;object-fit:contain;display:block;}
+.tour__play{position:absolute;inset:0;margin:auto;width:84px;height:84px;border-radius:50%;
+  background:rgba(20,24,29,.72);border:1.5px solid var(--gold-soft);color:var(--gold-soft);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px);
+  transition:background .25s,color .25s,transform .3s var(--ease-lux);}
+.tour__play:hover{background:var(--gold-soft);color:var(--ink);transform:scale(1.06);}
+.tour__play svg{width:30px;height:30px;fill:currentColor;stroke:none;margin-left:5px;}
+.tour__play[hidden]{display:none;}
+.visao__foot{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;
+  margin-top:12px;min-height:44px;}
+.visao__legenda{font-size:.82rem;color:var(--brown);margin:0;line-height:1.55;}
+.planta__scroll{overflow-x:auto;height:100%;background:#fff;display:flex;align-items:center;
   scrollbar-width:thin;scrollbar-color:var(--bege) transparent;}
-.planta__canvas{position:relative;min-width:1000px;}
+.planta__canvas{position:relative;width:100%;margin:auto;}
 .planta__canvas>img{width:100%;display:block;}
 .planta__canvas>svg{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-x pan-y;}
-.planta__nota{font-size:.76rem;color:var(--taupe);margin:12px 0 0;line-height:1.6;}
+.planta__nota{font-size:.76rem;color:var(--taupe);margin:6px 0 0;line-height:1.6;width:100%;}
 /* peças do SVG */
 .regua__linha{stroke:var(--taupe);stroke-width:2.5;fill:none;opacity:.7;}
 .regua__txt{font-family:var(--sans);font-size:24px;letter-spacing:.12em;fill:var(--taupe);opacity:.85;}
@@ -450,6 +471,13 @@ html.sem-io .reveal{opacity:1;transform:none;}
   .cta .btn{width:100%;max-width:420px;justify-content:center;}
   .planta__bar .btn{flex:1 1 auto;justify-content:center;}
   .planta__cont{margin:4px 0 0;width:100%;}
+  /* celular: quadro quadrado; o editor rola de lado com canvas de 560px
+     (a planta tem ~14% de margem vazia em cima/embaixo — o corte residual
+     em telas de 360px fica só nessa margem) */
+  .visao__frame{aspect-ratio:1/1;}
+  .planta__canvas{min-width:560px;}
+  .visao__frame--foto img{object-position:72% center;} /* o salão fica à direita do render */
+  .tour__play{width:72px;height:72px;}
   .lux__fig img{max-height:64svh;}
   .lux__ante{left:6px;}
   .lux__prox{right:6px;}
@@ -605,39 +633,83 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap">
     <div class="sec__head reveal">
       <div class="sec__meta"><span class="sec__num">04</span><p class="eyebrow">O espaço</p></div>
-      <h2 class="sec__title">Monte o seu <em>salão</em>.</h2>
-      <p class="sec__intro">Arraste as mesas e visualize o seu evento na proporção real do espaço.</p>
+      <h2 class="sec__title">O seu evento no <em>salão</em>.</h2>
+      <p class="sec__intro">Veja o salão montado no layout da casa, arraste as mesas do seu jeito ou passeie pela maquete em 3D.</p>
     </div>
     <div class="planta reveal">
-      <div class="planta__bar" role="toolbar" aria-label="Editor de mesas">
-        <button type="button" class="btn btn--ghost" id="btnAddMesa">+ Adicionar mesa</button>
-        <button type="button" class="btn btn--ghost" id="btnDistribuir">Distribuir automaticamente</button>
-        <button type="button" class="btn btn--ghost" id="btnLimparMesas">Limpar</button>
-        <p class="planta__cont" id="plantaCont" aria-live="polite">—</p>
+      <div class="visoes-pills" role="group" aria-label="Escolha a visão do salão">
+        <button type="button" class="pill" data-visao="v1" aria-pressed="true">Layout sugerido</button>
+        <button type="button" class="pill" data-visao="v2" aria-pressed="false">Personalizar em 2D</button>
+        <button type="button" class="pill" data-visao="v3" aria-pressed="false">Tour em 3D</button>
       </div>
-      <p class="planta__aviso" id="plantaAviso" hidden>
-        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2.8 20h18.4Z"/><path d="M12 10v5m0 2.6v.4"/></svg>
-        Mesas muito próximas: deixe ao menos 30 cm entre elas.
-      </p>
-      <div class="planta__scroll">
-        <div class="planta__canvas">
-          <img src="assets/planta-salao-eventos.jpg" alt="Planta do Salão de Eventos de Itapema vista de cima" width="1920" height="1080" loading="lazy" decoding="async">
-          <svg id="plantaSvg" viewBox="0 0 1920 1080" aria-label="Editor de mesas sobre a planta do salão">
-            <defs>
-              <!-- mesa redonda vista de cima: 100 unidades = footprint (tampo + cadeiras) -->
-              <symbol id="simboloMesa" viewBox="-50 -50 100 100">
-                <g id="cadeirasMesa"></g>
-                <circle class="mesa__tampo" r="30.8"/>
-                <circle class="mesa__toalha" r="24"/>
-              </symbol>
-            </defs>
-            <g id="reguaCamada" class="regua" aria-hidden="true"></g>
-            <g id="mesasCamada"></g>
-          </svg>
+      <div class="visoes" id="visoes">
+
+        <!-- visão 1: render decorado do layout padrão -->
+        <div class="visao ativa" data-v="v1">
+          <div class="visao__frame visao__frame--foto">
+            <img src="assets/planta-layout-padrao.jpg" width="1422" height="1106" loading="lazy" decoding="async"
+              alt="Render do salão montado no layout padrão: três fileiras de mesas ao redor da pista central de luzes">
+          </div>
+          <div class="visao__foot">
+            <p class="visao__legenda">Layout padrão da casa — 19 mesas · 152 lugares ao redor da pista central.</p>
+            <button type="button" class="btn btn--ghost" id="btnPersonalizar">Personalizar este layout</button>
+          </div>
         </div>
+
+        <!-- visão 2: editor de mesas sobre a planta limpa -->
+        <div class="visao" data-v="v2">
+          <div class="visao__frame visao__frame--editor">
+            <div class="planta__scroll">
+              <div class="planta__canvas">
+                <img src="assets/planta-salao-eventos.jpg" alt="Planta do Salão de Eventos de Itapema vista de cima" width="1920" height="1080" loading="lazy" decoding="async">
+                <svg id="plantaSvg" viewBox="0 0 1920 1080" aria-label="Editor de mesas sobre a planta do salão">
+                  <defs>
+                    <!-- mesa redonda vista de cima: 100 unidades = footprint (tampo + cadeiras) -->
+                    <symbol id="simboloMesa" viewBox="-50 -50 100 100">
+                      <g id="cadeirasMesa"></g>
+                      <circle class="mesa__tampo" r="30.8"/>
+                      <circle class="mesa__toalha" r="24"/>
+                    </symbol>
+                  </defs>
+                  <g id="reguaCamada" class="regua" aria-hidden="true"></g>
+                  <g id="mesasCamada"></g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="visao__foot">
+            <div class="planta__bar" role="toolbar" aria-label="Editor de mesas" style="margin-bottom:0;width:100%;">
+              <button type="button" class="btn btn--ghost" id="btnAddMesa">+ Adicionar mesa</button>
+              <button type="button" class="btn btn--ghost" id="btnDistribuir">Distribuir automaticamente</button>
+              <button type="button" class="btn btn--ghost" id="btnPadrao">Restaurar layout padrão</button>
+              <button type="button" class="btn btn--ghost" id="btnLimparMesas">Limpar</button>
+              <button type="button" class="btn btn--ghost" id="btnRemoverSel" hidden>Remover mesa</button>
+              <p class="planta__cont" id="plantaCont" aria-live="polite">—</p>
+            </div>
+            <p class="planta__aviso" id="plantaAviso" hidden>
+              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 2.8 20h18.4Z"/><path d="M12 10v5m0 2.6v.4"/></svg>
+              Mesas muito próximas: deixe ao menos 30 cm entre elas.
+            </p>
+            <p class="planta__nota">Mesa redonda: tampo de 1,60 m · 8 lugares · footprint de 2,60 m com cadeiras.
+              Layout final validado pela nossa equipe de operações.</p>
+          </div>
+        </div>
+
+        <!-- visão 3: tour em vídeo pela maquete 3D -->
+        <div class="visao" data-v="v3">
+          <div class="visao__frame visao__frame--video">
+            <video id="tourVideo" src="assets/tour-salao-3d.mp4" poster="assets/tour-poster.jpg"
+              preload="none" playsinline aria-label="Tour em vídeo pela maquete 3D do salão montado"></video>
+            <button type="button" class="tour__play" id="tourPlay" aria-label="Assistir ao tour 3D do salão">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+          </div>
+          <div class="visao__foot">
+            <p class="visao__legenda">Maquete 3D do salão — em breve em alta definição.</p>
+          </div>
+        </div>
+
       </div>
-      <p class="planta__nota">Mesa redonda: tampo de 1,60 m · 8 lugares · footprint de 2,60 m com cadeiras.
-        Layout final validado pela nossa equipe de operações.</p>
     </div>
   </div>
 </section>
@@ -978,13 +1050,28 @@ function paresPertos(mesas){
   }
   return perto;
 }
+/* LAYOUT PADRÃO DA CASA — 19 mesas (6/7/6) ao redor da pista central.
+   Posições transpostas do render decorado (assets/planta-layout-padrao.jpg)
+   para a planta limpa: os dois vêm do mesmo modelo 3D e a transformação é
+   uniforme (escala 1,258 — parede esq. 522→765, vidro 1370→1832, fundo
+   850→866). As fileiras medidas caem em y≈328/457/715 e a 1ª coluna em
+   x≈867; o passo do render (~2,79 m) foi arredondado para 2,92 m (127 px)
+   para respeitar a folga mínima de 30 cm do próprio editor — por isso o
+   layout padrão nunca acende o aviso âmbar. O corredor entre a fileira do
+   meio e a de baixo é a pista de luzes (y≈556–637 na planta limpa). */
+const MESAS_PADRAO = [
+  {x:867,y:329},{x:994,y:329},{x:1121,y:329},{x:1248,y:329},{x:1375,y:329},{x:1502,y:329},
+  {x:867,y:457},{x:994,y:457},{x:1121,y:457},{x:1248,y:457},{x:1375,y:457},{x:1502,y:457},{x:1629,y:457},
+  {x:867,y:715},{x:994,y:715},{x:1121,y:715},{x:1248,y:715},{x:1375,y:715},{x:1502,y:715}
+];
 
 /* =================================================================
    ESTADO — um objeto só, persistido em localStorage
    ================================================================= */
 const CHAVE = 'proposta_dimy_prototipo';
 const PADRAO = {convidados:200, dia:'seg-qui', coquetel:'c4', menu:'m2', openbar:'b1',
-  extras:{cafe:20, toalha:20, av:44, dj:1, hora:7}, mesas:[]};
+  extras:{cafe:20, toalha:20, av:44, dj:1, hora:7}, mesas:MESAS_PADRAO};
+  /* PADRAO só é usado via cópia profunda (JSON), então MESAS_PADRAO não é mutado */
 let PROPOSTA = carregar();
 
 function carregar(){
@@ -1002,9 +1089,13 @@ function carregar(){
         const v = s.extras && Number.isInteger(s.extras[it.id]) ? s.extras[it.id] : it.padrao;
         return [it.id, limita(v, it.min, it.max)];
       })),
-      mesas: (Array.isArray(s.mesas) ? s.mesas : []).slice(0,60)
-        .filter(m=>m && Number.isFinite(m.x) && Number.isFinite(m.y))
-        .map(m=>clampMesa(m.x, m.y))
+      /* sem o campo mesas = nunca abriu o editor → recebe o layout padrão;
+         array (mesmo vazio) = escolha do cliente, fica como está */
+      mesas: Array.isArray(s.mesas)
+        ? s.mesas.slice(0,60)
+            .filter(m=>m && Number.isFinite(m.x) && Number.isFinite(m.y))
+            .map(m=>clampMesa(m.x, m.y))
+        : MESAS_PADRAO.map(m=>({...m}))
     };
   }catch(e){ return JSON.parse(JSON.stringify(PADRAO)); }
 }
@@ -1395,6 +1486,9 @@ function pintarPlanta(){
     : `${n} ${n===1?'mesa':'mesas'} · ${n}×${MESA.lugares} = ${lug} lugares — ` +
       (lug>=conv ? `atende os ${conv} convidados` : `faltam ${conv-lug}`);
   el.classList.toggle('ok', n>0 && lug>=conv);
+  /* alvo de 44px para remover no toque (o × sobre a mesa fica pequeno no celular) */
+  const btnRem = $('#btnRemoverSel');
+  if(btnRem) btnRem.hidden = mesaSel<0;
 }
 
 function selecionarMesa(i){ mesaSel = i; pintarPlanta(); }
@@ -1491,6 +1585,42 @@ $('#btnLimparMesas').addEventListener('click', ()=>{
   PROPOSTA.mesas = [];
   mesaSel = -1;
   salvar(); renderMesas(); atualizarTotais();
+});
+$('#btnPadrao').addEventListener('click', ()=>{
+  PROPOSTA.mesas = MESAS_PADRAO.map(m=>({...m}));
+  mesaSel = -1;
+  salvar(); renderMesas(); atualizarTotais();
+});
+$('#btnRemoverSel').addEventListener('click', ()=>{
+  if(mesaSel>=0) removerMesa(mesaSel);
+});
+
+/* ---- as três visões do salão (pills com fade de 160ms) ---- */
+let visaoAtual = 'v1';
+function trocarVisao(v){
+  if(visaoAtual===v) return;
+  const box = $('#visoes');
+  box.classList.add('trocando');
+  setTimeout(()=>{
+    visaoAtual = v;
+    box.querySelectorAll('.visao').forEach(p=>p.classList.toggle('ativa', p.dataset.v===v));
+    document.querySelectorAll('[data-visao]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.visao===v)));
+    /* saiu do tour: pausa o vídeo */
+    const vd = $('#tourVideo');
+    if(v!=='v3' && vd && !vd.paused) vd.pause();
+    box.classList.remove('trocando');
+  },160);
+}
+document.querySelectorAll('[data-visao]').forEach(b=>b.addEventListener('click', ()=>trocarVisao(b.dataset.visao)));
+$('#btnPersonalizar').addEventListener('click', ()=>trocarVisao('v2'));
+
+/* ---- tour 3D: nada baixa antes do play (preload=none); controls só depois ---- */
+$('#tourPlay').addEventListener('click', ()=>{
+  const vd = $('#tourVideo');
+  vd.setAttribute('controls','');
+  $('#tourPlay').hidden = true;
+  const p = vd.play();
+  if(p && p.catch) p.catch(()=>{ /* autoplay bloqueado: os controls já estão na tela */ });
 });
 
 /* =================================================================
