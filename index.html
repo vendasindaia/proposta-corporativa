@@ -285,13 +285,13 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .regua__txt{font-family:var(--sans);font-size:24px;letter-spacing:.12em;fill:var(--taupe);opacity:.85;}
 .mesa{cursor:grab;touch-action:none;outline:none;}
 .mesa--drag{cursor:grabbing;}
-/* desenho esquemático = RESERVA: some quando o sprite 3D da mesa carrega */
+/* desenho esquemático = RESERVA: some quando a foto da mesa (sprite) carrega */
 .mesa__tampo{fill:rgba(255,255,255,.94);stroke:#4a545e;stroke-width:1.4;}
 .mesa__toalha{fill:none;stroke:rgba(74,84,94,.35);stroke-width:1;}
 .mesa__cadeira{fill:rgba(244,242,238,.92);stroke:#4a545e;stroke-width:1;}
 #plantaSvg.sprite-ok .mesa__fallback{display:none;}
 /* círculo invisível de pega: garante o arrasto no footprint inteiro (o hit-test
-   da <image> ignora o alfa, mas o sprite não cobre os 100% do footprint) */
+   da <image> ignora o alfa, mas a foto tem vazios transparentes entre cadeiras) */
 .mesa__hit{fill:rgba(255,255,255,0);stroke:none;}
 /* anéis de estado por CIMA do sprite: fill:none para não velar a imagem */
 .mesa__anel{fill:none;stroke:transparent;stroke-width:3;transition:stroke .2s;}
@@ -712,14 +712,15 @@ html.sem-io .reveal{opacity:1;transform:none;}
           <div class="visao__frame visao__frame--editor">
             <div class="planta__scroll">
               <div class="planta__canvas">
-                <!-- fundo decorado alinhado por homografia à planta limpa: as MESMAS
-                     coordenadas (CAL, máscara, MESAS_PADRAO) valem sem nenhuma mudança -->
-                <img src="assets/planta-fundo-decorado.jpg" alt="Planta decorada do Salão de Eventos de Itapema vista de cima" width="1920" height="1080" loading="lazy" decoding="async">
+                <!-- planta LIMPA (layout vazio, v18.08-9): é nela que a calibração
+                     (CAL, máscara, MESAS_PADRAO) foi medida — nada de coordenada muda -->
+                <img src="assets/planta-salao-eventos.jpg" alt="Planta vazia do Salão de Eventos de Itapema vista de cima" width="1920" height="1080" loading="lazy" decoding="async">
                 <svg id="plantaSvg" viewBox="0 0 1920 1080" aria-label="Editor de mesas sobre a planta do salão">
                   <defs>
                     <!-- mesa redonda vista de cima: 100 unidades = footprint (tampo + cadeiras).
-                         Sprite = render ortográfico de topo do MESMO modelo 3D da maquete
-                         (câmera enquadra o footprint: mesa ocupa as 96 unidades da imagem);
+                         Sprite = a FOTO OFICIAL da mesa isolada (mesa-foto.png, 786 px;
+                         footprint real de 774 px → a imagem cobre 101.6 unidades centrada
+                         para o footprint valer exatamente 100);
                          os círculos ficam ATRÁS como reserva e somem via .sprite-ok. -->
                     <symbol id="simboloMesa" viewBox="-50 -50 100 100">
                       <g class="mesa__fallback">
@@ -727,7 +728,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
                         <circle class="mesa__tampo" r="30.8"/>
                         <circle class="mesa__toalha" r="24"/>
                       </g>
-                      <image href="assets/mesa-sprite.png" x="-48" y="-48" width="96" height="96"/>
+                      <image href="assets/mesa-foto.png" x="-50.8" y="-50.8" width="101.6" height="101.6"/>
                     </symbol>
                   </defs>
                   <g id="reguaCamada" class="regua" aria-hidden="true"></g>
@@ -874,7 +875,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até 25/08/2026.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-8</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-9</span></p>
   </div>
 </footer>
 
@@ -1076,9 +1077,9 @@ const SERVICOS = [
 const DIAS = [['seg-qui','Seg–Qui'],['sexta','Sexta'],['sabado','Sábado'],['domingo','Domingo']];
 
 /* =================================================================
-   PLANTA — calibração medida na planta limpa (planta-salao-eventos.jpg);
-   o fundo decorado (planta-fundo-decorado.jpg) foi alinhado por
-   homografia a ela, então TODA a calibração vale sem mudança.
+   PLANTA — calibração medida na planta limpa (planta-salao-eventos.jpg),
+   que desde a v18.08-9 é também o fundo do editor e o piso da maquete
+   (o fundo decorado saiu de cena): TODA a calibração vale direto.
    =================================================================
    ESCALA: (x1−x0) = 24,50 m da largura inferior (planta da arquiteta),
    medidos entre a parede da sala de madeira (x0) e o caixilho de vidro
@@ -1596,7 +1597,7 @@ function montarPlanta(){
      se falhar (404/offline), a classe não entra e os círculos continuam na tela */
   const sprite = new Image();
   sprite.onload = ()=>svgPlanta.classList.add('sprite-ok');
-  sprite.src = 'assets/mesa-sprite.png';
+  sprite.src = 'assets/mesa-foto.png';
   /* 8 cadeiras a cada 45° em volta do tampo (coordenadas do símbolo) */
   document.getElementById('cadeirasMesa').innerHTML = Array.from({length:8},(_,i)=>
     `<g transform="rotate(${i*45})"><rect class="mesa__cadeira" x="-8.5" y="-45.5" width="17" height="10.5" rx="4"/></g>`).join('');
@@ -1793,7 +1794,7 @@ $('#tourPlay').addEventListener('click', ()=>{
 const tresBox = $('#tresBox');
 const T3 = {
   pronto:false, carregando:false, falhou:false, raf:0,
-  cena:null, cam:null, renderer:null, alvo:null, mesas3d:null,
+  cena:null, cam:null, renderer:null, alvo:null, mesas3d:null, matTampo:null,
   orb:{theta:.35, phi:.8, raio:30}, orb0:{theta:.35, phi:.8, raio:30},
   ponteiros:new Map(), pinca:0
 };
@@ -1835,8 +1836,8 @@ function tresIniciar(){
   T3.cena = new TH.Scene();
   T3.cena.background = new TH.Color(0xEFEBE3); /* fundo com o calor do fim de tarde */
 
-  /* piso = o render decorado da casa, 1:1 com a calibração (44,1 m × 24,8 m):
-     o chão da maquete fica no clima quente da festa */
+  /* piso = a própria planta LIMPA (layout vazio), 1:1 com a calibração
+     (44,1 m × 24,8 m): o salão vazio recebendo o layout do cliente */
   const piso = new TH.Mesh(
     new TH.PlaneGeometry(1920/pxm, 1080/pxm),
     new TH.MeshStandardMaterial({color:0xffffff, roughness:.96, metalness:0}));
@@ -1857,7 +1858,26 @@ function tresIniciar(){
     }catch(e){ piso.material.color.set(0xE3DBCC); } /* sem textura (file://): piso liso quente */
   };
   img.onerror = ()=>piso.material.color.set(0xE3DBCC);
-  img.src = 'assets/planta-fundo-decorado.jpg';
+  img.src = 'assets/planta-salao-eventos.jpg';
+
+  /* tampo posto da FOTO oficial (pratos, taças, velas e arranjo REAIS):
+     material compartilhado por todas as mesas — criado uma vez e nunca
+     descartado pelo tresMesas. Sem textura (file://), fica creme liso. */
+  T3.matTampo = new TH.MeshStandardMaterial({color:0xF1EAD9, roughness:.85});
+  const imgTampo = new Image();
+  imgTampo.onload = ()=>{
+    try{
+      const tx = new TH.Texture(imgTampo);
+      tx.colorSpace = TH.SRGBColorSpace;
+      tx.anisotropy = Math.min(8, T3.renderer.capabilities.getMaxAnisotropy());
+      tx.needsUpdate = true;
+      T3.renderer.initTexture(tx);
+      T3.matTampo.map = tx;
+      T3.matTampo.color.set(0xffffff);
+      T3.matTampo.needsUpdate = true;
+    }catch(e){}
+  };
+  imgTampo.src = 'assets/mesa-tampo.png';
 
   /* paredes simples no perímetro da área útil (bases medidas na planta);
      o 3º campo marca trecho de VIDRO (fachada direita e de baixo) */
@@ -1907,72 +1927,80 @@ function tresIniciar(){
   T3.cam = new TH.PerspectiveCamera(46, 1, .1, 300);
   T3.pronto = true;
 }
-/* mesas em InstancedMesh (5 draw calls, qualquer nº de mesas), 100% geometria —
-   nada de foto colada: toalha creme acampanada cujo cap superior É o tampo
-   (ø1,60 m a 0,78 m), 8 sousplats dourados na borda, arranjo central de esferas
-   achatadas e 8 cadeiras de madeira (assento fino + encosto inclinado p/ fora).
-   O sprite 2D (assets/mesa-sprite.png) é gerado DESTE mesmo modelo — mexeu na
-   mesa? regenere: página só com esta mesa na origem, câmera ORTOGRÁFICA de topo
-   enquadrando o footprint (±1,3 m), alpha:true sem background, mesma luz da
-   maquete, captura 480×480 com omitBackground (sessão de 19/08). */
+/* mesas em InstancedMesh (7 draw calls, qualquer nº de mesas) = a mesa da FOTO
+   oficial: toalha creme acampanada, tampo em CircleGeometry com a foto REAL do
+   tampo posto (assets/mesa-tampo.png — pratos, taças, velas e arranjo já estão
+   na textura: nada de geometria duplicada por cima) e 8 cadeiras CROSS-BACK de
+   madeira, como na foto: assento fino, 4 pernas, dois montantes com travessa no
+   topo e X de dois sarrafos finos cruzados (BoxGeometry fina rotacionada).
+   O sprite 2D (assets/mesa-foto.png) é a MESMA mesa vista de cima — a vista
+   superior da maquete conversa com o editor. */
 function tresMesas(){
   const TH = window.THREE;
   if(T3.mesas3d){
     T3.cena.remove(T3.mesas3d);
-    T3.mesas3d.traverse(o=>{ if(o.isMesh){ o.geometry.dispose(); o.material.dispose(); } });
+    T3.mesas3d.traverse(o=>{ if(o.isMesh){ o.geometry.dispose(); if(o.material!==T3.matTampo) o.material.dispose(); } });
   }
   const g = new TH.Group();
   const n = PROPOSTA.mesas.length;
   if(n){
     /* toalha: topo ø1,60 m a 0,78 m; saia levemente acampanada até 8 cm do chão */
     const geoToalha   = new TH.CylinderGeometry(MESA.tampo/2, MESA.tampo/2+.07, .70, 48);
-    const geoSousplat = new TH.CylinderGeometry(.14, .14, .012, 20);
-    const geoFlor     = new TH.SphereGeometry(.085, 12, 8);
-    const geoAssento  = new TH.BoxGeometry(.42, .05, .40);
-    const geoEncosto  = new TH.BoxGeometry(.42, .46, .045);
+    const geoTampo    = new TH.CircleGeometry(MESA.tampo/2, 48);
+    const geoAssento  = new TH.BoxGeometry(.42, .04, .40);
+    const geoPerna    = new TH.BoxGeometry(.035, .46, .035);
+    const geoMontante = new TH.BoxGeometry(.04, .50, .035);
+    const geoTravessa = new TH.BoxGeometry(.42, .05, .035);
+    const geoSarrafo  = new TH.BoxGeometry(.04, .56, .025);
     const matToalha   = new TH.MeshStandardMaterial({color:0xF1EAD9, roughness:.9});
-    const matSousplat = new TH.MeshStandardMaterial({color:0xB08D4C, roughness:.35, metalness:.6});
-    const matFlor     = new TH.MeshStandardMaterial({color:0xffffff, roughness:.7});
-    const matMadeira  = new TH.MeshStandardMaterial({color:0x7E5F3E, roughness:.75});
+    const matMadeira  = new TH.MeshStandardMaterial({color:0xA87B4F, roughness:.75});
     const toalhas   = new TH.InstancedMesh(geoToalha, matToalha, n);
-    const sousplats = new TH.InstancedMesh(geoSousplat, matSousplat, n*8);
-    const flores    = new TH.InstancedMesh(geoFlor, matFlor, n*4);
+    const tampos    = new TH.InstancedMesh(geoTampo, T3.matTampo, n);
     const assentos  = new TH.InstancedMesh(geoAssento, matMadeira, n*8);
-    const encostos  = new TH.InstancedMesh(geoEncosto, matMadeira, n*8);
-    const COR_FLOR = [new TH.Color(0xC08A57), new TH.Color(0x8F9E6B), new TH.Color(0xF1EAD9)];
-    const M = new TH.Matrix4(), Q = new TH.Quaternion(), UM = new TH.Vector3(1,1,1),
-          V = new TH.Vector3(), ESC = new TH.Vector3(), CIMA = new TH.Vector3(0,1,0),
-          RECOSTA = new TH.Quaternion().setFromAxisAngle(new TH.Vector3(1,0,0), .16);
+    const pernas    = new TH.InstancedMesh(geoPerna, matMadeira, n*32);
+    const montantes = new TH.InstancedMesh(geoMontante, matMadeira, n*16);
+    const travessas = new TH.InstancedMesh(geoTravessa, matMadeira, n*8);
+    const sarrafos  = new TH.InstancedMesh(geoSarrafo, matMadeira, n*16);
+    const M = new TH.Matrix4(), MB = new TH.Matrix4(), ML = new TH.Matrix4(),
+          Q = new TH.Quaternion(), QID = new TH.Quaternion(), UM = new TH.Vector3(1,1,1),
+          V = new TH.Vector3(), CIMA = new TH.Vector3(0,1,0),
+          DEITA = new TH.Quaternion().setFromAxisAngle(new TH.Vector3(1,0,0), -Math.PI/2),
+          RECOSTA = new TH.Quaternion().setFromAxisAngle(new TH.Vector3(1,0,0), .16),
+          CRUZA = [new TH.Quaternion().setFromAxisAngle(new TH.Vector3(0,0,1), .69),
+                   new TH.Quaternion().setFromAxisAngle(new TH.Vector3(0,0,1), -.69)];
     PROPOSTA.mesas.forEach((m,i)=>{
       const p = pxParaM(m.x, m.y);
-      M.compose(V.set(p.x, .43, p.z), Q.identity(), UM);   /* toalha: topo a 0,78 m */
+      M.compose(V.set(p.x, .43, p.z), QID, UM);            /* toalha: topo a 0,78 m */
       toalhas.setMatrixAt(i, M);
+      /* tampo posto da foto, 4 mm acima do topo da toalha (sem z-fighting) */
+      M.compose(V.set(p.x, .784, p.z), DEITA, UM);
+      tampos.setMatrixAt(i, M);
       for(let c=0;c<8;c++){
-        const ang = c*Math.PI/4;
+        const ang = c*Math.PI/4, sx = Math.sin(ang), co = Math.cos(ang);
         Q.setFromAxisAngle(CIMA, ang);
-        /* sousplat dourado na borda do tampo, um por lugar */
-        M.compose(V.set(p.x+Math.sin(ang)*.58, .787, p.z+Math.cos(ang)*.58), Q, UM);
-        sousplats.setMatrixAt(i*8+c, M);
-        /* cadeira afastada do tampo, como quem senta: assento fino… */
-        M.compose(V.set(p.x+Math.sin(ang)*1.04, .45, p.z+Math.cos(ang)*1.04), Q, UM);
+        /* assento fino afastado do tampo, como quem senta… */
+        M.compose(V.set(p.x+sx*1.04, .46, p.z+co*1.04), Q, UM);
         assentos.setMatrixAt(i*8+c, M);
-        /* …e encosto levemente inclinado para fora (≈9°) */
-        Q.setFromAxisAngle(CIMA, ang).multiply(RECOSTA);
-        M.compose(V.set(p.x+Math.sin(ang)*1.22, .70, p.z+Math.cos(ang)*1.22), Q, UM);
-        encostos.setMatrixAt(i*8+c, M);
-      }
-      /* arranjo central: 1 esfera maior + 3 satélites, achatadas, tons quentes */
-      for(let f=0; f<4; f++){
-        const af = f*2.1 + i*.9, rf = f ? .10 : 0, s = f ? .62 : 1;
-        M.compose(V.set(p.x+Math.cos(af)*rf, f ? .82 : .855, p.z+Math.sin(af)*rf),
-          Q.identity(), ESC.set(s, s*.72, s));
-        flores.setMatrixAt(i*4+f, M);
-        flores.setColorAt(i*4+f, COR_FLOR[(i+f)%3]);
+        /* …4 pernas retas nos cantos do assento… */
+        for(let k=0;k<4;k++){
+          const lx = k%2 ? .17 : -.17, lz = k<2 ? .15 : -.15;
+          M.compose(V.set(p.x+sx*1.04 + lx*co + lz*sx, .23, p.z+co*1.04 - lx*sx + lz*co), Q, UM);
+          pernas.setMatrixAt(i*32+c*4+k, M);
+        }
+        /* …e o encosto cross-back num pivô reclinado p/ fora (≈9°): dois
+           montantes, travessa no topo e o X de sarrafos entre eles */
+        MB.compose(V.set(p.x+sx*1.22, .48, p.z+co*1.22), Q.multiply(RECOSTA), UM);
+        ML.compose(V.set(-.19, .25, 0), QID, UM);   montantes.setMatrixAt(i*16+c*2,   M.multiplyMatrices(MB, ML));
+        ML.compose(V.set( .19, .25, 0), QID, UM);   montantes.setMatrixAt(i*16+c*2+1, M.multiplyMatrices(MB, ML));
+        ML.compose(V.set(0, .475, 0), QID, UM);     travessas.setMatrixAt(i*8+c,      M.multiplyMatrices(MB, ML));
+        ML.compose(V.set(0, .24, 0), CRUZA[0], UM); sarrafos.setMatrixAt(i*16+c*2,    M.multiplyMatrices(MB, ML));
+        ML.compose(V.set(0, .24, 0), CRUZA[1], UM); sarrafos.setMatrixAt(i*16+c*2+1,  M.multiplyMatrices(MB, ML));
       }
     });
-    toalhas.castShadow = assentos.castShadow = encostos.castShadow = flores.castShadow = true;
-    toalhas.receiveShadow = sousplats.receiveShadow = true;
-    g.add(toalhas, sousplats, flores, assentos, encostos);
+    toalhas.castShadow = assentos.castShadow = pernas.castShadow = true;
+    montantes.castShadow = travessas.castShadow = sarrafos.castShadow = true;
+    toalhas.receiveShadow = tampos.receiveShadow = true;
+    g.add(toalhas, tampos, assentos, pernas, montantes, travessas, sarrafos);
   }
   T3.mesas3d = g;
   T3.cena.add(g);
