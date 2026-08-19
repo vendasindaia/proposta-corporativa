@@ -44,6 +44,10 @@ body{
 }
 img{display:block;max-width:100%;}
 button{font-family:inherit;cursor:pointer;}
+/* [hidden] SEMPRE esconde: sem isto, display autoral (.btn, .planta__aviso)
+   vencia o [hidden] do navegador e o aviso âmbar + "Remover mesa" ficavam
+   sempre na tela (bug herdado, corrigido na v18.08-10) */
+[hidden]{display:none!important;}
 a{color:inherit;text-decoration:none;}
 ::selection{background:var(--bege);color:var(--brown-deep);}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
@@ -272,6 +276,10 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .visao__foot{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;
   margin-top:12px;min-height:44px;}
 .visao__legenda{font-size:.82rem;color:var(--brown);margin:0;line-height:1.55;}
+/* ações da maquete 3D: tour automático + gravação */
+.tour3d__acoes{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.tour3d__acoes .btn{padding:.72em 1.2em;font-size:.78rem;}
+.tour3d__nota{font-size:.72rem;color:var(--taupe);margin:0;width:100%;text-align:right;line-height:1.5;}
 .planta__scroll{overflow-x:auto;height:100%;background:#fff;display:flex;align-items:center;
   scrollbar-width:thin;scrollbar-color:var(--bege) transparent;}
 .planta__canvas{position:relative;width:100%;margin:auto;}
@@ -492,6 +500,14 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .modal__ok p{font-size:.88rem;color:var(--brown);margin:0 auto;max-width:40ch;}
 .modal__ok small{display:block;margin-top:1rem;font-size:.68rem;color:var(--taupe);letter-spacing:.06em;}
 
+/* ---------- toast (feedback curto: link copiado, vídeo baixado) ---------- */
+.toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,16px);z-index:260;
+  background:var(--brown-deep);color:var(--cream);padding:.85em 1.5em;border-radius:999px;
+  font-size:.82rem;letter-spacing:.04em;box-shadow:var(--sh-2);opacity:0;visibility:hidden;
+  transition:opacity .3s var(--ease-lux),transform .3s var(--ease-lux),visibility .3s;
+  max-width:92vw;text-align:center;}
+.toast.on{opacity:1;transform:translate(-50%,0);visibility:visible;}
+
 /* ---------- responsivo ---------- */
 @media (max-width:760px){
   body{padding-bottom:124px;} /* tierbar mobile tem 2 linhas: nada de conteúdo coberto */
@@ -511,6 +527,9 @@ html.sem-io .reveal{opacity:1;transform:none;}
   .cta .btn{width:100%;max-width:420px;justify-content:center;}
   .planta__bar .btn{flex:1 1 auto;justify-content:center;}
   .planta__cont{margin:4px 0 0;width:100%;}
+  .tour3d__acoes{width:100%;}
+  .tour3d__acoes .btn{flex:1 1 auto;justify-content:center;}
+  .tour3d__nota{text-align:left;}
   /* celular: quadro quadrado; o editor rola de lado com canvas de 560px
      (a planta tem ~14% de margem vazia em cima/embaixo — o corte residual
      em telas de 360px fica só nessa margem) */
@@ -764,7 +783,12 @@ html.sem-io .reveal{opacity:1;transform:none;}
           </div>
           <div class="visao__foot">
             <p class="visao__legenda" id="tresLegenda">Maquete do seu layout · gire com o dedo</p>
-            <button type="button" class="btn btn--ghost" id="btn3dEditar">Ajustar as mesas em 2D</button>
+            <div class="tour3d__acoes">
+              <button type="button" class="btn btn--ghost" id="btnTour">▶ Tour automático</button>
+              <button type="button" class="btn btn--ghost" id="btnGravarTour">⬇ Gravar tour (vídeo)</button>
+              <button type="button" class="btn btn--ghost" id="btn3dEditar">Ajustar as mesas em 2D</button>
+            </div>
+            <p class="tour3d__nota" id="tourNota">O vídeo sai com o seu layout atual.</p>
           </div>
         </div>
 
@@ -875,7 +899,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até 25/08/2026.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-9</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-10</span></p>
   </div>
 </footer>
 
@@ -1204,12 +1228,40 @@ const MESAS_PADRAO = [
 ];
 
 /* =================================================================
+   LAYOUT NA URL — a equipe monta as mesas (?equipe=1), copia o link
+   e o cliente abre a proposta já com o layout sugerido no hash.
+   Formato compacto: #L= + um par x.y em base36 por mesa, mesas
+   separadas por traço (ex.: #L=o3.95-rm.95-…). Cada par passa pelo
+   clampMesa: link editado à mão nunca põe mesa fora do piso.
+   Teto de 60 mesas, o mesmo do estado salvo.
+   O layout do hash vale como ESTADO INICIAL apenas quando não há
+   edição do cliente salva no localStorage — edição salva sempre
+   ganha, para um link reaberto não apagar o trabalho do cliente.
+   ================================================================= */
+function serializarLayout(mesas){
+  return mesas.map(m=>Math.round(m.x).toString(36)+'.'+Math.round(m.y).toString(36)).join('-');
+}
+function lerLayoutDaURL(){
+  const h = /^#L=([0-9a-z.-]+)$/i.exec(location.hash||'');
+  if(!h) return null;
+  const mesas = h[1].split('-').slice(0,60).map(par=>{
+    const [xs,ys] = par.split('.');
+    const x = parseInt(xs,36), y = parseInt(ys,36);
+    return (Number.isFinite(x) && Number.isFinite(y)) ? clampMesa(x,y) : null;
+  }).filter(Boolean);
+  return mesas.length ? mesas : null;
+}
+const LAYOUT_SUGERIDO = lerLayoutDaURL();  /* layout sugerido vindo do link (ou null) */
+const MODO_EQUIPE = new URLSearchParams(location.search).get('equipe')==='1';
+
+/* =================================================================
    ESTADO — um objeto só, persistido em localStorage
    ================================================================= */
 const CHAVE = 'proposta_dimy_prototipo';
 const PADRAO = {convidados:200, dia:'seg-qui', coquetel:'c4', menu:'m2', openbar:'b1',
-  extras:{cafe:20, toalha:20, av:44, dj:1, hora:7}, mesas:MESAS_PADRAO};
-  /* PADRAO só é usado via cópia profunda (JSON), então MESAS_PADRAO não é mutado */
+  extras:{cafe:20, toalha:20, av:44, dj:1, hora:7}, mesas:LAYOUT_SUGERIDO || MESAS_PADRAO};
+  /* PADRAO só é usado via cópia profunda (JSON), então as mesas não são mutadas;
+     com #L= na URL, a "proposta original" já inclui o layout sugerido da equipe */
 let PROPOSTA = carregar();
 
 function carregar(){
@@ -1227,13 +1279,14 @@ function carregar(){
         const v = s.extras && Number.isInteger(s.extras[it.id]) ? s.extras[it.id] : it.padrao;
         return [it.id, limita(v, it.min, it.max)];
       })),
-      /* sem o campo mesas = nunca abriu o editor → recebe o layout padrão;
-         array (mesmo vazio) = escolha do cliente, fica como está */
+      /* sem o campo mesas = nunca abriu o editor → recebe o layout sugerido
+         do link (se houver) ou o padrão; array (mesmo vazio) = escolha do
+         cliente, fica como está */
       mesas: Array.isArray(s.mesas)
         ? s.mesas.slice(0,60)
             .filter(m=>m && Number.isFinite(m.x) && Number.isFinite(m.y))
             .map(m=>clampMesa(m.x, m.y))
-        : MESAS_PADRAO.map(m=>({...m}))
+        : (LAYOUT_SUGERIDO || MESAS_PADRAO).map(m=>({...m}))
     };
   }catch(e){ return JSON.parse(JSON.stringify(PADRAO)); }
 }
@@ -1567,6 +1620,7 @@ addEventListener('keydown', e=>{
     if(luxAberto) fecharLux();
     else if(modalAberto) fecharModal();
     else if(ovlAberto) fecharCardapio();
+    else if(TOUR.ativo) tourParar(false);
     return;
   }
   if(luxAberto && (e.key==='ArrowLeft' || e.key==='ArrowRight')){
@@ -1745,14 +1799,59 @@ $('#btnLimparMesas').addEventListener('click', ()=>{
   mesaSel = -1;
   salvar(); renderMesas(); atualizarTotais();
 });
+/* com layout sugerido no link, o botão restaura PARA ELE (e o rótulo avisa) */
 $('#btnPadrao').addEventListener('click', ()=>{
-  PROPOSTA.mesas = MESAS_PADRAO.map(m=>({...m}));
+  PROPOSTA.mesas = (LAYOUT_SUGERIDO || MESAS_PADRAO).map(m=>({...m}));
   mesaSel = -1;
   salvar(); renderMesas(); atualizarTotais();
 });
 $('#btnRemoverSel').addEventListener('click', ()=>{
   if(mesaSel>=0) removerMesa(mesaSel);
 });
+
+/* ---- toast: feedback curto (link copiado, vídeo baixado) ---- */
+const toastEl = document.createElement('div');
+toastEl.className = 'toast'; toastEl.setAttribute('role','status');
+document.body.appendChild(toastEl);
+let toastTimer = 0;
+function mostrarToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toastEl.classList.remove('on'), 2800);
+}
+function copiarTexto(t){
+  if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t);
+  /* reserva para navegador antigo/contexto sem clipboard API */
+  return new Promise((res, rej)=>{
+    const ta = document.createElement('textarea');
+    ta.value = t; ta.style.cssText = 'position:fixed;top:-40px;opacity:0;';
+    document.body.appendChild(ta); ta.select();
+    let ok = false;
+    try{ ok = document.execCommand('copy'); }catch(e){}
+    ta.remove();
+    ok ? res() : rej(new Error('copiar'));
+  });
+}
+
+/* ---- modo equipe (?equipe=1): botão que embute o layout atual no link ----
+   O link copiado sai SEM ?equipe e COM #L=, então o cliente recebe a
+   proposta com o layout sugerido e nunca vê este botão. */
+if(MODO_EQUIPE){
+  const btnLink = document.createElement('button');
+  btnLink.type = 'button'; btnLink.className = 'btn btn--gold'; btnLink.id = 'btnCopiarLink';
+  btnLink.textContent = 'Copiar link com este layout';
+  btnLink.addEventListener('click', ()=>{
+    if(!PROPOSTA.mesas.length){ mostrarToast('Adicione mesas antes de copiar o link'); return; }
+    const u = new URL(location.href);
+    u.searchParams.delete('equipe');
+    u.hash = 'L=' + serializarLayout(PROPOSTA.mesas);
+    copiarTexto(u.toString())
+      .then(()=>mostrarToast('Link copiado — envie ao cliente'))
+      .catch(()=>mostrarToast('Não deu para copiar automaticamente — copie da barra de endereço'));
+  });
+  $('#plantaCont').before(btnLink);
+}
 
 /* ---- as três visões do salão (pills com fade de 160ms) ---- */
 let visaoAtual = 'v2';
@@ -1821,6 +1920,40 @@ function carregarThree(){
     s.onload = res; s.onerror = ()=>rej(new Error('three.min.js'));
     document.head.appendChild(s);
   });
+}
+/* textura do telão gerada em canvas: fundo grafite, monograma dourado.
+   Em produção este canvas dá lugar à logo do cliente (campo do snapshot). */
+function telaoMaterial(TH){
+  const cv = document.createElement('canvas');
+  cv.width = 1024; cv.height = 564;                  /* proporção do painel 4,0 × 2,2 m */
+  const ctx = cv.getContext('2d');
+  const tx = new TH.CanvasTexture(cv);
+  tx.colorSpace = TH.SRGBColorSpace;
+  const desenhar = ()=>{
+    ctx.fillStyle = '#14181d';                       /* grafite escuro, quase preto */
+    ctx.fillRect(0,0,1024,564);
+    const g = ctx.createRadialGradient(512,250,60,512,282,640);
+    g.addColorStop(0,'rgba(201,171,120,.13)');       /* respiro dourado no centro */
+    g.addColorStop(1,'rgba(201,171,120,0)');
+    ctx.fillStyle = g; ctx.fillRect(0,0,1024,564);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#C9AB78';
+    if('letterSpacing' in ctx) ctx.letterSpacing = '26px';
+    ctx.font = '600 230px "Cormorant Garamond", Georgia, serif';
+    ctx.fillText('DIMY', 512+13, 330);               /* +13 compensa o tracking da última letra */
+    ctx.strokeStyle = 'rgba(201,171,120,.5)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(392,378); ctx.lineTo(632,378); ctx.stroke();
+    if('letterSpacing' in ctx) ctx.letterSpacing = '10px';
+    ctx.font = 'italic 400 54px "Cormorant Garamond", Georgia, serif';
+    ctx.fillStyle = 'rgba(201,171,120,.85)';
+    ctx.fillText('Convenção 2026', 512+5, 448);
+    tx.needsUpdate = true;
+  };
+  desenhar();
+  /* o 1º draw pode sair na serif reserva; redesenha quando a Cormorant chegar */
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(desenhar).catch(()=>{});
+  /* emissiveMap = a própria arte: o painel parece um LED aceso, sem estourar */
+  return new TH.MeshStandardMaterial({map:tx, emissive:0xffffff, emissiveMap:tx,
+    emissiveIntensity:.7, roughness:.45, metalness:0, color:0x2e2e2e});
 }
 function tresIniciar(){
   const TH = window.THREE;
@@ -1909,6 +2042,37 @@ function tresIniciar(){
   pista.rotation.x = -Math.PI/2;
   pista.position.set((pA.x+pB.x)/2, .006, (pA.z+pB.z)/2);
   T3.cena.add(pista);
+
+  /* PALCO + TELÃO — fundo direito do salão (px 1690–1745 × 450–650 na
+     planta; conferido na imagem em 18/08: piso limpo em frente ao vidro
+     de cortinas, na cabeceira da pista). Tablado baixo grafite e painel
+     de LED de 4,0 × 2,2 m de frente para o salão, com o monograma do
+     cliente. Em produção, a textura do telão vem da LOGO DO CLIENTE
+     (campo do snapshot da proposta); no protótipo ela é desenhada em
+     canvas em runtime (DIMY · Convenção 2026). */
+  const palcoA = pxParaM(1690,450), palcoB = pxParaM(1745,650);
+  const palco = new TH.Mesh(
+    new TH.BoxGeometry(palcoB.x-palcoA.x, .4, palcoB.z-palcoA.z),
+    new TH.MeshStandardMaterial({color:0x23282E, roughness:.85}));
+  palco.position.set((palcoA.x+palcoB.x)/2, .2, (palcoA.z+palcoB.z)/2);
+  palco.castShadow = palco.receiveShadow = true;
+  T3.cena.add(palco);
+  const TELAO_W = 4.0, TELAO_H = 2.2, telaoC = pxParaM(1735,550);
+  const telaoY = .4 + .30 + TELAO_H/2;              /* apoiado 30 cm acima do tablado */
+  const matBorda = new TH.MeshStandardMaterial({color:0x171B20, roughness:.55});
+  const moldura = new TH.Mesh(new TH.BoxGeometry(.07, TELAO_H+.12, TELAO_W+.12), matBorda);
+  moldura.position.set(telaoC.x, telaoY, telaoC.z);
+  moldura.castShadow = true;
+  T3.cena.add(moldura);
+  for(const dz of [-TELAO_W/2+.35, TELAO_W/2-.35]){  /* pés curtos até o tablado */
+    const pe = new TH.Mesh(new TH.BoxGeometry(.07, .34, .12), matBorda);
+    pe.position.set(telaoC.x, .4+.17, telaoC.z+dz);
+    T3.cena.add(pe);
+  }
+  const telao = new TH.Mesh(new TH.PlaneGeometry(TELAO_W, TELAO_H), telaoMaterial(TH));
+  telao.rotation.y = -Math.PI/2;                     /* normal para −x: de frente pro salão */
+  telao.position.set(telaoC.x-.045, telaoY, telaoC.z);
+  T3.cena.add(telao);
 
   /* luz de fim de tarde: ambiente + direcional bem âmbar, sombra suave */
   T3.cena.add(new TH.AmbientLight(0xFFEBD0, .7));
@@ -2022,19 +2186,24 @@ function tresCamera(){
     T3.alvo.z + o.raio*Math.sin(o.phi)*Math.cos(o.theta));
   T3.cam.lookAt(T3.alvo);
 }
-function tresLaco(){
+function tresLaco(ts){
   T3.raf = requestAnimationFrame(tresLaco);
+  if(TOUR.ativo) tourAtualizar(ts || performance.now());
   T3.renderer.render(T3.cena, T3.cam);
 }
 function tresParar(){
+  if(TOUR.ativo) tourParar(false); /* saiu da visão no meio do tour: para e descarta gravação */
   if(T3.raf){ cancelAnimationFrame(T3.raf); T3.raf = 0; }
 }
-function tresAbrir(){
-  tresMesas();
+function tresLegendaPadrao(){
   const n = PROPOSTA.mesas.length;
   $('#tresLegenda').textContent = n
     ? `Maquete do seu layout — ${n} ${n===1?'mesa':'mesas'} · gire com o dedo`
     : 'Maquete do salão vazio — adicione mesas na visão 2D · gire com o dedo';
+}
+function tresAbrir(){
+  tresMesas();
+  tresLegendaPadrao();
   tresDimensionar();
   tresCamera();
   if(!T3.raf) tresLaco();
@@ -2060,9 +2229,10 @@ function tresAtivar(){
     tresFalhar('A maquete não carregou agora. Sem drama: no 2D dá para montar o layout do mesmo jeito.');
   });
 }
-/* órbita: 1 dedo/mouse gira · 2 dedos = pinça · roda = zoom · duplo = reset */
+/* órbita: 1 dedo/mouse gira · 2 dedos = pinça · roda = zoom · duplo = reset
+   (tudo desabilitado enquanto o tour automático conduz a câmera) */
 tresBox.addEventListener('pointerdown', ev=>{
-  if(!T3.pronto) return;
+  if(!T3.pronto || TOUR.ativo) return;
   tresBox.setPointerCapture(ev.pointerId);
   T3.ponteiros.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
   if(T3.ponteiros.size===2){
@@ -2072,7 +2242,7 @@ tresBox.addEventListener('pointerdown', ev=>{
 });
 tresBox.addEventListener('pointermove', ev=>{
   const p = T3.ponteiros.get(ev.pointerId);
-  if(!p || !T3.pronto) return;
+  if(!p || !T3.pronto || TOUR.ativo) return;
   if(T3.ponteiros.size===1){
     T3.orb.theta -= (ev.clientX-p.x)*.005;
     T3.orb.phi   -= (ev.clientY-p.y)*.004;
@@ -2090,18 +2260,18 @@ const tresSoltar = ev=>{ T3.ponteiros.delete(ev.pointerId); T3.pinca = 0; };
 tresBox.addEventListener('pointerup', tresSoltar);
 tresBox.addEventListener('pointercancel', tresSoltar);
 tresBox.addEventListener('wheel', ev=>{
-  if(!T3.pronto) return;
+  if(!T3.pronto || TOUR.ativo) return;
   ev.preventDefault();
   T3.orb.raio *= 1 + ev.deltaY*.0012;
   tresCamera();
 }, {passive:false});
 tresBox.addEventListener('dblclick', ()=>{
-  if(!T3.pronto) return;
+  if(!T3.pronto || TOUR.ativo) return;
   T3.orb = {...T3.orb0};
   tresCamera();
 });
 tresBox.addEventListener('keydown', ev=>{
-  if(!T3.pronto) return;
+  if(!T3.pronto || TOUR.ativo) return;
   const o = T3.orb, k = ev.key;
   if(k==='ArrowLeft') o.theta += .08;
   else if(k==='ArrowRight') o.theta -= .08;
@@ -2114,6 +2284,138 @@ tresBox.addEventListener('keydown', ev=>{
   tresCamera();
 });
 addEventListener('resize', ()=>{ if(visaoAtual==='v3d') tresDimensionar(); }, {passive:true});
+
+/* =================================================================
+   TOUR AUTOMÁTICO — a câmera percorre o salão como no vídeo da casa,
+   mas sobre O LAYOUT DO CLIENTE: entra pela porta, desce o corredor
+   da pista, orbita a mesa mais central, enquadra o telão do palco e
+   sobe em grua para a vista geral (~56 s). Keyframes em coordenadas
+   da planta (px → metros via pxParaM); easing easeInOut por trecho.
+   Enquanto roda, a órbita manual fica desligada; Esc ou "Parar"
+   devolvem a câmera à órbita. O RAF é o mesmo laço de sempre.
+   ================================================================= */
+const TOUR = {ativo:false, segs:[], i:0, segIni:0, gravador:null, pedacos:[], ultimoTamanho:0};
+function easeInOut(k){ return k<.5 ? 2*k*k : 1 - Math.pow(-2*k+2, 2)/2; }
+function tourMontarRoteiro(){
+  const TH = window.THREE;
+  const V = (px,py,h)=>{ const p = pxParaM(px,py); return new TH.Vector3(p.x, h, p.z); };
+  const linear = (A,B)=>k=>new TH.Vector3().lerpVectors(A, B, k);
+  const fixo = A=>()=>A.clone();
+  /* curva de 3 pontos p/ dobrar a esquina da porta sem parada no meio */
+  const curva = (A,C,B)=>k=>{
+    const u = 1-k, v = new TH.Vector3();
+    v.addScaledVector(A, u*u).addScaledVector(C, 2*u*k).addScaledVector(B, k*k);
+    return v;
+  };
+  /* ponto de interesse: a mesa mais próxima do centro do salão */
+  let mesaPx = {x:1260, y:596};                       /* sem mesas: orbita o meio da pista */
+  let menor = Infinity;
+  for(const m of PROPOSTA.mesas){
+    const d = (m.x-1260)*(m.x-1260) + (m.y-555)*(m.y-555);
+    if(d < menor){ menor = d; mesaPx = m; }
+  }
+  const mesaC = V(mesaPx.x, mesaPx.y, .8);            /* o olhar mira o tampo */
+  const orbR = 2.5, orbAlt = 1.7;
+  const fimCorredor = V(1350, 596, 1.7);
+  const a0 = Math.atan2(fimCorredor.z-mesaC.z, fimCorredor.x-mesaC.x);
+  const orbP = a=>new TH.Vector3(mesaC.x + orbR*Math.cos(a), orbAlt, mesaC.z + orbR*Math.sin(a));
+  const telaoAlvo = V(1737, 550, 1.8);
+  return [
+    /* 1 · entra pela porta da entrada, baixo, avançando para o salão */
+    {dur:7,  pos:linear(V(330,300,1.45), V(724,338,1.7)),
+             look:linear(V(760,330,1.5), V(1100,520,1.1))},
+    /* 2 · cruza a abertura (y<420 na divisa x≈772) e dobra até a pista */
+    {dur:6,  pos:curva(V(724,338,1.7), V(806,412,1.7), V(846,596,1.7)),
+             look:linear(V(1100,520,1.1), V(1350,596,1.25))},
+    /* 3 · corredor da pista central, mesas dos dois lados */
+    {dur:10, pos:linear(V(846,596,1.7), fimCorredor),
+             look:linear(V(1350,596,1.25), V(1700,560,1.4))},
+    /* 4 · aproxima da mesa mais central */
+    {dur:4,  pos:linear(fimCorredor, orbP(a0)), look:linear(V(1700,560,1.4), mesaC)},
+    /* 5 · meia-volta lenta ao redor da mesa, a 2,5 m */
+    {dur:12, pos:k=>orbP(a0 + Math.PI*k), look:fixo(mesaC)},
+    /* 6 · segue ao palco e enquadra o telão com a logo */
+    {dur:6,  pos:linear(orbP(a0+Math.PI), V(1565,572,1.65)), look:linear(mesaC, telaoAlvo)},
+    /* 7 · ~3 s no telão (push-in leve, o painel inteiro sempre no quadro) */
+    {dur:3,  pos:linear(V(1565,572,1.65), V(1598,564,1.62)), look:fixo(telaoAlvo)},
+    /* 8 · grua: sobe para a vista geral diagonal e encerra */
+    {dur:9,  pos:linear(V(1598,564,1.62), V(880,880,19)), look:linear(telaoAlvo, V(1260,555,0))}
+  ];
+}
+function tourAtualizar(ts){
+  if(!TOUR.segIni) TOUR.segIni = ts;
+  let seg = TOUR.segs[TOUR.i];
+  let k = (ts - TOUR.segIni) / (seg.dur*1000);
+  while(k >= 1){
+    TOUR.segIni += seg.dur*1000;
+    TOUR.i++;
+    if(TOUR.i >= TOUR.segs.length){ tourParar(true); return; }
+    seg = TOUR.segs[TOUR.i];
+    k = (ts - TOUR.segIni) / (seg.dur*1000);
+  }
+  const e = easeInOut(limita(k, 0, 1));
+  T3.cam.position.copy(seg.pos(e));
+  T3.cam.lookAt(seg.look(e));
+}
+function tourIniciar(gravar){
+  if(!T3.pronto || T3.falhou || TOUR.ativo) return;
+  TOUR.segs = tourMontarRoteiro();
+  TOUR.i = 0; TOUR.segIni = 0; TOUR.ativo = true;
+  if(gravar) tourGravarComecar();
+  $('#btnTour').textContent = '◼ Parar';
+  $('#btnGravarTour').disabled = true;
+  $('#tresLegenda').textContent = 'Tour automático pelo seu layout — Esc para parar';
+}
+function tourParar(completo){
+  if(!TOUR.ativo) return;
+  TOUR.ativo = false;
+  tourGravarFim(completo);                 /* baixa o vídeo só quando o tour termina inteiro */
+  $('#btnTour').textContent = '▶ Tour automático';
+  $('#btnGravarTour').disabled = false;
+  tresLegendaPadrao();
+  tresCamera();                            /* devolve a câmera à órbita manual */
+}
+/* gravação: captureStream + MediaRecorder gravam o canvas ENQUANTO o tour
+   roda; ao terminar, baixa tour-dimy.webm (ou .mp4, conforme o navegador) */
+function tourGravarComecar(){
+  TOUR.pedacos = [];
+  try{
+    const mimes = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];
+    const mime = mimes.find(m=>MediaRecorder.isTypeSupported(m)) || '';
+    const fluxo = T3.renderer.domElement.captureStream(30);
+    TOUR.gravador = new MediaRecorder(fluxo, mime ? {mimeType:mime, videoBitsPerSecond:8000000} : undefined);
+    TOUR.gravador.ondataavailable = ev=>{ if(ev.data && ev.data.size) TOUR.pedacos.push(ev.data); };
+    TOUR.gravador.start(500);
+    $('#btnGravarTour').textContent = '● Gravando o tour…';
+  }catch(e){ TOUR.gravador = null; }
+}
+function tourGravarFim(baixar){
+  const g = TOUR.gravador;
+  TOUR.gravador = null;
+  $('#btnGravarTour').textContent = '⬇ Gravar tour (vídeo)';
+  if(!g) return;
+  g.onstop = ()=>{
+    if(!baixar || !TOUR.pedacos.length){ TOUR.pedacos = []; return; } /* tour interrompido: descarta */
+    const tipo = g.mimeType || 'video/webm';
+    const blob = new Blob(TOUR.pedacos, {type:tipo});
+    TOUR.pedacos = [];
+    TOUR.ultimoTamanho = blob.size;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = tipo.includes('mp4') ? 'tour-dimy.mp4' : 'tour-dimy.webm';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 10000);
+    mostrarToast('Vídeo do tour baixado — confira em Downloads');
+  };
+  try{ g.stop(); }catch(e){}
+}
+$('#btnTour').addEventListener('click', ()=>{ TOUR.ativo ? tourParar(false) : tourIniciar(false); });
+$('#btnGravarTour').addEventListener('click', ()=>{ if(!TOUR.ativo) tourIniciar(true); });
+/* sem MediaRecorder/captureStream (navegador antigo): o botão de gravar some */
+if(!('MediaRecorder' in window) || !HTMLCanvasElement.prototype.captureStream){
+  $('#btnGravarTour').hidden = true;
+  $('#tourNota').hidden = true;
+}
 
 /* =================================================================
    GALERIA — só este salão, poucas fotos e EM ALTA (URL cheia também
@@ -2234,6 +2536,8 @@ montarServicos();
 montarPills();
 montarPlanta();
 montarGaleria();
+/* link com layout sugerido: o botão restaura para ELE, e o rótulo diz isso */
+if(LAYOUT_SUGERIDO) $('#btnPadrao').textContent = 'Restaurar layout sugerido';
 Object.keys(GRUPOS).forEach(pintarSelecao);
 pintarPills();
 renderMesas();
