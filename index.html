@@ -262,10 +262,16 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .regua__txt{font-family:var(--sans);font-size:24px;letter-spacing:.12em;fill:var(--taupe);opacity:.85;}
 .mesa{cursor:grab;touch-action:none;outline:none;}
 .mesa--drag{cursor:grabbing;}
+/* desenho esquemático = RESERVA: some quando o sprite da mesa posta carrega */
 .mesa__tampo{fill:rgba(255,255,255,.94);stroke:#4a545e;stroke-width:1.4;}
 .mesa__toalha{fill:none;stroke:rgba(74,84,94,.35);stroke-width:1;}
 .mesa__cadeira{fill:rgba(244,242,238,.92);stroke:#4a545e;stroke-width:1;}
-.mesa__anel{fill:rgba(255,255,255,0);stroke:transparent;stroke-width:3;transition:stroke .2s;}
+#plantaSvg.sprite-ok .mesa__fallback{display:none;}
+/* círculo invisível de pega: garante o arrasto no footprint inteiro (o hit-test
+   da <image> ignora o alfa, mas o sprite não cobre os 100% do footprint) */
+.mesa__hit{fill:rgba(255,255,255,0);stroke:none;}
+/* anéis de estado por CIMA do sprite: fill:none para não velar a imagem */
+.mesa__anel{fill:none;stroke:transparent;stroke-width:3;transition:stroke .2s;}
 .mesa--sel .mesa__anel,.mesa:focus-visible .mesa__anel{stroke:var(--gold);}
 .mesa--perto .mesa__anel{stroke:#c7841c;stroke-dasharray:7 5;}
 .mesa__x{opacity:0;pointer-events:none;cursor:pointer;}
@@ -661,11 +667,16 @@ html.sem-io .reveal{opacity:1;transform:none;}
                 <img src="assets/planta-salao-eventos.jpg" alt="Planta do Salão de Eventos de Itapema vista de cima" width="1920" height="1080" loading="lazy" decoding="async">
                 <svg id="plantaSvg" viewBox="0 0 1920 1080" aria-label="Editor de mesas sobre a planta do salão">
                   <defs>
-                    <!-- mesa redonda vista de cima: 100 unidades = footprint (tampo + cadeiras) -->
+                    <!-- mesa redonda vista de cima: 100 unidades = footprint (tampo + cadeiras).
+                         Sprite = mesa posta do render decorado; os círculos ficam ATRÁS como
+                         reserva e são escondidos via .sprite-ok quando o sprite carrega. -->
                     <symbol id="simboloMesa" viewBox="-50 -50 100 100">
-                      <g id="cadeirasMesa"></g>
-                      <circle class="mesa__tampo" r="30.8"/>
-                      <circle class="mesa__toalha" r="24"/>
+                      <g class="mesa__fallback">
+                        <g id="cadeirasMesa"></g>
+                        <circle class="mesa__tampo" r="30.8"/>
+                        <circle class="mesa__toalha" r="24"/>
+                      </g>
+                      <image href="assets/mesa-sprite.png" x="-48" y="-48" width="96" height="96"/>
                     </symbol>
                   </defs>
                   <g id="reguaCamada" class="regua" aria-hidden="true"></g>
@@ -812,7 +823,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até 25/08/2026.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-6</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-7</span></p>
   </div>
 </footer>
 
@@ -1513,6 +1524,11 @@ let mesaSel = -1;
 let dragMesa = null;
 
 function montarPlanta(){
+  /* sprite da mesa posta: quando carrega, esconde o desenho esquemático de reserva;
+     se falhar (404/offline), a classe não entra e os círculos continuam na tela */
+  const sprite = new Image();
+  sprite.onload = ()=>svgPlanta.classList.add('sprite-ok');
+  sprite.src = 'assets/mesa-sprite.png';
   /* 8 cadeiras a cada 45° em volta do tampo (coordenadas do símbolo) */
   document.getElementById('cadeirasMesa').innerHTML = Array.from({length:8},(_,i)=>
     `<g transform="rotate(${i*45})"><rect class="mesa__cadeira" x="-8.5" y="-45.5" width="17" height="10.5" rx="4"/></g>`).join('');
@@ -1530,9 +1546,10 @@ function renderMesas(){
     <g class="mesa" data-i="${i}" tabindex="0" role="button"
       aria-label="Mesa ${i+1}, ${MESA.lugares} lugares. Arraste ou use as setas; Delete remove."
       transform="translate(${m.x},${m.y})">
-      <circle class="mesa__anel" r="${(MESA_R+4).toFixed(1)}"/>
+      <circle class="mesa__hit" r="${(MESA_R+2).toFixed(1)}"/>
       <use href="#simboloMesa" x="${(-MESA_R).toFixed(1)}" y="${(-MESA_R).toFixed(1)}"
         width="${(2*MESA_R).toFixed(1)}" height="${(2*MESA_R).toFixed(1)}"/>
+      <circle class="mesa__anel" r="${(MESA_R+4).toFixed(1)}"/>
       <g class="mesa__x" aria-hidden="true">
         <circle class="mesa__x-hit" cx="${bx}" cy="${by}" r="42"/>
         <circle class="mesa__x-fundo" cx="${bx}" cy="${by}" r="19"/>
@@ -1709,6 +1726,7 @@ const tresBox = $('#tresBox');
 const T3 = {
   pronto:false, carregando:false, falhou:false, raf:0,
   cena:null, cam:null, renderer:null, alvo:null, mesas3d:null,
+  texTampo:null, matTampo:null,
   orb:{theta:.35, phi:.8, raio:30}, orb0:{theta:.35, phi:.8, raio:30},
   ponteiros:new Map(), pinca:0
 };
@@ -1742,10 +1760,28 @@ function tresIniciar(){
   T3.renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
   T3.renderer.shadowMap.enabled = true;
   T3.renderer.shadowMap.type = TH.PCFSoftShadowMap;
+  /* fim de tarde dourado: tone mapping filmico + leve ganho de exposição */
+  T3.renderer.toneMapping = TH.ACESFilmicToneMapping;
+  T3.renderer.toneMappingExposure = 1.18;
   tresBox.appendChild(T3.renderer.domElement);
 
   T3.cena = new TH.Scene();
-  T3.cena.background = new TH.Color(0xECEDEF);
+  T3.cena.background = new TH.Color(0xEFEBE3); /* fundo com o calor do fim de tarde */
+
+  /* textura do tampo posto (pratos/arranjo): carregada UMA vez e compartilhada
+     entre as reconstruções das mesas; sem ela o tampo fica creme liso */
+  const imgTampo = new Image();
+  imgTampo.onload = ()=>{
+    try{
+      const tx = new TH.Texture(imgTampo);
+      tx.colorSpace = TH.SRGBColorSpace;
+      tx.anisotropy = Math.min(8, T3.renderer.capabilities.getMaxAnisotropy());
+      tx.needsUpdate = true;
+      T3.texTampo = tx;
+      if(T3.matTampo){ T3.matTampo.map = tx; T3.matTampo.color.set(0xffffff); T3.matTampo.needsUpdate = true; }
+    }catch(e){ /* file:// sem CORS: tampo continua creme liso */ }
+  };
+  imgTampo.src = 'assets/mesa-tampo.png';
 
   /* piso = a planta inteira, 1:1 com a calibração (44,1 m × 24,8 m) */
   const piso = new TH.Mesh(
@@ -1790,9 +1826,20 @@ function tresIniciar(){
     T3.cena.add(w);
   }
 
-  /* luz ambiente + direcional quente com sombra suave */
-  T3.cena.add(new TH.AmbientLight(0xFFF3E0, .62));
-  const sol = new TH.DirectionalLight(0xFFE2B8, 1.5);
+  /* faixa da pista (y 556–637 na planta) com brilho dourado sutil, 6 mm acima
+     do piso para não brigar com a textura (a pista de luzes do render) */
+  const pA = pxParaM(810, 556), pB = pxParaM(1690, 637);
+  const pista = new TH.Mesh(
+    new TH.PlaneGeometry(pB.x - pA.x, pB.z - pA.z),
+    new TH.MeshStandardMaterial({color:0xC9A96A, emissive:0x8A6B33, emissiveIntensity:.28,
+      transparent:true, opacity:.20, roughness:.4, depthWrite:false}));
+  pista.rotation.x = -Math.PI/2;
+  pista.position.set((pA.x+pB.x)/2, .006, (pA.z+pB.z)/2);
+  T3.cena.add(pista);
+
+  /* luz de fim de tarde: ambiente + direcional bem âmbar, sombra suave */
+  T3.cena.add(new TH.AmbientLight(0xFFEBD0, .7));
+  const sol = new TH.DirectionalLight(0xFFD9A6, 1.75);
   sol.position.set(10, 20, 14);
   sol.castShadow = true;
   sol.shadow.mapSize.set(1024, 1024);
@@ -1807,30 +1854,45 @@ function tresIniciar(){
   T3.cam = new TH.PerspectiveCamera(46, 1, .1, 300);
   T3.pronto = true;
 }
-/* mesas em InstancedMesh (3 draw calls, qualquer nº de mesas) */
+/* mesas em InstancedMesh (5 draw calls, qualquer nº de mesas): toalha caída,
+   tampo texturizado com a mesa posta, cadeiras de madeira e arranjo central */
 function tresMesas(){
   const TH = window.THREE;
   if(T3.mesas3d){
     T3.cena.remove(T3.mesas3d);
     T3.mesas3d.traverse(o=>{ if(o.isMesh){ o.geometry.dispose(); o.material.dispose(); } });
   }
+  T3.matTampo = null;
   const g = new TH.Group();
   const n = PROPOSTA.mesas.length;
   if(n){
-    const geoMesa    = new TH.CylinderGeometry(MESA.tampo/2, MESA.tampo/2, .78, 26);
+    /* toalha creme: abre do tampo (0,78 m) e cai até ~10 cm do chão */
+    const geoToalha  = new TH.CylinderGeometry(MESA.tampo/2, MESA.tampo/2+.16, .68, 26);
+    const geoTampo   = new TH.CircleGeometry(MESA.tampo/2-.01, 26);
     const geoAssento = new TH.BoxGeometry(.42, .45, .40);
     const geoEncosto = new TH.BoxGeometry(.42, .42, .05);
-    const matToalha  = new TH.MeshStandardMaterial({color:0xF3EFE7, roughness:.85});
-    const matMadeira = new TH.MeshStandardMaterial({color:0x8A6C4D, roughness:.8});
-    const mesas    = new TH.InstancedMesh(geoMesa, matToalha, n);
+    const geoFlor    = new TH.SphereGeometry(.075, 10, 8);
+    const matToalha  = new TH.MeshStandardMaterial({color:0xEFE6D4, roughness:.9});
+    const matMadeira = new TH.MeshStandardMaterial({color:0x8A6844, roughness:.75});
+    const matTampo   = new TH.MeshStandardMaterial({color:0xEFE6D4, roughness:.85});
+    if(T3.texTampo){ matTampo.map = T3.texTampo; matTampo.color.set(0xffffff); }
+    T3.matTampo = matTampo; /* a textura chega depois? o onload injeta aqui */
+    const matFlor = new TH.MeshStandardMaterial({color:0xffffff, roughness:.7});
+    const toalhas  = new TH.InstancedMesh(geoToalha, matToalha, n);
+    const tampos   = new TH.InstancedMesh(geoTampo, matTampo, n);
     const assentos = new TH.InstancedMesh(geoAssento, matMadeira, n*8);
     const encostos = new TH.InstancedMesh(geoEncosto, matMadeira, n*8);
+    const flores   = new TH.InstancedMesh(geoFlor, matFlor, n*3);
+    const COR_FLOR = [new TH.Color(0xC08A57), new TH.Color(0x9A8354), new TH.Color(0xB3743F)];
     const M = new TH.Matrix4(), Q = new TH.Quaternion(), UM = new TH.Vector3(1,1,1),
-          V = new TH.Vector3(), CIMA = new TH.Vector3(0,1,0);
+          V = new TH.Vector3(), ESC = new TH.Vector3(), CIMA = new TH.Vector3(0,1,0),
+          DEITA = new TH.Quaternion().setFromAxisAngle(new TH.Vector3(1,0,0), -Math.PI/2);
     PROPOSTA.mesas.forEach((m,i)=>{
       const p = pxParaM(m.x, m.y);
-      M.compose(V.set(p.x, .39, p.z), Q.identity(), UM);
-      mesas.setMatrixAt(i, M);
+      M.compose(V.set(p.x, .44, p.z), Q.identity(), UM);
+      toalhas.setMatrixAt(i, M);
+      M.compose(V.set(p.x, .786, p.z), DEITA, UM);
+      tampos.setMatrixAt(i, M);
       for(let c=0;c<8;c++){
         const ang = c*Math.PI/4, r = 1.02;
         Q.setFromAxisAngle(CIMA, ang);
@@ -1839,10 +1901,18 @@ function tresMesas(){
         M.compose(V.set(p.x+Math.sin(ang)*(r+.2), .66, p.z+Math.cos(ang)*(r+.2)), Q, UM);
         encostos.setMatrixAt(i*8+c, M);
       }
+      /* arranjo central discreto: 3 esferas em tons quentes sobre o tampo */
+      for(let f=0; f<3; f++){
+        const af = f*2.2 + i*.9, rf = f ? .09 : 0, s = f ? .68 : 1;
+        M.compose(V.set(p.x+Math.cos(af)*rf, f ? .822 : .845, p.z+Math.sin(af)*rf),
+          Q.identity(), ESC.set(s, s*.78, s));
+        flores.setMatrixAt(i*3+f, M);
+        flores.setColorAt(i*3+f, COR_FLOR[(i+f)%3]);
+      }
     });
-    mesas.castShadow = assentos.castShadow = encostos.castShadow = true;
-    mesas.receiveShadow = true;
-    g.add(mesas, assentos, encostos);
+    toalhas.castShadow = assentos.castShadow = encostos.castShadow = true;
+    toalhas.receiveShadow = tampos.receiveShadow = true;
+    g.add(toalhas, tampos, assentos, encostos, flores);
   }
   T3.mesas3d = g;
   T3.cena.add(g);
