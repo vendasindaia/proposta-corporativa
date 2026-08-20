@@ -555,6 +555,19 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .rcard__escassez .ic{flex:0 0 auto;width:15px;height:15px;margin-top:2px;}
 .rcard__escassez b{font-weight:600;}
 .cta__escassez{margin:0 0 1.2rem;font-size:.82rem;letter-spacing:.05em;color:var(--gold-soft);}
+/* v18.08-16: escassez em VERMELHO nos pontos de decisão (hero, tierbar, CTA),
+   mantendo o card âmbar do resumo. Contraste AA: branco sobre #C62828 ≈ 6,4:1;
+   sobre fundo escuro o texto vai em vermelho claro (#EF9A9A ≈ 8:1);
+   #B71C1C sobre o chip rosado ≈ 6,6:1. Pulso sutil sai no reduced-motion. */
+.hero__validade--disputa{margin-left:10px;color:#B71C1C;border-color:rgba(198,40,40,.45);background:#FBEDED;}
+.hero__validade--disputa .ic{color:#C62828;}
+.escassez-badge{display:inline-flex;align-items:center;gap:.5em;padding:.5em 1em;border-radius:999px;
+  background:#C62828;color:#fff;font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:600;white-space:nowrap;animation:escassez-pulso 2s ease-in-out infinite;}
+.escassez-badge .ic{width:13px;height:13px;flex:0 0 auto;}
+.escassez-badge__curto{display:none;}
+@keyframes escassez-pulso{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(.98)}}
+.cta__escassez .disputada{color:#EF9A9A;font-weight:600;}
 
 /* ---------- responsivo ---------- */
 @media (max-width:760px){
@@ -567,6 +580,10 @@ html.sem-io .reveal{opacity:1;transform:none;}
   .tierbar__meta{max-width:100%;font-size:.62rem;}
   .tierbar__in{padding-block:8px;gap:6px 14px;}
   .tierbar__resumo{width:100%;justify-content:space-between;}
+  /* tierbar compacta: o badge de escassez encurta (o aria-label segue completo) */
+  .escassez-badge{padding:.45em .8em;}
+  .escassez-badge__longo{display:none;}
+  .escassez-badge__curto{display:inline;}
   .tierbar .btn{width:100%;justify-content:center;padding:.72em 1.2em;font-size:.76rem;}
   .ovl__in{padding-top:72px;}
   .ph{width:min(78vw,300px);}
@@ -593,6 +610,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   .reveal{opacity:1;transform:none;transition:none;}
   .nivel,.btn,.tierbar{transition:none;}
   .ph::before{animation:none;}
+  .escassez-badge{animation:none;}
 }
 </style>
 </head>
@@ -956,7 +974,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-15</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-16</span></p>
   </div>
 </footer>
 
@@ -3201,17 +3219,39 @@ document.querySelectorAll('.js-validade').forEach(el=>el.textContent = dataBR(VA
 if(LOCACAO_VARIA)
   $('#notaDia').textContent = 'O investimento varia conforme o dia — compare as opções.';
 
-/* ---- alerta de escassez da data (só com &E= no link; tom sóbrio, sem alarme) ---- */
+/* ---- alerta de escassez da data (só com &E= no link) ----
+   v18.08-16: o card âmbar do resumo segue sóbrio; hero, tierbar e CTA
+   ganham o alerta VERMELHO pedido pelo dono — sempre condicionado ao &E=. */
 if(ESCASSEZ){
   const s = ESCASSEZ===1 ? '' : 's';
+  const RELOGIO = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  /* card da data (âmbar, aprovado — fica como está) */
   const p = document.createElement('p');
   p.className = 'rcard__escassez';
-  p.innerHTML = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+  p.innerHTML = `${RELOGIO}
     <span>Esta data tem mais <b>${ESCASSEZ} orçamento${s}</b> em aberto. A reserva só é garantida com o contrato assinado.</span>`;
   $('#cardData').appendChild(p);
+  /* hero: chip vermelho ao lado do chip de validade (in-view direto — o IO
+     dos .reveal já rodou e não observaria um chip criado agora) */
+  const chip = document.createElement('p');
+  chip.className = 'hero__validade hero__validade--disputa reveal in-view';
+  chip.setAttribute('role','status');
+  chip.innerHTML = `${RELOGIO} Data disputada · mais ${ESCASSEZ} orçamento${s} em aberto`;
+  document.querySelector('.hero__validade').after(chip);
+  /* tierbar: badge vermelho pulsante à esquerda do resumo; no mobile o
+     texto encurta via CSS e o aria-label carrega a frase completa */
+  const badge = document.createElement('span');
+  badge.className = 'escassez-badge';
+  badge.setAttribute('role','status');
+  badge.setAttribute('aria-label', `${ESCASSEZ} orçamento${s} em aberto nesta data`);
+  badge.innerHTML = `${RELOGIO}
+    <span class="escassez-badge__longo" aria-hidden="true">${ESCASSEZ} orçamento${s} nesta data</span>
+    <span class="escassez-badge__curto" aria-hidden="true">${ESCASSEZ} na data</span>`;
+  document.querySelector('.tierbar__resumo').prepend(badge);
+  /* CTA final: a linha fica, com o "— e disputada." no mesmo vermelho */
   const linha = document.createElement('p');
   linha.className = 'cta__escassez';
-  linha.textContent = 'A data de 24/09 segue disponível — e disputada.';
+  linha.innerHTML = 'A data de 24/09 segue disponível <b class="disputada">— e disputada.</b>';
   $('#btnCtaFinal').before(linha);
 }
 
