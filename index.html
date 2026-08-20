@@ -974,7 +974,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-16</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-17</span></p>
   </div>
 </footer>
 
@@ -1165,7 +1165,8 @@ const ITENS_EDITAVEIS = [
   {id:'cafe',   nome:'Café (Térmica) 1,5L',  preco:5000,   min:0, max:60,  padrao:20},
   {id:'toalha', nome:'Toalha para Mesa',     preco:3500,   min:0, max:60,  padrao:20},
   /* equipeOnly: item de CRÉDITO — só o consultor define a quantidade (no
-     protótipo via &C= do hash; em produção o flag vem do snapshot por item) */
+     protótipo via &C= do hash ou ao vivo no painel da equipe; em produção
+     o flag vem do snapshot por item) */
   {id:'av',     nome:'Crédito - Audiovisual',preco:50000,  min:0, max:100, padrao:44, equipeOnly:true},
   {id:'dj',     nome:'DJ - Essencial',       preco:700000, min:0, max:1,   padrao:1},
   {id:'hora',   nome:'Hora extra (Locação)', preco:150000, min:0, max:10,  padrao:7}
@@ -1364,7 +1365,10 @@ function validarISO(s){
   const d = new Date(+m[1], +m[2]-1, +m[3]);
   return (d.getFullYear()===+m[1] && d.getMonth()===+m[2]-1 && d.getDate()===+m[3]) ? s : null;
 }
-const VALIDADE_ISO = validarISO(HASH.V) || VALIDADE_PADRAO;
+/* v18.08-17: o estado abaixo é VIVO — no modo equipe os campos do painel
+   escrevem aqui e re-aplicam na hora (o painel é o PREVIEW exato do que o
+   cliente vai receber); a URL gerada serializa este mesmo estado. */
+let VALIDADE_ISO = validarISO(HASH.V) || VALIDADE_PADRAO;
 const dataBR = iso=>iso.split('-').reverse().join('/');
 
 /* ---- locação por dia (R do hash > padrão da casa), em REAIS inteiros ----
@@ -1380,10 +1384,10 @@ function lerLocacaoDaURL(){
   if(vals.some(v=>!Number.isFinite(v) || v<0 || v>1000000)) return null;
   return Object.fromEntries(ORDEM_LOCACAO.map((k,i)=>[k, vals[i]]));
 }
-const LOCACAO = lerLocacaoDaURL() || LOCACAO_DIA;
+let LOCACAO = lerLocacaoDaURL() || {...LOCACAO_DIA};  /* cópia: o painel edita sem tocar o padrão */
 const DIA2LOC = {'seg-qui':'seg_qui', sexta:'sexta', sabado:'sabado', domingo:'domingo'};
 const locacaoDoDia = dia => LOCACAO[DIA2LOC[dia] || 'seg_qui'] * 100;  /* em centavos */
-const LOCACAO_VARIA = ORDEM_LOCACAO.some(k=>LOCACAO[k]!==LOCACAO.seg_qui);
+const locacaoVaria = ()=>ORDEM_LOCACAO.some(k=>LOCACAO[k]!==LOCACAO.seg_qui);
 
 /* ---- crédito audiovisual definido pela equipe (C do hash > 44 do orçamento) ---- */
 function lerCreditoDaURL(){
@@ -1391,17 +1395,17 @@ function lerCreditoDaURL(){
   const n = parseInt(HASH.C,36);
   return (Number.isFinite(n) && n>=0 && n<=100) ? n : null;
 }
-const CREDITO_AV_URL = lerCreditoDaURL();  /* null = padrão do orçamento */
-/* valor efetivo de um extra equipeOnly: o da URL (equipe) ou o padrão do
-   orçamento — NUNCA a edição local do cliente */
-function valorEquipe(it){ return it.id==='av' && CREDITO_AV_URL!==null ? CREDITO_AV_URL : it.padrao; }
+let CREDITO_AV = lerCreditoDaURL();  /* null = padrão do orçamento (44) */
+/* valor efetivo de um extra equipeOnly: o da equipe (URL/painel) ou o padrão
+   do orçamento — NUNCA a edição local do cliente */
+function valorEquipe(it){ return it.id==='av' && CREDITO_AV!==null ? CREDITO_AV : it.padrao; }
 
 /* ---- alerta de escassez da data (E do hash; ausente = sem alerta) ---- */
 function lerEscassezDaURL(){
   const n = parseInt(HASH.E, 10);
   return (Number.isFinite(n) && n>=1 && n<=3) ? n : 0;
 }
-const ESCASSEZ = lerEscassezDaURL();
+let ESCASSEZ = lerEscassezDaURL();
 
 /* =================================================================
    ESTADO — um objeto só, persistido em localStorage
@@ -2090,6 +2094,44 @@ if(MODO_EQUIPE){
   document.querySelector('.planta__bar').after(card);
   if(ESCASSEZ) card.querySelector('#eqEscassezN').value = String(ESCASSEZ);
 
+  /* ---- edição APLICA AO VIVO (v18.08-17): cada campo escreve no estado da
+     página e re-aplica na hora — o consultor vê exatamente o que o cliente
+     vai receber. A URL gerada lê deste MESMO estado (fonte única). ---- */
+  /* locações por dia: dígitos em reais; valor inválido/no meio da digitação
+     não aplica (fica o último válido) */
+  ORDEM_LOCACAO.forEach(k=>{
+    card.querySelector(`[data-loc="${k}"]`).addEventListener('input', e=>{
+      const v = parseInt(String(e.target.value).replace(/\D/g,''), 10);
+      if(!Number.isFinite(v)) return;
+      LOCACAO[k] = Math.min(v, 1000000);
+      atualizarTotais();     /* total + linha da Locação (montarServicos lê o estado) */
+      aplicarNotaDia();
+    });
+  });
+  /* crédito audiovisual: vale também para a linha travada e o "restaurar" */
+  card.querySelector('#eqCredito').addEventListener('input', e=>{
+    const v = parseInt(e.target.value, 10);
+    if(!Number.isFinite(v)) return;
+    CREDITO_AV = limita(v, 0, 100);
+    PROPOSTA.extras.av = CREDITO_AV;
+    PADRAO.extras.av = CREDITO_AV;   /* a "proposta original" do preview acompanha */
+    salvar(); atualizarTotais();
+  });
+  /* validade: chips + banner de vencida na hora */
+  card.querySelector('#eqValidade').addEventListener('change', e=>{
+    VALIDADE_ISO = validarISO(e.target.value) || VALIDADE_PADRAO;
+    aplicarValidade();
+  });
+  /* escassez: os 4 pontos aparecem/somem com o valor ao vivo */
+  const lerEscassezPainel = ()=>{
+    ESCASSEZ = card.querySelector('#eqEscassezOn').checked
+      ? limita(parseInt(card.querySelector('#eqEscassezN').value,10)||1, 1, 3) : 0;
+    aplicarEscassez();
+  };
+  card.querySelector('#eqEscassezOn').addEventListener('change', lerEscassezPainel);
+  card.querySelector('#eqEscassezN').addEventListener('change', lerEscassezPainel);
+
+  /* ---- gerar a URL do cliente: serializa o ESTADO (não relê os campos) ---- */
   card.querySelector('#btnGerarURL').addEventListener('click', ()=>{
     if(!PROPOSTA.mesas.length){ mostrarToast('Adicione mesas antes de gerar o link'); return; }
     const iso = validarISO(card.querySelector('#eqValidade').value);
@@ -2097,23 +2139,17 @@ if(MODO_EQUIPE){
       mostrarToast('Preencha o campo Válida até antes de gerar o link');
       card.querySelector('#eqValidade').focus(); return;
     }
-    /* locações em reais inteiros: dígitos simples valem, o resto é ignorado */
-    const locs = ORDEM_LOCACAO.map(k=>{
-      const v = parseInt(String(card.querySelector(`[data-loc="${k}"]`).value).replace(/\D/g,''), 10);
-      return Number.isFinite(v) ? Math.min(v, 1000000) : LOCACAO_DIA[k];
-    });
-    const cred = limita(parseInt(card.querySelector('#eqCredito').value,10)||0, 0, 100);
-    const escOn = card.querySelector('#eqEscassezOn').checked;
-    const escN  = limita(parseInt(card.querySelector('#eqEscassezN').value,10)||1, 1, 3);
+    VALIDADE_ISO = iso; aplicarValidade();   /* garante estado = campo mesmo sem change */
+    const itAv = ITENS_EDITAVEIS.find(i=>i.id==='av');
     const u = new URL(location.href);
     u.searchParams.delete('equipe');
     u.hash = 'L=' + serializarLayout(PROPOSTA.mesas)
-      + '&V=' + iso
-      + '&R=' + locs.map(v=>v.toString(36)).join('.')
-      + '&C=' + cred.toString(36)
-      + (escOn ? '&E=' + escN : '');
+      + '&V=' + VALIDADE_ISO
+      + '&R=' + ORDEM_LOCACAO.map(k=>LOCACAO[k].toString(36)).join('.')
+      + '&C=' + valorEquipe(itAv).toString(36)
+      + (ESCASSEZ ? '&E=' + ESCASSEZ : '');
     copiarTexto(u.toString())
-      .then(()=>mostrarToast(`Link do cliente copiado — validade até ${dataBR(iso)}`))
+      .then(()=>mostrarToast(`Link do cliente copiado — validade até ${dataBR(VALIDADE_ISO)}`))
       .catch(()=>mostrarToast('Não deu para copiar automaticamente — copie da barra de endereço'));
   });
 }
@@ -3201,28 +3237,42 @@ $('#convMenos').disabled = PROPOSTA.convidados<=30;
 $('#convMais').disabled = PROPOSTA.convidados>=500;
 atualizarTotais();
 
-/* ---- validade efetiva na página (hero, investimento, rodapé) ---- */
-document.querySelectorAll('.js-validade').forEach(el=>el.textContent = dataBR(VALIDADE_ISO));
-/* proposta vencida: aviso discreto no topo — nada é bloqueado no protótipo */
-(function(){
+/* ---- aplicação do estado da equipe (v18.08-17) ----
+   Funções IDEMPOTENTES: rodam no arranque com o estado do hash e RODAM DE
+   NOVO a cada edição no painel da equipe — o preview é sempre fiel. */
+
+/* validade efetiva (hero, investimento, rodapé) + banner de vencida */
+function aplicarValidade(){
+  document.querySelectorAll('.js-validade').forEach(el=>el.textContent = dataBR(VALIDADE_ISO));
   const [a,m,d] = VALIDADE_ISO.split('-').map(Number);
   const hoje = new Date(); hoje.setHours(0,0,0,0);
-  if(new Date(a, m-1, d) < hoje){
-    const av = document.createElement('p');
-    av.className = 'expirada'; av.setAttribute('role','status');
+  const vencida = new Date(a, m-1, d) < hoje;
+  let av = document.querySelector('.expirada');
+  if(vencida){
+    if(!av){
+      av = document.createElement('p');
+      av.className = 'expirada'; av.setAttribute('role','status');
+      $('#conteudo').prepend(av);
+    }
     av.innerHTML = `Esta proposta expirou em <b>${dataBR(VALIDADE_ISO)}</b> — fale com a gente na conversa para renovar.`;
-    $('#conteudo').prepend(av);
-  }
-})();
+  }else if(av) av.remove();
+}
 
-/* ---- nota do simulador de dia: dinâmica conforme as locações da equipe ---- */
-if(LOCACAO_VARIA)
-  $('#notaDia').textContent = 'O investimento varia conforme o dia — compare as opções.';
+/* nota do simulador de dia: dinâmica conforme as locações da equipe */
+const NOTA_DIA_PADRAO = $('#notaDia').textContent;
+function aplicarNotaDia(){
+  $('#notaDia').textContent = locacaoVaria()
+    ? 'O investimento varia conforme o dia — compare as opções.'
+    : NOTA_DIA_PADRAO;
+}
 
-/* ---- alerta de escassez da data (só com &E= no link) ----
-   v18.08-16: o card âmbar do resumo segue sóbrio; hero, tierbar e CTA
-   ganham o alerta VERMELHO pedido pelo dono — sempre condicionado ao &E=. */
-if(ESCASSEZ){
+/* alerta de escassez da data (só com E>0): card âmbar do resumo (aprovado)
+   + os pontos VERMELHOS da v18.08-16 (hero, tierbar, CTA). Remove tudo e
+   recria conforme o estado atual. */
+function aplicarEscassez(){
+  document.querySelectorAll('.rcard__escassez,.hero__validade--disputa,.escassez-badge,.cta__escassez')
+    .forEach(el=>el.remove());
+  if(!ESCASSEZ) return;
   const s = ESCASSEZ===1 ? '' : 's';
   const RELOGIO = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
   /* card da data (âmbar, aprovado — fica como está) */
@@ -3254,6 +3304,9 @@ if(ESCASSEZ){
   linha.innerHTML = 'A data de 24/09 segue disponível <b class="disputada">— e disputada.</b>';
   $('#btnCtaFinal').before(linha);
 }
+aplicarValidade();
+aplicarNotaDia();
+aplicarEscassez();
 
 /* ---- fileiras roláveis: estado inicial da sombra + reajuste no resize ---- */
 Object.keys(GRUPOS).forEach(t=>sombraNiveis($(GRUPOS[t].alvo)));
