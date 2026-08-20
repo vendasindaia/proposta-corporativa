@@ -722,7 +722,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
       <div class="visoes-pills" role="group" aria-label="Escolha a visão do salão">
         <button type="button" class="pill" data-visao="v2" aria-pressed="true">Personalizar em 2D</button>
         <button type="button" class="pill" data-visao="v3d" aria-pressed="false">Ver em 3D</button>
-        <button type="button" class="pill" data-visao="v3" aria-pressed="false">Tour em vídeo</button>
+        <button type="button" class="pill" data-visao="v3" aria-pressed="false">Tour em vídeo (layout padrão)</button>
       </div>
       <div class="visoes" id="visoes">
 
@@ -763,6 +763,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
               <button type="button" class="btn btn--ghost" id="btnPadrao">Restaurar layout padrão</button>
               <button type="button" class="btn btn--ghost" id="btnLimparMesas">Limpar</button>
               <button type="button" class="btn btn--ghost" id="btnRemoverSel" hidden>Remover mesa</button>
+              <button type="button" class="btn btn--solid" id="btnSalvarLayout">Salvar layout</button>
               <p class="planta__cont" id="plantaCont" aria-live="polite">—</p>
             </div>
             <p class="planta__aviso" id="plantaAviso" hidden>
@@ -784,7 +785,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
           <div class="visao__foot">
             <p class="visao__legenda" id="tresLegenda">Maquete do seu layout · gire com o dedo</p>
             <div class="tour3d__acoes">
-              <button type="button" class="btn btn--ghost" id="btnTour">▶ Tour automático</button>
+              <button type="button" class="btn btn--ghost" id="btnTour">▶ Gerar tour com o layout atual</button>
               <button type="button" class="btn btn--ghost" id="btnGravarTour">⬇ Gravar tour (vídeo)</button>
               <button type="button" class="btn btn--ghost" id="btn3dEditar">Ajustar as mesas em 2D</button>
             </div>
@@ -899,7 +900,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até 25/08/2026.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-10</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-11</span></p>
   </div>
 </footer>
 
@@ -1259,7 +1260,7 @@ const MODO_EQUIPE = new URLSearchParams(location.search).get('equipe')==='1';
    ================================================================= */
 const CHAVE = 'proposta_dimy_prototipo';
 const PADRAO = {convidados:200, dia:'seg-qui', coquetel:'c4', menu:'m2', openbar:'b1',
-  extras:{cafe:20, toalha:20, av:44, dj:1, hora:7}, mesas:LAYOUT_SUGERIDO || MESAS_PADRAO};
+  extras:{cafe:20, toalha:20, av:44, dj:1, hora:7}, mesas:LAYOUT_SUGERIDO || MESAS_PADRAO, rev:1};
   /* PADRAO só é usado via cópia profunda (JSON), então as mesas não são mutadas;
      com #L= na URL, a "proposta original" já inclui o layout sugerido da equipe */
 let PROPOSTA = carregar();
@@ -1286,11 +1287,18 @@ function carregar(){
         ? s.mesas.slice(0,60)
             .filter(m=>m && Number.isFinite(m.x) && Number.isFinite(m.y))
             .map(m=>clampMesa(m.x, m.y))
-        : (LAYOUT_SUGERIDO || MESAS_PADRAO).map(m=>({...m}))
+        : (LAYOUT_SUGERIDO || MESAS_PADRAO).map(m=>({...m})),
+      /* versão do layout: contador que a legenda do 3D e o nome do vídeo exibem */
+      rev: Number.isInteger(s.rev) && s.rev>0 ? s.rev : 1
     };
   }catch(e){ return JSON.parse(JSON.stringify(PADRAO)); }
 }
 function salvar(){ try{ localStorage.setItem(CHAVE, JSON.stringify(PROPOSTA)); }catch(e){} }
+/* salvar de MESAS: persiste E avança a versão do layout (PROPOSTA.rev).
+   É esta versão que aparece na legenda da maquete ("versão N") e no nome
+   do vídeo gravado (tour-dimy-vN) — deixa visível que o tour acompanha
+   a edição. Mudança de cardápio/extras/convidados NÃO mexe na versão. */
+function salvarMesas(){ PROPOSTA.rev = (PROPOSTA.rev|0) + 1; salvar(); }
 function limita(v,min,max){ return Math.min(max, Math.max(min, v)); }
 
 /* =================================================================
@@ -1708,7 +1716,7 @@ function selecionarMesa(i){ mesaSel = i; pintarPlanta(); }
 function removerMesa(i){
   PROPOSTA.mesas.splice(i,1);
   mesaSel = -1;
-  salvar(); renderMesas(); atualizarTotais();
+  salvarMesas(); renderMesas(); atualizarTotais();
 }
 function svgPonto(ev){
   const pt = svgPlanta.createSVGPoint();
@@ -1739,7 +1747,7 @@ function fimDragMesa(){
   if(!dragMesa) return;
   dragMesa.el.classList.remove('mesa--drag');
   dragMesa = null;
-  salvar(); atualizarTotais();
+  salvarMesas(); atualizarTotais();
 }
 svgPlanta.addEventListener('pointerup', fimDragMesa);
 svgPlanta.addEventListener('pointercancel', fimDragMesa);
@@ -1757,7 +1765,7 @@ svgPlanta.addEventListener('keydown', ev=>{
   PROPOSTA.mesas[i] = m;
   mesaSel = i;
   alvo.setAttribute('transform', `translate(${m.x},${m.y})`);
-  pintarPlanta(); salvar(); atualizarTotais();
+  pintarPlanta(); salvarMesas(); atualizarTotais();
 });
 
 $('#btnAddMesa').addEventListener('click', ()=>{
@@ -1771,7 +1779,7 @@ $('#btnAddMesa').addEventListener('click', ()=>{
   }
   PROPOSTA.mesas.push(m);
   mesaSel = PROPOSTA.mesas.length-1;
-  salvar(); renderMesas(); atualizarTotais();
+  salvarMesas(); renderMesas(); atualizarTotais();
 });
 $('#btnDistribuir').addEventListener('click', ()=>{
   /* grade centrada no salão principal, corredores de 1,5 m */
@@ -1792,18 +1800,18 @@ $('#btnDistribuir').addEventListener('click', ()=>{
   }
   PROPOSTA.mesas = mesas;
   mesaSel = -1;
-  salvar(); renderMesas(); atualizarTotais();
+  salvarMesas(); renderMesas(); atualizarTotais();
 });
 $('#btnLimparMesas').addEventListener('click', ()=>{
   PROPOSTA.mesas = [];
   mesaSel = -1;
-  salvar(); renderMesas(); atualizarTotais();
+  salvarMesas(); renderMesas(); atualizarTotais();
 });
 /* com layout sugerido no link, o botão restaura PARA ELE (e o rótulo avisa) */
 $('#btnPadrao').addEventListener('click', ()=>{
   PROPOSTA.mesas = (LAYOUT_SUGERIDO || MESAS_PADRAO).map(m=>({...m}));
   mesaSel = -1;
-  salvar(); renderMesas(); atualizarTotais();
+  salvarMesas(); renderMesas(); atualizarTotais();
 });
 $('#btnRemoverSel').addEventListener('click', ()=>{
   if(mesaSel>=0) removerMesa(mesaSel);
@@ -1834,6 +1842,14 @@ function copiarTexto(t){
   });
 }
 
+/* ---- Salvar layout: a edição já persiste sozinha a cada mexida; o botão
+   dá o MOMENTO explícito de guardar (avança a versão) e avisa que o tour
+   3D e o vídeo passam a usar esta versão ---- */
+$('#btnSalvarLayout').addEventListener('click', ()=>{
+  salvarMesas();
+  mostrarToast('Layout salvo — o tour 3D e o vídeo vão usar esta versão');
+});
+
 /* ---- modo equipe (?equipe=1): botão que embute o layout atual no link ----
    O link copiado sai SEM ?equipe e COM #L=, então o cliente recebe a
    proposta com o layout sugerido e nunca vê este botão. */
@@ -1853,13 +1869,20 @@ if(MODO_EQUIPE){
   $('#plantaCont').before(btnLink);
 }
 
-/* ---- as três visões do salão (pills com fade de 160ms) ---- */
+/* ---- as três visões do salão (pills com fade de 160ms) ----
+   trocaAlvo/clearTimeout: o ÚLTIMO clique sempre vence. Antes, um clique
+   dentro da janela do fade era engolido pelo guard (visaoAtual só muda no
+   setTimeout) — dava para "entrar" no 3D sem a troca acontecer. */
 let visaoAtual = 'v2';
+let trocaTimer = 0, trocaAlvo = null;
 function trocarVisao(v){
-  if(visaoAtual===v) return;
+  if((trocaAlvo || visaoAtual)===v) return;
+  clearTimeout(trocaTimer);
+  trocaAlvo = v;
   const box = $('#visoes');
   box.classList.add('trocando');
-  setTimeout(()=>{
+  trocaTimer = setTimeout(()=>{
+    trocaAlvo = null;
     visaoAtual = v;
     box.querySelectorAll('.visao').forEach(p=>p.classList.toggle('ativa', p.dataset.v===v));
     document.querySelectorAll('[data-visao]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.visao===v)));
@@ -2198,7 +2221,7 @@ function tresParar(){
 function tresLegendaPadrao(){
   const n = PROPOSTA.mesas.length;
   $('#tresLegenda').textContent = n
-    ? `Maquete do seu layout — ${n} ${n===1?'mesa':'mesas'} · gire com o dedo`
+    ? `Maquete do seu layout — ${n} ${n===1?'mesa':'mesas'} · versão ${PROPOSTA.rev} · gire com o dedo`
     : 'Maquete do salão vazio — adicione mesas na visão 2D · gire com o dedo';
 }
 function tresAbrir(){
@@ -2293,7 +2316,9 @@ addEventListener('resize', ()=>{ if(visaoAtual==='v3d') tresDimensionar(); }, {p
    da planta (px → metros via pxParaM); easing easeInOut por trecho.
    Enquanto roda, a órbita manual fica desligada; Esc ou "Parar"
    devolvem a câmera à órbita. O RAF é o mesmo laço de sempre.
-   ================================================================= */
+   GARANTIA DUPLA (v18.08-11): todo início de tour reconstrói as mesas
+   do estado salvo (tresMesas), além da reconstrução na entrada da
+   visão — cena e roteiro da câmera nunca desencontram. */
 const TOUR = {ativo:false, segs:[], i:0, segIni:0, gravador:null, pedacos:[], ultimoTamanho:0};
 function easeInOut(k){ return k<.5 ? 2*k*k : 1 - Math.pow(-2*k+2, 2)/2; }
 function tourMontarRoteiro(){
@@ -2359,24 +2384,25 @@ function tourAtualizar(ts){
 }
 function tourIniciar(gravar){
   if(!T3.pronto || T3.falhou || TOUR.ativo) return;
+  tresMesas();                             /* garantia dupla: a cena SEMPRE nasce do estado salvo */
   TOUR.segs = tourMontarRoteiro();
-  TOUR.i = 0; TOUR.segIni = 0; TOUR.ativo = true;
+  TOUR.i = 0; TOUR.segIni = 0; TOUR.ativo = true;   /* o 1º quadro já posiciona a câmera no início */
   if(gravar) tourGravarComecar();
   $('#btnTour').textContent = '◼ Parar';
   $('#btnGravarTour').disabled = true;
-  $('#tresLegenda').textContent = 'Tour automático pelo seu layout — Esc para parar';
+  $('#tresLegenda').textContent = `Tour com o layout atual (versão ${PROPOSTA.rev}) — Esc para parar`;
 }
 function tourParar(completo){
   if(!TOUR.ativo) return;
   TOUR.ativo = false;
   tourGravarFim(completo);                 /* baixa o vídeo só quando o tour termina inteiro */
-  $('#btnTour').textContent = '▶ Tour automático';
+  $('#btnTour').textContent = '▶ Gerar tour com o layout atual';
   $('#btnGravarTour').disabled = false;
   tresLegendaPadrao();
   tresCamera();                            /* devolve a câmera à órbita manual */
 }
 /* gravação: captureStream + MediaRecorder gravam o canvas ENQUANTO o tour
-   roda; ao terminar, baixa tour-dimy.webm (ou .mp4, conforme o navegador) */
+   roda; ao terminar, baixa tour-dimy-v{rev}.webm (ou .mp4, conforme o navegador) */
 function tourGravarComecar(){
   TOUR.pedacos = [];
   try{
@@ -2402,7 +2428,8 @@ function tourGravarFim(baixar){
     TOUR.ultimoTamanho = blob.size;
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = tipo.includes('mp4') ? 'tour-dimy.mp4' : 'tour-dimy.webm';
+    /* v{rev} no nome: o arquivo declara de qual versão do layout ele saiu */
+    a.download = `tour-dimy-v${PROPOSTA.rev}.${tipo.includes('mp4') ? 'mp4' : 'webm'}`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(a.href), 10000);
     mostrarToast('Vídeo do tour baixado — confira em Downloads');
@@ -2517,7 +2544,9 @@ if('IntersectionObserver' in window){
 
 /* ---- restaurar a proposta original ---- */
 $('#btnReset').addEventListener('click', ()=>{
+  const revSeguinte = (PROPOSTA.rev|0) + 1;   /* versão nunca volta atrás na sessão */
   PROPOSTA = JSON.parse(JSON.stringify(PADRAO));
+  PROPOSTA.rev = revSeguinte;
   mesaSel = -1;
   try{ localStorage.removeItem(CHAVE); }catch(e){}
   Object.keys(GRUPOS).forEach(pintarSelecao);
