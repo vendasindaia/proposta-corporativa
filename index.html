@@ -811,13 +811,15 @@ html.sem-io .reveal{opacity:1;transform:none;}
           </div>
         </div>
 
-        <!-- visão 360°: panoramas fotorrealistas do Enscape da arquiteta em
-             cena three.js PRÓPRIA (esfera invertida, câmera parada no centro).
-             Dois ambientes com textura lazy POR AMBIENTE: salão montado e
-             Deck da Figueira — nada baixa antes do primeiro clique. -->
+        <!-- visão 360°: panoramas em cena three.js PRÓPRIA (esfera invertida,
+             câmera parada no centro). Três ambientes: "Seu layout" (v18.08-14,
+             panorama RENDERIZADO da maquete com as mesas do cliente — some sem
+             WebGL) e os dois fotorrealistas do Enscape da arquiteta, com
+             textura lazy POR AMBIENTE — nada baixa antes do primeiro clique. -->
         <div class="visao" data-v="v360">
           <div class="visao__frame visao__frame--tres visao__frame--pano">
             <div class="pano__ambientes" role="group" aria-label="Escolher o ambiente do passeio 360°">
+              <button type="button" class="pill" data-pano="layout" aria-pressed="false">Seu layout</button>
               <button type="button" class="pill" data-pano="salao" aria-pressed="true">Salão montado</button>
               <button type="button" class="pill" data-pano="deck" aria-pressed="false">Deck da Figueira</button>
             </div>
@@ -828,7 +830,10 @@ html.sem-io .reveal{opacity:1;transform:none;}
           </div>
           <div class="visao__foot">
             <p class="visao__legenda" id="panoLegenda">Passeio fotorrealista · salão montado no formato clássico — monte o SEU layout na aba Personalizar.</p>
-            <p class="tour3d__nota">Imagem 360° · Salão de Eventos Itapema</p>
+            <div class="tour3d__acoes">
+              <button type="button" class="btn btn--ghost" id="btnPanoAtualizar" hidden>↻ Atualizar com o layout atual</button>
+            </div>
+            <p class="tour3d__nota" id="panoNota">Imagem 360° · Salão de Eventos Itapema</p>
           </div>
         </div>
 
@@ -939,7 +944,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até 25/08/2026.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-13</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-14</span></p>
   </div>
 </footer>
 
@@ -1958,8 +1963,9 @@ $('#tourPlay').addEventListener('click', ()=>{
 const tresBox = $('#tresBox');
 const T3 = {
   pronto:false, carregando:false, falhou:false, raf:0,
-  cena:null, cam:null, renderer:null, alvo:null, mesas3d:null, matTampo:null,
+  cena:null, cam:null, renderer:null, alvo:null, mesas3d:null,
   salao:null, salaoEmVoo:null,
+  mesaGlb:null, mesaEmVoo:null, geoFlor:null, matFlor:null,
   orb:{theta:.35, phi:.8, raio:30}, orb0:{theta:.35, phi:.8, raio:30},
   ponteiros:new Map(), pinca:0
 };
@@ -2058,6 +2064,40 @@ function carregarSalao(){
   })).catch(e=>{ T3.salaoEmVoo = null; throw e; });
   return T3.salaoEmVoo;
 }
+/* a MESA REAL (v18.08-14): o modelo do SketchUp da casa re-otimizado p/ web —
+   8 cadeiras cross-back a 45°, toalha drapeada e mise en place completo em
+   ~84 mil tris e 5 draw calls (assets/mesa-real-lite.glb, ~350 KB, meshopt).
+   Baixa UMA vez e vira uma lista de "partes" {geometria, material, matriz}:
+   as mesas do layout são INSTÂNCIAS dessas partes — a geometria sobe pra GPU
+   uma única vez, não importa quantas mesas o cliente arraste. */
+function carregarMesa(){
+  if(T3.mesaGlb) return Promise.resolve(T3.mesaGlb);
+  if(T3.mesaEmVoo) return T3.mesaEmVoo;
+  T3.mesaEmVoo = Promise.all([
+    import('./assets/lib/GLTFLoader.js'),
+    carregarMeshopt()
+  ]).then(([mod, decoder])=>new Promise((res, rej)=>{
+    const loader = new mod.GLTFLoader();
+    loader.setMeshoptDecoder(decoder);
+    loader.load('assets/mesa-real-lite.glb', g=>{
+      g.scene.updateMatrixWorld(true);
+      const partes = [];
+      g.scene.traverse(o=>{
+        if(!o.isMesh) return;
+        const mt = o.material, nome = mt.name || '';
+        /* tintas da casa: cadeira em madeira média, tecido em marfim quente */
+        if(/^madeira/i.test(nome)) mt.color.set(0x7E5F3E);
+        else if(/toalha|obrus/i.test(nome)) mt.color.set(0xF1EAD9);
+        if('envMapIntensity' in mt) mt.envMapIntensity = .35;
+        partes.push({geo:o.geometry, mat:mt, m:o.matrixWorld.clone()});
+      });
+      if(!partes.length){ T3.mesaEmVoo = null; rej(new Error('mesa-real-lite vazia')); return; }
+      T3.mesaGlb = partes;
+      res(partes);
+    }, undefined, ()=>{ T3.mesaEmVoo = null; rej(new Error('mesa-real-lite.glb')); });
+  })).catch(e=>{ T3.mesaEmVoo = null; throw e; });
+  return T3.mesaEmVoo;
+}
 /* textura do telão gerada em canvas: fundo grafite, monograma dourado.
    Em produção este canvas dá lugar à logo do cliente (campo do snapshot). */
 function telaoMaterial(TH){
@@ -2099,6 +2139,11 @@ function tresIniciar(){
   T3.renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.75));
   T3.renderer.shadowMap.enabled = true;
   T3.renderer.shadowMap.type = TH.PCFSoftShadowMap;
+  /* sombra ESTÁTICA (v18.08-14): luz e mesas só mudam quando o layout muda —
+     o shadow map re-renderiza UMA vez por reconstrução (tresMesas pede via
+     needsUpdate), não a cada quadro: com 19 mesas reais instanciadas (1,6 M
+     tris só de mesas) é isso que segura o fps no piso */
+  T3.renderer.shadowMap.autoUpdate = false;
   /* fim de tarde dourado: tone mapping filmico + leve ganho de exposição */
   T3.renderer.toneMapping = TH.ACESFilmicToneMapping;
   T3.renderer.toneMappingExposure = 1.18;
@@ -2124,25 +2169,6 @@ function tresIniciar(){
       pm.dispose(); tx.dispose();
     }catch(e){}
   });
-
-  /* tampo posto da FOTO oficial (pratos, taças, velas e arranjo REAIS):
-     material compartilhado por todas as mesas — criado uma vez e nunca
-     descartado pelo tresMesas. Sem textura (file://), fica creme liso. */
-  T3.matTampo = new TH.MeshStandardMaterial({color:0xF1EAD9, roughness:.85, envMapIntensity:.3});
-  const imgTampo = new Image();
-  imgTampo.onload = ()=>{
-    try{
-      const tx = new TH.Texture(imgTampo);
-      tx.colorSpace = TH.SRGBColorSpace;
-      tx.anisotropy = Math.min(8, T3.renderer.capabilities.getMaxAnisotropy());
-      tx.needsUpdate = true;
-      T3.renderer.initTexture(tx);
-      T3.matTampo.map = tx;
-      T3.matTampo.color.set(0xffffff);
-      T3.matTampo.needsUpdate = true;
-    }catch(e){}
-  };
-  imgTampo.src = 'assets/mesa-tampo.png';
 
   /* faixa da pista (y 556–637 na planta) com brilho dourado sutil, 6 mm acima
      do PISO REAL para não brigar com o piso do GLB */
@@ -2203,84 +2229,65 @@ function tresIniciar(){
   T3.cam = new TH.PerspectiveCamera(46, 1, .1, 300);
   T3.pronto = true;
 }
-/* mesas em InstancedMesh (7 draw calls, qualquer nº de mesas) = a mesa da FOTO
-   oficial: toalha creme acampanada, tampo em CircleGeometry com a foto REAL do
-   tampo posto (assets/mesa-tampo.png — pratos, taças, velas e arranjo já estão
-   na textura: nada de geometria duplicada por cima) e 8 cadeiras CROSS-BACK de
-   madeira, como na foto: assento fino, 4 pernas, dois montantes com travessa no
-   topo e X de dois sarrafos finos cruzados (BoxGeometry fina rotacionada).
-   O sprite 2D (assets/mesa-foto.png) é a MESMA mesa vista de cima — a vista
-   superior da maquete conversa com o editor. */
+/* mesas = INSTÂNCIAS da MESA REAL (v18.08-14): cada parte do GLB lite
+   (madeira das cadeiras, toalha, mise en place claro/escuro, taças) vira um
+   InstancedMesh com N matrizes — 6 draw calls p/ qualquer nº de mesas e zero
+   re-upload de geometria. Cada mesa assenta no piso real (PISO_Y) com um giro
+   sutil determinístico (±12°, semente na própria posição): o conjunto ganha o
+   ar orgânico de salão montado à mão, e a MESMA mesa mantém o giro entre
+   reconstruções. O tampo com a foto saiu: o mise en place real do modelo
+   assume. O arranjo floral central (o modelo real não tem) são 3 esferas
+   discretas sobre o tampo. O sprite 2D (assets/mesa-foto.png) segue sendo a
+   vista de cima oficial do editor. */
 function tresMesas(){
   const TH = window.THREE;
   if(T3.mesas3d){
     T3.cena.remove(T3.mesas3d);
-    T3.mesas3d.traverse(o=>{ if(o.isMesh){ o.geometry.dispose(); if(o.material!==T3.matTampo) o.material.dispose(); } });
+    /* geometria e material são COMPARTILHADOS com o cache do GLB (e o arranjo
+       com T3.geoFlor): dispose só dos buffers de instância */
+    T3.mesas3d.traverse(o=>{ if(o.isInstancedMesh) o.dispose(); });
   }
   const g = new TH.Group();
   const n = PROPOSTA.mesas.length;
-  if(n){
-    /* toalha: topo ø1,60 m a 0,78 m; saia levemente acampanada até 8 cm do chão */
-    const geoToalha   = new TH.CylinderGeometry(MESA.tampo/2, MESA.tampo/2+.07, .70, 48);
-    const geoTampo    = new TH.CircleGeometry(MESA.tampo/2, 48);
-    const geoAssento  = new TH.BoxGeometry(.42, .04, .40);
-    const geoPerna    = new TH.BoxGeometry(.035, .46, .035);
-    const geoMontante = new TH.BoxGeometry(.04, .50, .035);
-    const geoTravessa = new TH.BoxGeometry(.42, .05, .035);
-    const geoSarrafo  = new TH.BoxGeometry(.04, .56, .025);
-    const matToalha   = new TH.MeshStandardMaterial({color:0xF1EAD9, roughness:.9, envMapIntensity:.3});
-    const matMadeira  = new TH.MeshStandardMaterial({color:0xA87B4F, roughness:.75, envMapIntensity:.3});
-    const toalhas   = new TH.InstancedMesh(geoToalha, matToalha, n);
-    const tampos    = new TH.InstancedMesh(geoTampo, T3.matTampo, n);
-    const assentos  = new TH.InstancedMesh(geoAssento, matMadeira, n*8);
-    const pernas    = new TH.InstancedMesh(geoPerna, matMadeira, n*32);
-    const montantes = new TH.InstancedMesh(geoMontante, matMadeira, n*16);
-    const travessas = new TH.InstancedMesh(geoTravessa, matMadeira, n*8);
-    const sarrafos  = new TH.InstancedMesh(geoSarrafo, matMadeira, n*16);
-    const M = new TH.Matrix4(), MB = new TH.Matrix4(), ML = new TH.Matrix4(),
-          Q = new TH.Quaternion(), QID = new TH.Quaternion(), UM = new TH.Vector3(1,1,1),
-          V = new TH.Vector3(), CIMA = new TH.Vector3(0,1,0),
-          DEITA = new TH.Quaternion().setFromAxisAngle(new TH.Vector3(1,0,0), -Math.PI/2),
-          RECOSTA = new TH.Quaternion().setFromAxisAngle(new TH.Vector3(1,0,0), .16),
-          CRUZA = [new TH.Quaternion().setFromAxisAngle(new TH.Vector3(0,0,1), .69),
-                   new TH.Quaternion().setFromAxisAngle(new TH.Vector3(0,0,1), -.69)];
-    PROPOSTA.mesas.forEach((m,i)=>{
+  if(n && T3.mesaGlb){
+    const M = new TH.Matrix4(), Q = new TH.Quaternion(), QID = new TH.Quaternion(),
+          V = new TH.Vector3(), ESC = new TH.Vector3(1,1,1), CIMA = new TH.Vector3(0,1,0);
+    const bases = PROPOSTA.mesas.map(m=>{
       const p = pxParaM(m.x, m.y);
-      /* tudo assentado no nível do piso real do GLB (PISO_Y), não em y=0 */
-      M.compose(V.set(p.x, PISO_Y+.43, p.z), QID, UM);     /* toalha: topo a 0,78 m */
-      toalhas.setMatrixAt(i, M);
-      /* tampo posto da foto, 4 mm acima do topo da toalha (sem z-fighting) */
-      M.compose(V.set(p.x, PISO_Y+.784, p.z), DEITA, UM);
-      tampos.setMatrixAt(i, M);
-      for(let c=0;c<8;c++){
-        const ang = c*Math.PI/4, sx = Math.sin(ang), co = Math.cos(ang);
-        Q.setFromAxisAngle(CIMA, ang);
-        /* assento fino afastado do tampo, como quem senta… */
-        M.compose(V.set(p.x+sx*1.04, PISO_Y+.46, p.z+co*1.04), Q, UM);
-        assentos.setMatrixAt(i*8+c, M);
-        /* …4 pernas retas nos cantos do assento… */
-        for(let k=0;k<4;k++){
-          const lx = k%2 ? .17 : -.17, lz = k<2 ? .15 : -.15;
-          M.compose(V.set(p.x+sx*1.04 + lx*co + lz*sx, PISO_Y+.23, p.z+co*1.04 - lx*sx + lz*co), Q, UM);
-          pernas.setMatrixAt(i*32+c*4+k, M);
-        }
-        /* …e o encosto cross-back num pivô reclinado p/ fora (≈9°): dois
-           montantes, travessa no topo e o X de sarrafos entre eles */
-        MB.compose(V.set(p.x+sx*1.22, PISO_Y+.48, p.z+co*1.22), Q.multiply(RECOSTA), UM);
-        ML.compose(V.set(-.19, .25, 0), QID, UM);   montantes.setMatrixAt(i*16+c*2,   M.multiplyMatrices(MB, ML));
-        ML.compose(V.set( .19, .25, 0), QID, UM);   montantes.setMatrixAt(i*16+c*2+1, M.multiplyMatrices(MB, ML));
-        ML.compose(V.set(0, .475, 0), QID, UM);     travessas.setMatrixAt(i*8+c,      M.multiplyMatrices(MB, ML));
-        ML.compose(V.set(0, .24, 0), CRUZA[0], UM); sarrafos.setMatrixAt(i*16+c*2,    M.multiplyMatrices(MB, ML));
-        ML.compose(V.set(0, .24, 0), CRUZA[1], UM); sarrafos.setMatrixAt(i*16+c*2+1,  M.multiplyMatrices(MB, ML));
-      }
+      /* semente barata na posição (hash de shader clássico): determinística */
+      const s = Math.sin(m.x*12.9898 + m.y*78.233)*43758.5453;
+      const giro = ((s - Math.floor(s)) - .5) * .42;          /* ±12° */
+      return {p, base:new TH.Matrix4().compose(
+        V.set(p.x, PISO_Y, p.z), Q.setFromAxisAngle(CIMA, giro), ESC.set(1,1,1))};
     });
-    toalhas.castShadow = assentos.castShadow = pernas.castShadow = true;
-    montantes.castShadow = travessas.castShadow = sarrafos.castShadow = true;
-    toalhas.receiveShadow = tampos.receiveShadow = true;
-    g.add(toalhas, tampos, assentos, pernas, montantes, travessas, sarrafos);
+    for(const parte of T3.mesaGlb){
+      const im = new TH.InstancedMesh(parte.geo, parte.mat, n);
+      bases.forEach((b,i)=>im.setMatrixAt(i, M.multiplyMatrices(b.base, parte.m)));
+      im.castShadow = !parte.mat.transparent;   /* taça não projeta sombra */
+      im.receiveShadow = true;
+      g.add(im);
+    }
+    /* arranjo floral: 3 esferas discretas (terracota, palha seca, verde) */
+    if(!T3.geoFlor) T3.geoFlor = new TH.SphereGeometry(.05, 12, 10);
+    if(!T3.matFlor) T3.matFlor = new TH.MeshStandardMaterial({roughness:.8, metalness:0, envMapIntensity:.25});
+    const FLORES = [
+      {dx: .045, dz: .012, y:.845, esc:1.15, cor:new TH.Color(0xA96A52)},
+      {dx:-.042, dz: .04,  y:.838, esc:.95,  cor:new TH.Color(0xD9C9A4)},
+      {dx:-.008, dz:-.05,  y:.832, esc:.8,   cor:new TH.Color(0x74815C)}
+    ];
+    const flores = new TH.InstancedMesh(T3.geoFlor, T3.matFlor, n*3);
+    bases.forEach((b,i)=>FLORES.forEach((f,k)=>{
+      M.compose(V.set(b.p.x+f.dx, PISO_Y+f.y, b.p.z+f.dz), QID, ESC.setScalar(f.esc));
+      flores.setMatrixAt(i*3+k, M);
+      flores.setColorAt(i*3+k, f.cor);
+    }));
+    flores.receiveShadow = true;
+    g.add(flores);
   }
   T3.mesas3d = g;
   T3.cena.add(g);
+  /* sombras são estáticas (autoUpdate off): pede UMA renderização agora */
+  if(T3.renderer) T3.renderer.shadowMap.needsUpdate = true;
 }
 function tresDimensionar(){
   if(!T3.pronto) return;
@@ -2331,9 +2338,9 @@ function tresAtivar(){
   if(T3.carregando) return;
   T3.carregando = true;
   $('#tresStatus').hidden = false;
-  /* three (módulo) + GLTFLoader + meshopt + o GLB do salão — tudo lazy,
-     só nesta primeira abertura; o GLB fica em cache p/ as próximas */
-  carregarThree().then(carregarSalao).then(()=>{
+  /* three (módulo) + GLTFLoader + meshopt + os DOIS GLBs (salão e mesa real)
+     — tudo lazy, só nesta primeira abertura; ambos ficam em cache */
+  carregarThree().then(()=>Promise.all([carregarSalao(), carregarMesa()])).then(()=>{
     T3.carregando = false;
     tresIniciar();
     $('#tresStatus').hidden = true;
@@ -2417,11 +2424,16 @@ addEventListener('resize', ()=>{ if(visaoAtual==='v3d') tresDimensionar(); }, {p
    ================================================================= */
 const panoBox = $('#panoBox');
 const PANOS = {
+  /* "Seu layout" (v18.08-14): panorama RENDERIZADO da maquete com as mesas do
+     cliente — sem arquivo; a textura nasce em panoGerarLayout e o cache é por
+     PROPOSTA.rev (PANOL). lon 356 = olhando o palco/telão a partir do centro. */
+  layout:{dinamico:true, lon:356, lat:-2, tx:null, legenda:''},
   salao:{arquivo:'assets/pano-salao-mesas.jpg', lon:283, lat:-2, tx:null,
     legenda:'Passeio fotorrealista · salão montado no formato clássico — monte o SEU layout na aba Personalizar.'},
   deck:{arquivo:'assets/pano-deck-figueira.jpg', lon:228, lat:2, tx:null,
     legenda:'Passeio fotorrealista · Deck da Figueira — recepção e coquetel ao ar livre.'}
 };
+const PANOL = { rev:0 };   /* versão do layout que o panorama dinâmico retrata */
 const P360 = {
   pronto:false, falhou:false, raf:0, ambiente:'salao', pedido:null, emVoo:null,
   cena:null, cam:null, renderer:null, mat:null,
@@ -2467,15 +2479,24 @@ function panoAplicar(id){
   P360.lon = amb.lon; P360.lat = amb.lat; P360.fov = P360.fov0;
   P360.vLon = P360.vLat = 0;
   panoCamera();
-  $('#panoLegenda').textContent = amb.legenda;
+  $('#panoLegenda').textContent = amb.dinamico
+    ? `O seu layout em 360° · versão ${PANOL.rev}`
+    : amb.legenda;
+  $('#panoNota').textContent = amb.dinamico
+    ? 'Panorama gerado agora da maquete, com as suas mesas'
+    : 'Imagem 360° · Salão de Eventos Itapema';
+  /* o botão ↻ só faz sentido dentro do ambiente dinâmico */
+  $('#btnPanoAtualizar').hidden = !amb.dinamico;
   document.querySelectorAll('[data-pano]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.pano===id)));
 }
 /* troca de ambiente: fade curto se a textura já está aqui; senão spinner +
-   download — e o ÚLTIMO clique sempre vence (P360.pedido, como nas visões) */
+   download/geração — e o ÚLTIMO clique sempre vence (P360.pedido, como nas
+   visões). O ambiente dinâmico regenera quando PROPOSTA.rev avançou. */
 function panoMostrar(id){
   P360.ambiente = id; P360.pedido = id;
   const amb = PANOS[id];
-  if(P360.pronto && amb.tx){
+  const precisaGerar = amb.dinamico && (!amb.tx || PANOL.rev !== PROPOSTA.rev);
+  if(P360.pronto && amb.tx && !precisaGerar){
     panoBox.classList.add('trocando');
     setTimeout(()=>{
       if(P360.pedido!==id) return;         /* outro clique venceu no meio do fade */
@@ -2484,11 +2505,12 @@ function panoMostrar(id){
     }, 170);
     return;
   }
-  if(P360.emVoo===id) return;              /* este download já está a caminho */
+  if(P360.emVoo===id) return;              /* este download/geração já está a caminho */
   P360.emVoo = id;
+  $('#panoStatus').textContent = amb.dinamico ? 'Montando o seu layout em 360°…' : 'Carregando o passeio 360°…';
   $('#panoStatus').hidden = false; $('#panoSpin').hidden = false;
   if(P360.pronto) panoBox.classList.add('trocando');
-  carregarThree().then(()=>panoCarregarTextura(id)).then(()=>{
+  (amb.dinamico ? panoGerarLayout() : carregarThree().then(()=>panoCarregarTextura(id))).then(()=>{
     if(P360.emVoo===id) P360.emVoo = null;
     if(P360.pedido!==id) return;           /* o cliente já pediu o outro ambiente */
     if(!P360.pronto) panoIniciar();
@@ -2504,6 +2526,108 @@ function panoMostrar(id){
     if(P360.pronto) mostrarToast('Este ambiente não carregou agora — tente de novo.');
     else panoFalhar('O passeio 360° não carregou agora. Sem drama: o tour em vídeo mostra o salão montado do mesmo jeito.');
   });
+}
+/* =================================================================
+   "SEU LAYOUT" EM 360° (v18.08-14) — panorama equiretangular
+   RENDERIZADO da maquete real (salão + as mesas do estado salvo),
+   não uma foto: CubeCamera no meio do salão (px 1100 / py 600 da
+   planta, olho a 1,60 m do piso real) → cubo 2048 (1024 em tela
+   pequena/GPU apertada) → conversão cubo→equiretangular 4096×2048
+   num shader de lookup — aplicando na mão o MESMO ACES filmico +
+   sRGB do canvas, porque o three só tone-mapeia desenhando na tela
+   → leitura de pixels → DataTexture na esfera do viewer 360.
+   Cache por PROPOSTA.rev (PANOL): layout mudou → regenera ao entrar
+   (ou no botão ↻). Sem WebGL o ambiente nem aparece no seletor.
+   ================================================================= */
+function layoutRenderizarPanorama(){
+  const TH = window.THREE, rd = T3.renderer;
+  const olho = pxParaM(1100, 600);
+  const fazer = (lado, tipo)=>{
+    const cubo = new TH.WebGLCubeRenderTarget(lado, {type:tipo});
+    const cam = new TH.CubeCamera(.1, 300, cubo);
+    cam.position.set(olho.x, PISO_Y + 1.60, olho.z);
+    T3.cena.add(cam);
+    rd.shadowMap.needsUpdate = true;               /* sombra fresca no cubo */
+    cam.update(rd, T3.cena);
+    T3.cena.remove(cam);
+    const W = 4096, H = 2048;
+    const alvo = new TH.WebGLRenderTarget(W, H, {depthBuffer:false, stencilBuffer:false});
+    const mat = new TH.ShaderMaterial({
+      uniforms:{cubo:{value:cubo.texture}, expo:{value:rd.toneMappingExposure}},
+      vertexShader:'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }',
+      fragmentShader:[
+        'varying vec2 vUv; uniform samplerCube cubo; uniform float expo;',
+        /* ACES filmico do three (tonemapping_pars_fragment), transposto */
+        'vec3 aces(vec3 c){',
+        '  c *= expo/.6;',
+        '  c = mat3(.59719,.076,.0284,.35458,.90834,.13383,.04823,.01566,.83777)*c;',
+        '  c = (c*(c+.0245786)-.000090537)/(c*(.983729*c+.4329510)+.238081);',
+        '  c = mat3(1.60475,-.10208,-.00327,-.53108,1.10813,-.07276,-.07367,-.00605,1.07602)*c;',
+        '  return clamp(c, 0., 1.);',
+        '}',
+        'void main(){',
+        '  float a = vUv.x*6.2831853;              /* azimute: +x → +z */',
+        '  float t = (1.-vUv.y)*3.14159265;        /* 0 = zênite */',
+        '  vec3 d = vec3(cos(a)*sin(t), cos(t), sin(a)*sin(t));',
+        '  vec3 c = aces(textureCube(cubo, d).rgb);',
+        '  vec3 s = mix(c*12.92, 1.055*pow(c, vec3(1./2.4))-.055, step(vec3(.0031308), c));',
+        '  gl_FragColor = vec4(s, 1.);',
+        '}'
+      ].join('\n')
+    });
+    const quad = new TH.Mesh(new TH.PlaneGeometry(2, 2), mat);
+    const cenaQ = new TH.Scene(); cenaQ.add(quad);
+    const camQ = new TH.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    rd.setRenderTarget(alvo);
+    rd.render(cenaQ, camQ);
+    const px = new Uint8Array(W*H*4);
+    rd.readRenderTargetPixels(alvo, 0, 0, W, H, px);
+    rd.setRenderTarget(null);
+    alvo.dispose(); cubo.dispose(); mat.dispose(); quad.geometry.dispose();
+    /* readPixels devolve a linha de BAIXO primeiro; com flipY=false a esfera
+       (v=0 embaixo) lê exatamente nessa ordem — nada a virar */
+    const tx = new TH.DataTexture(px, W, H, TH.RGBAFormat);
+    tx.colorSpace = TH.SRGBColorSpace;
+    tx.minFilter = TH.LinearMipmapLinearFilter;
+    tx.magFilter = TH.LinearFilter;
+    tx.generateMipmaps = true;
+    tx.needsUpdate = true;
+    return tx;
+  };
+  /* cubo em HalfFloat (sem banding nas sombras antes do tone mapping);
+     escadinha de fallback: cubo menor → bytes, p/ GPU/driver apertado */
+  const teto = (rd.capabilities.maxCubemapSize|0) || 1024;
+  const lado = Math.min(matchMedia('(min-width: 900px)').matches ? 2048 : 1024, teto);
+  try{ return fazer(lado, TH.HalfFloatType); }
+  catch(e1){
+    try{ return fazer(1024, TH.HalfFloatType); }
+    catch(e2){ return fazer(1024, TH.UnsignedByteType); }
+  }
+}
+/* garante a maquete inteira (three + salão + mesa real + cena) e rende o pano */
+function panoGerarLayout(){
+  return carregarThree()
+    .then(()=>Promise.all([carregarSalao(), carregarMesa()]))
+    .then(()=>{
+      if(!T3.pronto) tresIniciar();
+      tresMesas();                     /* a cena SEMPRE nasce do estado salvo */
+      const tx = layoutRenderizarPanorama();
+      const amb = PANOS.layout;
+      if(amb.tx) amb.tx.dispose();     /* só o pano mais novo fica em memória */
+      amb.tx = tx;
+      PANOL.rev = PROPOSTA.rev;
+    });
+}
+$('#btnPanoAtualizar').addEventListener('click', ()=>{
+  if(P360.falhou) return;
+  PANOL.rev = -1;                      /* força regenerar mesmo sem rev nova */
+  panoMostrar('layout');
+});
+/* sem WebGL não há maquete para renderizar: o ambiente some do seletor */
+if(!tresTemWebGL()){
+  const pillLayout = document.querySelector('[data-pano="layout"]');
+  if(pillLayout) pillLayout.remove();
+  $('#btnPanoAtualizar').hidden = true;
 }
 function panoCamera(){
   P360.lat = limita(P360.lat, -85, 85);
@@ -2543,7 +2667,9 @@ function panoAtivar(){
     panoFalhar('Este navegador está sem WebGL, que é quem desenha o passeio. Sem drama: o tour em vídeo mostra o salão montado do mesmo jeito.');
     return;
   }
-  if(P360.pronto && PANOS[P360.ambiente].tx){ panoAbrir(); return; }
+  const amb = PANOS[P360.ambiente];
+  /* dinâmico com layout NOVO (rev avançou): regenera já na entrada da visão */
+  if(P360.pronto && amb.tx && !(amb.dinamico && PANOL.rev !== PROPOSTA.rev)){ panoAbrir(); return; }
   panoMostrar(P360.ambiente);
 }
 document.querySelectorAll('[data-pano]').forEach(b=>b.addEventListener('click', ()=>{
