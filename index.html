@@ -11,6 +11,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Protótipo: fontes via CDN. Em produção, self-hosted. -->
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- three.js r160 em MÓDULOS (v18.08-13): o importmap resolve o "three" que o
+     GLTFLoader importa por dentro; tudo self-hosted e carregado lazy (import()
+     dinâmico só quando uma visão 3D/360° abre — nada baixa no arranque). -->
+<script type="importmap">{"imports":{"three":"./assets/lib/three.module.js"}}</script>
 <style>
 /* =================================================================
    PROPOSTA INTERATIVA CORPORATIVA — protótipo navegável
@@ -794,7 +798,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
           <div class="visao__frame visao__frame--tres">
             <div class="tres__canvasbox" id="tresBox" tabindex="0" role="img"
               aria-label="Maquete 3D do salão com as suas mesas. Arraste para girar, roda ou pinça para aproximar, toque duplo recentraliza; no teclado, setas giram e as teclas mais e menos aproximam."></div>
-            <p class="tres__status" id="tresStatus" hidden>Montando a maquete…</p>
+            <p class="tres__status" id="tresStatus" hidden>Montando o salão…</p>
           </div>
           <div class="visao__foot">
             <p class="visao__legenda" id="tresLegenda">Maquete do seu layout · gire com o dedo</p>
@@ -935,7 +939,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até 25/08/2026.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-12</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-13</span></p>
   </div>
 </footer>
 
@@ -1944,20 +1948,51 @@ $('#tourPlay').addEventListener('click', ()=>{
 });
 
 /* =================================================================
-   MAQUETE 3D — three.js self-hosted (assets/lib/three.min.js, r160),
-   carregado só na primeira vez que a visão abre. O piso é a própria
-   planta mapeada pela calibração (pxm → medidas reais em metros); as
-   mesas nascem de PROPOSTA.mesas a cada abertura, então o que foi
-   arrastado no 2D aparece aqui. Sem WebGL: mensagem + caminho pro 2D.
+   MAQUETE 3D — three.js r160 em MÓDULOS (assets/lib/three.module.js,
+   importado lazy na primeira vez que uma visão 3D abre) + o SALÃO REAL:
+   assets/salao-real.glb (glTF 2.0, EXT_meshopt_compression, metros,
+   Y-up), carregado uma vez e mantido em cache na cena. As mesas nascem
+   de PROPOSTA.mesas a cada abertura, então o que foi arrastado no 2D
+   aparece aqui, assentado no piso real. Sem WebGL: mensagem + 2D.
    ================================================================= */
 const tresBox = $('#tresBox');
 const T3 = {
   pronto:false, carregando:false, falhou:false, raf:0,
   cena:null, cam:null, renderer:null, alvo:null, mesas3d:null, matTampo:null,
+  salao:null, salaoEmVoo:null,
   orb:{theta:.35, phi:.8, raio:30}, orb0:{theta:.35, phi:.8, raio:30},
   ponteiros:new Map(), pinca:0
 };
-const pxParaM = (px,py)=>({x:(px-960)/pxm, z:(py-540)/pxm});
+/* =================================================================
+   CALIBRAÇÃO editor → GLB (v18.08-13) — medida em 20/08 varrendo a
+   geometria do salao-real.glb (probe headless; piso interno destacado
+   pelos triângulos em y=0,588):
+   · ESCALA: a mesma do editor, pxm ≈ 43,55 px/m. Conferência pelas
+     âncoras do eixo X: parede esq. px 765 ↔ x −4,30 e vidro dir.
+     px 1832 ↔ x +20,1 → 1067 px / 24,4 m = 43,73 px/m (0,4% do pxm).
+   · EIXO X ancorado na parede esquerda: x = (px−765)/pxm − 4,30.
+     Conferido no GLB: base da parede em x ≈ −4,45 e o degrau da
+     parede norte em x ≈ 10,0 ↔ px ≈ 1389 (a divisa A3/A4 da planta).
+   · EIXO Z medido no GLB: o piso do salão vai de z = −7,75 (base da
+     parede norte ↔ topo do piso na planta, py 248) a z = +6,60
+     (divisa do deck ↔ py 862) — 14,35 m para 614 px. Mantemos a
+     escala pxm ancorada no MEIO do vão (py 555 ↔ z −0,575):
+     z = (py−555)/pxm − 0,575. O erro fica simétrico (~12 cm em cada
+     parede, para DENTRO do piso): mesa no limite da máscara nunca
+     nasce dentro da parede real.
+   · PISO INTERNO em y = 0,588 (PISO_Y): mesas, palco, telão, pista e
+     as alturas do tour assentam nele. Forro com spots em y ≈ 4,64;
+     o forro/telhado é single-sided, então a vista de topo (órbita
+     alta e fim do tour em grua) continua enxergando o interior.
+   · RESSALVA medida: a parede norte do braço direito (A4) está em
+     z ≈ −6,1 no GLB (~1,6 m ao sul da parede norte principal; a
+     planta 2D desenha ~1 m) — as 2 mesas da 1ª fileira dessa ala
+     (px 1375/1502) encostam mais na parede real que no editor.
+   ================================================================= */
+const GLBCAL = { px0:765, x0:-4.3, py0:555, z0:-0.575 };
+const PISO_Y = 0.588;
+const pxParaM = (px,py)=>({ x:(px-GLBCAL.px0)/pxm + GLBCAL.x0,
+                            z:(py-GLBCAL.py0)/pxm + GLBCAL.z0 });
 
 function tresTemWebGL(){
   try{
@@ -1972,14 +2007,56 @@ function tresFalhar(msg){
   tresBox.querySelector('#btn3dFallback').addEventListener('click', ()=>trocarVisao('v2'));
   $('#tresLegenda').textContent = 'A maquete 3D não abre neste navegador — o editor 2D faz o mesmo trabalho.';
 }
+/* three.js agora é módulo ESM; o namespace vira window.THREE porque todo o
+   código das cenas (maquete, 360°, tour) fala THREE.* global — preservado. */
+let threeEmVoo = null;
 function carregarThree(){
+  if(window.THREE) return Promise.resolve();
+  if(!threeEmVoo){
+    threeEmVoo = import('./assets/lib/three.module.js')
+      .then(m=>{ window.THREE = m; })
+      .catch(e=>{ threeEmVoo = null; throw e; });
+  }
+  return threeEmVoo;
+}
+/* decoder meshopt (UMD, expõe window.MeshoptDecoder) — só quando o GLB vem */
+function carregarMeshopt(){
   return new Promise((res, rej)=>{
-    if(window.THREE) return res();
+    if(window.MeshoptDecoder) return res(window.MeshoptDecoder);
     const s = document.createElement('script');
-    s.src = 'assets/lib/three.min.js';
-    s.onload = res; s.onerror = ()=>rej(new Error('three.min.js'));
+    s.src = 'assets/lib/meshopt_decoder.js';
+    s.onload = ()=>res(window.MeshoptDecoder);
+    s.onerror = ()=>rej(new Error('meshopt_decoder.js'));
     document.head.appendChild(s);
   });
+}
+/* o salão real: baixa UMA vez (12 MB), fica em cache em T3.salao */
+function carregarSalao(){
+  if(T3.salao) return Promise.resolve(T3.salao);
+  if(T3.salaoEmVoo) return T3.salaoEmVoo;
+  T3.salaoEmVoo = Promise.all([
+    import('./assets/lib/GLTFLoader.js'),
+    carregarMeshopt()
+  ]).then(([mod, decoder])=>new Promise((res, rej)=>{
+    const loader = new mod.GLTFLoader();
+    loader.setMeshoptDecoder(decoder);
+    loader.load('assets/salao-real.glb', g=>{
+      T3.salao = g.scene;
+      /* o salão recebe as sombras das mesas, não projeta (2,74 M tris no
+         shadow map custariam o fps); vidros refletem mais o environment */
+      T3.salao.traverse(o=>{
+        if(!o.isMesh) return;
+        o.receiveShadow = true;
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for(const mt of mats){
+          if(mt && 'envMapIntensity' in mt)
+            mt.envMapIntensity = /vidro|glass|translucent/i.test(mt.name||'') ? .9 : .35;
+        }
+      });
+      res(T3.salao);
+    }, undefined, ()=>{ T3.salaoEmVoo = null; rej(new Error('salao-real.glb')); });
+  })).catch(e=>{ T3.salaoEmVoo = null; throw e; });
+  return T3.salaoEmVoo;
 }
 /* textura do telão gerada em canvas: fundo grafite, monograma dourado.
    Em produção este canvas dá lugar à logo do cliente (campo do snapshot). */
@@ -2018,7 +2095,8 @@ function telaoMaterial(TH){
 function tresIniciar(){
   const TH = window.THREE;
   T3.renderer = new TH.WebGLRenderer({antialias:true});
-  T3.renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
+  /* teto de 1.75: o GLB tem 2,74 M tris — dpr cheio custava fps à toa */
+  T3.renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.75));
   T3.renderer.shadowMap.enabled = true;
   T3.renderer.shadowMap.type = TH.PCFSoftShadowMap;
   /* fim de tarde dourado: tone mapping filmico + leve ganho de exposição */
@@ -2029,34 +2107,28 @@ function tresIniciar(){
   T3.cena = new TH.Scene();
   T3.cena.background = new TH.Color(0xEFEBE3); /* fundo com o calor do fim de tarde */
 
-  /* piso = a própria planta LIMPA (layout vazio), 1:1 com a calibração
-     (44,1 m × 24,8 m): o salão vazio recebendo o layout do cliente */
-  const piso = new TH.Mesh(
-    new TH.PlaneGeometry(1920/pxm, 1080/pxm),
-    new TH.MeshStandardMaterial({color:0xffffff, roughness:.96, metalness:0}));
-  piso.rotation.x = -Math.PI/2;
-  piso.receiveShadow = true;
-  T3.cena.add(piso);
-  const img = new Image();
-  img.onload = ()=>{
+  /* O SALÃO REAL assume o lugar do plano-planta e das paredes-caixa
+     sintéticas das versões anteriores: o GLB (já carregado e em cache
+     por carregarSalao) traz piso, paredes, cortinas, vidros, figueira,
+     ligustros, bares e o forro com spots — tudo em metros, calibrado
+     1:1 com o editor via pxParaM/GLBCAL. */
+  T3.cena.add(T3.salao);
+
+  /* reflexos suaves: PMREM do panorama real (o mesmo do passeio 360°)
+     como environment — acende os vidros sem lavar os materiais */
+  new TH.TextureLoader().load('assets/pano-salao-mesas.jpg', tx=>{
     try{
-      const tx = new TH.Texture(img);
       tx.colorSpace = TH.SRGBColorSpace;
-      tx.anisotropy = Math.min(8, T3.renderer.capabilities.getMaxAnisotropy());
-      tx.needsUpdate = true;
-      T3.renderer.initTexture(tx);
-      piso.material.map = tx;
-      piso.material.color.set(0xffffff);
-      piso.material.needsUpdate = true;
-    }catch(e){ piso.material.color.set(0xE3DBCC); } /* sem textura (file://): piso liso quente */
-  };
-  img.onerror = ()=>piso.material.color.set(0xE3DBCC);
-  img.src = 'assets/planta-salao-eventos.jpg';
+      const pm = new TH.PMREMGenerator(T3.renderer);
+      T3.cena.environment = pm.fromEquirectangular(tx).texture;
+      pm.dispose(); tx.dispose();
+    }catch(e){}
+  });
 
   /* tampo posto da FOTO oficial (pratos, taças, velas e arranjo REAIS):
      material compartilhado por todas as mesas — criado uma vez e nunca
      descartado pelo tresMesas. Sem textura (file://), fica creme liso. */
-  T3.matTampo = new TH.MeshStandardMaterial({color:0xF1EAD9, roughness:.85});
+  T3.matTampo = new TH.MeshStandardMaterial({color:0xF1EAD9, roughness:.85, envMapIntensity:.3});
   const imgTampo = new Image();
   imgTampo.onload = ()=>{
     try{
@@ -2072,35 +2144,15 @@ function tresIniciar(){
   };
   imgTampo.src = 'assets/mesa-tampo.png';
 
-  /* paredes simples no perímetro da área útil (bases medidas na planta);
-     o 3º campo marca trecho de VIDRO (fachada direita e de baixo) */
-  const PERIMETRO = [[172,84],[765,84],[765,240],[1400,240],[1400,252],[1768,252,1],[1768,856,1],[772,856],[772,420],[172,420]];
-  const matParede = new TH.MeshStandardMaterial({color:0x59626B, roughness:.92});
-  const matVidro  = new TH.MeshStandardMaterial({color:0xC9D8DE, roughness:.25, transparent:true, opacity:.28});
-  const ALT = 4, ESP = .18;
-  for(let i=0;i<PERIMETRO.length;i++){
-    const vidro = !!PERIMETRO[i][2];
-    const a = pxParaM(PERIMETRO[i][0], PERIMETRO[i][1]);
-    const prox = PERIMETRO[(i+1)%PERIMETRO.length];
-    const b = pxParaM(prox[0], prox[1]);
-    const L = Math.hypot(b.x-a.x, b.z-a.z);
-    const w = new TH.Mesh(new TH.BoxGeometry(L+ESP, ALT, ESP), vidro ? matVidro : matParede);
-    w.position.set((a.x+b.x)/2, ALT/2, (a.z+b.z)/2);
-    w.rotation.y = -Math.atan2(b.z-a.z, b.x-a.x);
-    w.castShadow = !vidro;
-    w.receiveShadow = true;
-    T3.cena.add(w);
-  }
-
   /* faixa da pista (y 556–637 na planta) com brilho dourado sutil, 6 mm acima
-     do piso para não brigar com a textura (a pista de luzes do render) */
+     do PISO REAL para não brigar com o piso do GLB */
   const pA = pxParaM(810, 556), pB = pxParaM(1690, 637);
   const pista = new TH.Mesh(
     new TH.PlaneGeometry(pB.x - pA.x, pB.z - pA.z),
     new TH.MeshStandardMaterial({color:0xC9A96A, emissive:0x8A6B33, emissiveIntensity:.28,
       transparent:true, opacity:.20, roughness:.4, depthWrite:false}));
   pista.rotation.x = -Math.PI/2;
-  pista.position.set((pA.x+pB.x)/2, .006, (pA.z+pB.z)/2);
+  pista.position.set((pA.x+pB.x)/2, PISO_Y+.006, (pA.z+pB.z)/2);
   T3.cena.add(pista);
 
   /* PALCO + TELÃO — fundo direito do salão (px 1690–1745 × 450–650 na
@@ -2114,11 +2166,11 @@ function tresIniciar(){
   const palco = new TH.Mesh(
     new TH.BoxGeometry(palcoB.x-palcoA.x, .4, palcoB.z-palcoA.z),
     new TH.MeshStandardMaterial({color:0x23282E, roughness:.85}));
-  palco.position.set((palcoA.x+palcoB.x)/2, .2, (palcoA.z+palcoB.z)/2);
+  palco.position.set((palcoA.x+palcoB.x)/2, PISO_Y+.2, (palcoA.z+palcoB.z)/2);
   palco.castShadow = palco.receiveShadow = true;
   T3.cena.add(palco);
   const TELAO_W = 4.0, TELAO_H = 2.2, telaoC = pxParaM(1735,550);
-  const telaoY = .4 + .30 + TELAO_H/2;              /* apoiado 30 cm acima do tablado */
+  const telaoY = PISO_Y + .4 + .30 + TELAO_H/2;     /* apoiado 30 cm acima do tablado */
   const matBorda = new TH.MeshStandardMaterial({color:0x171B20, roughness:.55});
   const moldura = new TH.Mesh(new TH.BoxGeometry(.07, TELAO_H+.12, TELAO_W+.12), matBorda);
   moldura.position.set(telaoC.x, telaoY, telaoC.z);
@@ -2126,7 +2178,7 @@ function tresIniciar(){
   T3.cena.add(moldura);
   for(const dz of [-TELAO_W/2+.35, TELAO_W/2-.35]){  /* pés curtos até o tablado */
     const pe = new TH.Mesh(new TH.BoxGeometry(.07, .34, .12), matBorda);
-    pe.position.set(telaoC.x, .4+.17, telaoC.z+dz);
+    pe.position.set(telaoC.x, PISO_Y+.4+.17, telaoC.z+dz);
     T3.cena.add(pe);
   }
   const telao = new TH.Mesh(new TH.PlaneGeometry(TELAO_W, TELAO_H), telaoMaterial(TH));
@@ -2145,9 +2197,9 @@ function tresIniciar(){
   sol.shadow.camera.far = 60; sol.shadow.bias = -0.0004;
   T3.cena.add(sol);
 
-  /* câmera em órbita ao redor do centro do salão */
+  /* câmera em órbita ao redor do centro do salão (alvo no piso real) */
   const centro = pxParaM(970, 470);
-  T3.alvo = new TH.Vector3(centro.x, 0, centro.z);
+  T3.alvo = new TH.Vector3(centro.x, PISO_Y, centro.z);
   T3.cam = new TH.PerspectiveCamera(46, 1, .1, 300);
   T3.pronto = true;
 }
@@ -2176,8 +2228,8 @@ function tresMesas(){
     const geoMontante = new TH.BoxGeometry(.04, .50, .035);
     const geoTravessa = new TH.BoxGeometry(.42, .05, .035);
     const geoSarrafo  = new TH.BoxGeometry(.04, .56, .025);
-    const matToalha   = new TH.MeshStandardMaterial({color:0xF1EAD9, roughness:.9});
-    const matMadeira  = new TH.MeshStandardMaterial({color:0xA87B4F, roughness:.75});
+    const matToalha   = new TH.MeshStandardMaterial({color:0xF1EAD9, roughness:.9, envMapIntensity:.3});
+    const matMadeira  = new TH.MeshStandardMaterial({color:0xA87B4F, roughness:.75, envMapIntensity:.3});
     const toalhas   = new TH.InstancedMesh(geoToalha, matToalha, n);
     const tampos    = new TH.InstancedMesh(geoTampo, T3.matTampo, n);
     const assentos  = new TH.InstancedMesh(geoAssento, matMadeira, n*8);
@@ -2194,26 +2246,27 @@ function tresMesas(){
                    new TH.Quaternion().setFromAxisAngle(new TH.Vector3(0,0,1), -.69)];
     PROPOSTA.mesas.forEach((m,i)=>{
       const p = pxParaM(m.x, m.y);
-      M.compose(V.set(p.x, .43, p.z), QID, UM);            /* toalha: topo a 0,78 m */
+      /* tudo assentado no nível do piso real do GLB (PISO_Y), não em y=0 */
+      M.compose(V.set(p.x, PISO_Y+.43, p.z), QID, UM);     /* toalha: topo a 0,78 m */
       toalhas.setMatrixAt(i, M);
       /* tampo posto da foto, 4 mm acima do topo da toalha (sem z-fighting) */
-      M.compose(V.set(p.x, .784, p.z), DEITA, UM);
+      M.compose(V.set(p.x, PISO_Y+.784, p.z), DEITA, UM);
       tampos.setMatrixAt(i, M);
       for(let c=0;c<8;c++){
         const ang = c*Math.PI/4, sx = Math.sin(ang), co = Math.cos(ang);
         Q.setFromAxisAngle(CIMA, ang);
         /* assento fino afastado do tampo, como quem senta… */
-        M.compose(V.set(p.x+sx*1.04, .46, p.z+co*1.04), Q, UM);
+        M.compose(V.set(p.x+sx*1.04, PISO_Y+.46, p.z+co*1.04), Q, UM);
         assentos.setMatrixAt(i*8+c, M);
         /* …4 pernas retas nos cantos do assento… */
         for(let k=0;k<4;k++){
           const lx = k%2 ? .17 : -.17, lz = k<2 ? .15 : -.15;
-          M.compose(V.set(p.x+sx*1.04 + lx*co + lz*sx, .23, p.z+co*1.04 - lx*sx + lz*co), Q, UM);
+          M.compose(V.set(p.x+sx*1.04 + lx*co + lz*sx, PISO_Y+.23, p.z+co*1.04 - lx*sx + lz*co), Q, UM);
           pernas.setMatrixAt(i*32+c*4+k, M);
         }
         /* …e o encosto cross-back num pivô reclinado p/ fora (≈9°): dois
            montantes, travessa no topo e o X de sarrafos entre eles */
-        MB.compose(V.set(p.x+sx*1.22, .48, p.z+co*1.22), Q.multiply(RECOSTA), UM);
+        MB.compose(V.set(p.x+sx*1.22, PISO_Y+.48, p.z+co*1.22), Q.multiply(RECOSTA), UM);
         ML.compose(V.set(-.19, .25, 0), QID, UM);   montantes.setMatrixAt(i*16+c*2,   M.multiplyMatrices(MB, ML));
         ML.compose(V.set( .19, .25, 0), QID, UM);   montantes.setMatrixAt(i*16+c*2+1, M.multiplyMatrices(MB, ML));
         ML.compose(V.set(0, .475, 0), QID, UM);     travessas.setMatrixAt(i*8+c,      M.multiplyMatrices(MB, ML));
@@ -2278,7 +2331,9 @@ function tresAtivar(){
   if(T3.carregando) return;
   T3.carregando = true;
   $('#tresStatus').hidden = false;
-  carregarThree().then(()=>{
+  /* three (módulo) + GLTFLoader + meshopt + o GLB do salão — tudo lazy,
+     só nesta primeira abertura; o GLB fica em cache p/ as próximas */
+  carregarThree().then(carregarSalao).then(()=>{
     T3.carregando = false;
     tresIniciar();
     $('#tresStatus').hidden = true;
@@ -2574,7 +2629,9 @@ const TOUR = {ativo:false, segs:[], i:0, segIni:0, gravador:null, pedacos:[], ul
 function easeInOut(k){ return k<.5 ? 2*k*k : 1 - Math.pow(-2*k+2, 2)/2; }
 function tourMontarRoteiro(){
   const TH = window.THREE;
-  const V = (px,py,h)=>{ const p = pxParaM(px,py); return new TH.Vector3(p.x, h, p.z); };
+  /* h = altura RELATIVA AO PISO REAL: os keyframes do roteiro passam pela
+     mesma calibração pxParaM das mesas e assentam em PISO_Y */
+  const V = (px,py,h)=>{ const p = pxParaM(px,py); return new TH.Vector3(p.x, PISO_Y + h, p.z); };
   const linear = (A,B)=>k=>new TH.Vector3().lerpVectors(A, B, k);
   const fixo = A=>()=>A.clone();
   /* curva de 3 pontos p/ dobrar a esquina da porta sem parada no meio */
