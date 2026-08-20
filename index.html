@@ -547,6 +547,22 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .equipe-card__linha{display:flex;align-items:center;gap:8px;}
 .equipe-card__linha input[type="checkbox"]{width:18px;height:18px;accent-color:var(--gold);}
 .equipe-card__info{flex:1 1 100%;margin:0;font-size:.8rem;color:var(--taupe);}
+/* ---------- financeiro (só equipe): indicadores VMC — nunca vaza pro cliente ---------- */
+.equipe-fin{flex:1 1 100%;margin-top:4px;padding-top:14px;border-top:1px dashed var(--gold-soft);
+  display:flex;flex-direction:column;gap:10px;}
+.equipe-fin__grid{display:flex;flex-wrap:wrap;gap:8px 26px;align-items:flex-end;}
+.equipe-fin__grid p{margin:0;display:flex;flex-direction:column;gap:3px;}
+.equipe-fin__grid p>span{font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--taupe);}
+.equipe-fin__grid b{font-size:1rem;color:var(--brown-deep);font-variant-numeric:tabular-nums;}
+.equipe-fin__grid b.ruim{color:#B71C1C;}
+.equipe-fin__metas{display:flex;gap:6px;}
+.meta{font-style:normal;font-size:.72rem;padding:.28em .7em;border-radius:999px;
+  border:1px solid var(--bege);color:var(--taupe);white-space:nowrap;}
+.meta.ok{background:#E8F2E9;border-color:#7DA883;color:#2F5E38;}
+.equipe-fin__escada{margin:0;font-size:.78rem;color:var(--taupe);font-variant-numeric:tabular-nums;}
+.equipe-fin__alerta{margin:0;font-size:.78rem;font-weight:600;color:#B71C1C;}
+.equipe-fin__controles{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;}
+#finDescValor{width:6.5em;}
 
 /* ---------- alerta de escassez da data (E= no hash; dourado sóbrio, nunca alarmista) ---------- */
 .rcard__escassez{margin:12px 0 0;padding:9px 12px;display:flex;gap:8px;align-items:flex-start;
@@ -974,7 +990,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-17</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-18</span></p>
   </div>
 </footer>
 
@@ -1171,14 +1187,94 @@ const ITENS_EDITAVEIS = [
   {id:'dj',     nome:'DJ - Essencial',       preco:700000, min:0, max:1,   padrao:1},
   {id:'hora',   nome:'Hora extra (Locação)', preco:150000, min:0, max:10,  padrao:7}
 ];
-/* a Locação do Espaço saiu da lista fixa (v18.08-15): é por dia da semana
-   (LOCACAO, definida no bloco do link preparado pela equipe) e entra na
-   frente da lista na renderização */
-const SERVICOS = [
-  ['Equipe',1670220],['Gerador de Energia',250000],
-  ['Taxa de Segurança',100000],['Taxa de Limpeza',100000],['Taxa de Ecad',75000],
-  ['Taxa de Estacionamento',50000]
-];
+/* =================================================================
+   MOTOR FINANCEIRO — ESPELHO DO CRM (v18.08-18)
+   "A lógica do cálculo tem que ser tudo igual ao CRM, só a apresentação
+   diferente." Fórmulas espelhadas de orcamentos.service.ts:
+   recalcularServicos (:1586), calcularVMCDetalhado (:2902),
+   checarTravaVMC (:2876) e do desconto de gerente (FASE 5, :2028).
+   Tudo em CENTAVOS; arredondamentos replicam o Math.round(×100)/100
+   do CRM (em reais) como Math.round em centavos.
+   ================================================================= */
+const DATA_EVENTO = new Date(2026, 8, 24);   /* 24/09/2026 (quinta) */
+/* feriados nacionais que tocam o cálculo (calendario_feriado do CRM):
+   07/09 é o único de setembro — não afeta 24/09, mas o TETO de feriado/
+   véspera está implementado (fiel ao computeFator do CRM) */
+const FERIADOS = new Set(['2026-09-07','2026-10-12','2026-11-02','2026-11-15','2026-12-25']);
+
+/* ---- flags de VMC por produto (dados REAIS do CRM, por id do protótipo) ----
+   tab = valor de tabela do produto · min = valor_minimo · dmax = desconto
+   máximo (%; informativo — no CRM o piso de produto vem de min/tab, o dmax
+   é usado em subprodutos) · peloValor = vmc_pelo_valor (piso = valor CHEIO
+   de tabela; senão piso = min) · taxa = tem_taxa_servico (entra na base da
+   Equipe) · reaj = tem_reajuste · bloco: alimentacao/bebidas são PROTEGIDOS
+   do desconto de margem do VMC. */
+const VMC_PRODUTOS = {
+  /* coquetéis volantes (P1–P4): piso = min */
+  c1:{min:12510, dmax:10, peloValor:false, taxa:true, reaj:true, bloco:'alimentacao'},
+  c2:{min:14310, dmax:10, peloValor:false, taxa:true, reaj:true, bloco:'alimentacao'},
+  c3:{min:16110, dmax:10, peloValor:false, taxa:true, reaj:true, bloco:'alimentacao'},
+  c4:{min:17910, dmax:10, peloValor:false, taxa:true, reaj:true, bloco:'alimentacao'},
+  /* menus do jantar: vmc_pelo_valor — piso = valor CHEIO de tabela */
+  m1:{tab:13491, dmax:10, peloValor:true, taxa:true, reaj:true, bloco:'alimentacao'},
+  m2:{tab:15291, dmax:10, peloValor:true, taxa:true, reaj:true, bloco:'alimentacao'},
+  m3:{tab:16191, dmax:10, peloValor:true, taxa:true, reaj:true, bloco:'alimentacao'},
+  m4:{tab:22491, dmax:10, peloValor:true, taxa:true, reaj:true, bloco:'alimentacao'},
+  m5:{tab:25191, dmax:10, peloValor:true, taxa:true, reaj:true, bloco:'alimentacao'},
+  /* open bars: vmc_pelo_valor — piso = valor de tabela */
+  b1:{tab:6291,  dmax:10, peloValor:true, taxa:true, reaj:true, bloco:'bebidas'},
+  b2:{tab:7731,  dmax:10, peloValor:true, taxa:true, reaj:true, bloco:'bebidas'},
+  b3:{tab:10161, dmax:10, peloValor:true, taxa:true, reaj:true, bloco:'bebidas'},
+  b4:{tab:15291, dmax:10, peloValor:true, taxa:true, reaj:true, bloco:'bebidas'},
+  b5:{tab:23391, dmax:10, peloValor:true, taxa:true, reaj:true, bloco:'bebidas'},
+  b6:{tab:26991, dmax:10, peloValor:true, taxa:true, reaj:true, bloco:'bebidas'},
+  /* coffees (por convidado): gastronomia a preço de tabela */
+  coffeeSup:{tab:6291, peloValor:true, taxa:true, reaj:true, bloco:'alimentacao'},
+  coffeeExt:{tab:9891, peloValor:true, taxa:true, reaj:true, bloco:'alimentacao'},
+  /* estrutura & extras: piso = valor_minimo (sem taxa de serviço) */
+  cadeira: {tab:1500, min:1000, dmax:33.33, peloValor:false, cortesia:true, bloco:'estrutura'},
+  sousplat:{tab:1000, min:700,  dmax:30,    peloValor:false, bloco:'estrutura'},
+  cafe:    {min:5000,   dmax:0, peloValor:false, bloco:'estrutura'},
+  toalha:  {min:3500,   dmax:0, peloValor:false, bloco:'estrutura'},
+  av:      {min:50000,  dmax:0, peloValor:false, bloco:'estrutura'},
+  /* DJ: preço do protótipo (7.000) está ABAIXO do próprio min (8.999,90) —
+     PERMITIDO (vendido abaixo do piso); o painel financeiro pinta em vermelho */
+  dj:      {tab:1300000, min:899990, dmax:30.77, peloValor:false, bloco:'estrutura'},
+  hora:    {min:150000, dmax:0, peloValor:false, bloco:'estrutura'}
+};
+
+/* ---- SERVIÇOS DINÂMICOS (regras reais do recalcularServicos) ----
+   · Equipe: percentual_produtos = 15% × Σ(valor_total dos itens temTaxa);
+   · Segurança/Limpeza: por_grupo_convidados = 500 × min(ceil(conv/100), 10);
+   · Locação: valor_minimo_ambiente_dia (o mecanismo LOCACAO do painel);
+   · fixos: Ecad 750 · Gerador 2.500 · Estacionamento 500 · Vallet 0;
+   · Reajuste temporal: % por faixa sobre a base tem_reajuste — evento a
+     <180 dias → 0%. Escada FAIXAS_REAJUSTE aplicada sobre (dias−30); a
+     granularidade exata dos degraus só importa acima de 180 dias (hoje 0). */
+const FAIXAS_REAJUSTE = [0,12,15,20,25,30,35,40,45,50,55,60];
+function percentualReajuste(){
+  const dias = Math.round((DATA_EVENTO - new Date())/86400000);
+  if(dias < 180) return 0;
+  const degrau = Math.min(1 + Math.floor((dias - 180)/180), FAIXAS_REAJUSTE.length - 1);
+  return FAIXAS_REAJUSTE[degrau];
+}
+function calcularServicos(s, baseTaxaCent, baseReajusteCent){
+  const grupos = Math.min(Math.ceil(s.convidados/100), 10);
+  const reajuste = Math.round(baseReajusteCent * percentualReajuste()/100);
+  const lista = [
+    ['Locação do Espaço', locacaoDoDia(s.dia)],
+    ['Equipe', Math.round(baseTaxaCent * 0.15)],
+    ['Gerador de Energia', 250000],
+    ['Taxa de Segurança', 50000*grupos],
+    ['Taxa de Limpeza', 50000*grupos],
+    ['Taxa de Ecad', 75000],
+    ['Taxa de Estacionamento', 50000]
+  ];
+  /* Vallet (R$ 0) e Reajuste temporal zerado existem no orçamento real mas
+     não geram linha visível com valor 0 */
+  if(reajuste > 0) lista.push(['Reajuste temporal', reajuste]);
+  return {lista, total: lista.reduce((a,x)=>a+x[1], 0)};
+}
 const DIAS = [['seg-qui','Seg–Qui'],['sexta','Sexta'],['sabado','Sábado'],['domingo','Domingo']];
 
 /* =================================================================
@@ -1407,6 +1503,29 @@ function lerEscassezDaURL(){
 }
 let ESCASSEZ = lerEscassezDaURL();
 
+/* ---- desconto do gerente (D do hash) — modelo do CRM: cupom de desconto
+   livre com regra sintética alvo 'total', LINEAR sobre o bruto (não compõe).
+   &D=p.<pct> (percentual ≤100) ou &D=f.<reais inteiros em base36>.
+   O cliente recebe só o preço final — o desconto nunca vira "de X por Y". ---- */
+function lerDescontoDaURL(){
+  const v = HASH.D; if(!v) return null;
+  let m = /^p\.([0-9]+(?:\.[0-9]+)?)$/.exec(v);
+  if(m){ const p = parseFloat(m[1]); return (p>0 && p<=100) ? {tipo:'percentual', valor:p} : null; }
+  m = /^f\.([0-9a-z]+)$/i.exec(v);
+  if(m){ const r = parseInt(m[1],36); return (r>0 && r<=10000000) ? {tipo:'valor', valor:r} : null; }
+  return null;
+}
+let DESCONTO_GERENTE = lerDescontoDaURL();   /* {tipo:'percentual'|'valor', valor} | null */
+/* desconto em CENTAVOS sobre o bruto (regra 'total' do cuponsService) */
+function descontoGerenteCent(brutoCent){
+  const d = DESCONTO_GERENTE;
+  if(!d) return 0;
+  const cent = d.tipo==='percentual' ? Math.round(brutoCent * d.valor/100) : d.valor*100;
+  return Math.min(cent, brutoCent);
+}
+/* perfil de demonstração da trava VMC (no CRM vem da sessão do usuário) */
+let ROLE_DEMO = 'consultor';
+
 /* =================================================================
    ESTADO — um objeto só, persistido em localStorage
    ================================================================= */
@@ -1459,20 +1578,115 @@ function salvarMesas(){ PROPOSTA.rev = (PROPOSTA.rev|0) + 1; salvar(); }
 function limita(v,min,max){ return Math.min(max, Math.max(min, v)); }
 
 /* =================================================================
-   CÁLCULO — funções puras, tudo em centavos
+   CÁLCULO — funções puras, tudo em centavos (motor espelho do CRM)
    ================================================================= */
 const porId = (lista,id)=>lista.find(x=>x.id===id)||lista[0];
+
+/* os "orcamento_itens" do protótipo: escolhas + travados + extras, cada um
+   com as flags de VMC (VMC_PRODUTOS) penduradas em .f */
+function itensDoOrcamento(s){
+  const C = s.convidados;
+  const l = [porId(COQUETEIS,s.coquetel), porId(MENUS,s.menu), porId(OPENBARS,s.openbar)]
+    .map(op=>({id:op.id, nome:op.nome, qtd:C, unit:op.preco}));
+  ITENS_TRAVADOS.forEach(it=>l.push({id:it.id, nome:it.nome, qtd:C, unit:it.preco}));
+  ITENS_EDITAVEIS.forEach(it=>l.push({id:it.id, nome:it.nome, qtd:s.extras[it.id], unit:it.preco}));
+  l.forEach(i=>{ i.f = VMC_PRODUTOS[i.id] || {}; i.total = i.unit * i.qtd; });
+  return l;
+}
+
 function calcular(s){
   const coq = porId(COQUETEIS,s.coquetel), menu = porId(MENUS,s.menu), bar = porId(OPENBARS,s.openbar);
-  const ppGastro = coq.preco + menu.preco + bar.preco +
-    ITENS_TRAVADOS.filter(i=>i.id==='coffeeSup'||i.id==='coffeeExt').reduce((a,i)=>a+i.preco,0);
-  const gastro = ppGastro * s.convidados;
-  const ppEstrutura = ITENS_TRAVADOS.filter(i=>i.id==='cadeira'||i.id==='sousplat').reduce((a,i)=>a+i.preco,0);
-  const extras = ITENS_EDITAVEIS.reduce((a,it)=>a + it.preco * s.extras[it.id], 0);
-  const estrutura = ppEstrutura * s.convidados + extras;
-  /* a locação depende do dia simulado (valores da equipe via &R=) */
-  const servicos = locacaoDoDia(s.dia) + SERVICOS.reduce((a,x)=>a+x[1],0);
-  return {coq, menu, bar, gastro, estrutura, servicos, total: gastro + estrutura + servicos};
+  const itens = itensDoOrcamento(s);
+  /* apresentação: gastronomia = blocos alimentacao+bebidas; estrutura = resto */
+  const gastro = itens.filter(i=>i.f.bloco==='alimentacao'||i.f.bloco==='bebidas').reduce((a,i)=>a+i.total,0);
+  const estrutura = itens.filter(i=>i.f.bloco==='estrutura').reduce((a,i)=>a+i.total,0);
+  /* bases dos serviços (recalcularServicos): valor CORRENTE dos itens por flag */
+  const baseTaxa = itens.filter(i=>i.f.taxa).reduce((a,i)=>a+i.total,0);
+  const baseReajuste = itens.filter(i=>i.f.reaj).reduce((a,i)=>a+i.total,0);
+  const serv = calcularServicos(s, baseTaxa, baseReajuste);
+  const bruto = gastro + estrutura + serv.total;
+  /* desconto do gerente: linear sobre o bruto (FASE 5 do CRM); o cliente vê
+     só o preço final — as sublinhas são rateadas na exibição */
+  const desconto = descontoGerenteCent(bruto);
+  const total = bruto - desconto;
+  return {coq, menu, bar, itens, gastro, estrutura, servicos: serv.total,
+    servLista: serv.lista, baseTaxa, bruto, desconto, total};
+}
+
+/* =================================================================
+   V.M.C. — espelho fiel do calcularVMCDetalhado do CRM
+   ================================================================= */
+function mesesAteEvento(){
+  const h = new Date();
+  let m = (DATA_EVENTO.getFullYear()-h.getFullYear())*12 + (DATA_EVENTO.getMonth()-h.getMonth());
+  if(DATA_EVENTO.getDate() < h.getDate()) m -= 1;
+  return m;
+}
+function ehFeriadoOuVespera(d){
+  const iso = x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+  return FERIADOS.has(iso(d)) || FERIADOS.has(iso(new Date(d.getTime()+86400000)));
+}
+/* desconto de margem por prazo e dia (computeFator): prazo ≤3m→40% ≤6m→20%;
+   dia SIMULADO seg–qui→40% sex/dom→20% sáb→0; feriado/véspera limita a 20% */
+function computeFatorVMC(dia){
+  const meses = mesesAteEvento();
+  const descontoPrazo = meses<=3 ? 40 : (meses<=6 ? 20 : 0);
+  const num = {'seg-qui':2, sexta:5, sabado:6, domingo:0}[dia];
+  let descontoDia = [1,2,3,4].includes(num) ? 40 : ([0,5].includes(num) ? 20 : 0);
+  if(ehFeriadoOuVespera(DATA_EVENTO) && descontoDia>20) descontoDia = 20;
+  return {meses, descontoPrazo, descontoDia, fator:(1-descontoPrazo/100)*(1-descontoDia/100)};
+}
+function calcularVMC(s){
+  const itens = itensDoOrcamento(s).filter(i=>i.qtd>0);
+  /* piso unitário: vmc_pelo_valor ? valor cheio de tabela : valor_minimo */
+  const pisoUnit = i => i.f.peloValor ? (i.f.tab||0) : (i.f.min||0);
+  const minimoItem = i => pisoUnit(i) * i.qtd;
+  const protegido = i => i.f.bloco==='alimentacao' || i.f.bloco==='bebidas';
+  const vmcItensTotal      = itens.reduce((a,i)=>a+minimoItem(i),0);
+  const vmcItensTaxa       = itens.filter(i=>i.f.taxa).reduce((a,i)=>a+minimoItem(i),0);
+  const vmcItensProtegidos = itens.filter(protegido).reduce((a,i)=>a+minimoItem(i),0);
+  const vmcItensElegiveis  = vmcItensTotal - vmcItensProtegidos;
+  /* VMC dos serviços: Equipe = 15% × base MÍNIMA temTaxa (PROTEGIDA);
+     valor_minimo>0 → valor_minimo (Locação 10.000 · Ecad 750 · Gerador 2.500);
+     demais → valor_calculado (Segurança/Limpeza/Estacionamento) */
+  const grupos = Math.min(Math.ceil(s.convidados/100), 10);
+  const vmcServProtegidos = Math.round(vmcItensTaxa * 0.15);           /* Equipe */
+  const vmcServElegiveis  = 1000000 + 75000 + 250000                   /* mínimos: Locação, Ecad, Gerador */
+    + 50000*grupos + 50000*grupos + 50000;                             /* calculados: Segurança, Limpeza, Estacionamento */
+  const fatorInfo = computeFatorVMC(s.dia);
+  const bruto = vmcItensTotal + vmcServProtegidos + vmcServElegiveis;
+  const semJuros = Math.round(
+    vmcItensProtegidos + vmcServProtegidos +
+    (vmcItensElegiveis + vmcServElegiveis) * fatorInfo.fator
+  );
+  /* juros mínimo 1,29% (Price, condição padrão: principal = 80% do VMC) —
+     só quando o evento está a MAIS de 6 meses; hoje (1 mês) resulta 0 */
+  let juros = 0;
+  if(fatorInfo.meses > 6 && semJuros > 0){
+    const P = semJuros * 0.80, i = 0.0129, n = fatorInfo.meses;
+    const f = Math.pow(1+i, n);
+    const pmt = P * (i*f) / (f-1);
+    juros = Math.round(pmt*n - P);
+  }
+  /* itens vendidos abaixo do próprio piso (permitido; pintado de vermelho) */
+  const abaixoPiso = itens.filter(i=>pisoUnit(i)>0 && i.unit < pisoUnit(i))
+    .map(i=>({nome:i.nome, unit:i.unit, piso:pisoUnit(i)}));
+  return {...fatorInfo, bruto, semJuros, juros, total: semJuros + juros,
+    descontoMargem: bruto - semJuros, abaixoPiso};
+}
+/* trava de VMC por role (checarTravaVMC): superadmin livre; admin tolera até
+   10% abaixo; consultor bloqueia abaixo do VMC cheio. Mensagens do CRM. */
+function checarTravaVMC(valorCent, vmcCent, role, sufixo){
+  if(role==='superadmin') return null;
+  const val = valorCent/100, vmc = vmcCent/100;
+  if(!(vmc>0 && val>0)) return null;
+  if(role==='admin'){
+    const piso = Math.round(vmc*0.9*100)/100;
+    if(val>=piso) return null;
+    return `O valor total (R$${val.toFixed(2)}) ficaria mais de 10% abaixo do mínimo permitido (V.M.C. R$${vmc.toFixed(2)}). Apenas superadmin pode autorizar. ${sufixo}`;
+  }
+  if(val>=vmc) return null;
+  return `O valor total (R$${val.toFixed(2)}) ficaria abaixo do mínimo permitido (V.M.C. R$${vmc.toFixed(2)}). ${sufixo}`;
 }
 const fmtBRL = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
 const fmtBRL0 = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
@@ -1617,12 +1831,46 @@ function montarItens(){
   });
 }
 
-/* re-renderizada a cada recálculo: a linha da Locação mostra o valor do
-   dia simulado no seletor */
-function montarServicos(){
-  $('#listaServicos').innerHTML =
-    [['Locação do Espaço', locacaoDoDia(PROPOSTA.dia)], ...SERVICOS].map(([n,v])=>
-    `<li><span>${esc(n)}</span><b>${fmt(v)}</b></li>`).join('');
+/* re-renderizada a cada recálculo: serviços DINÂMICOS (Equipe 15%,
+   Segurança/Limpeza por grupo de convidados, Locação do dia). Com desconto
+   do gerente ativo, o fator de rateio deixa a lista consistente com o
+   total do cliente — o desconto em si nunca aparece aqui. */
+function montarServicos(r, fator){
+  $('#listaServicos').innerHTML = r.servLista.map(([n,v])=>
+    `<li><span>${esc(n)}</span><b>${fmt(v*fator)}</b></li>`).join('');
+}
+
+/* ---- indicadores financeiros do painel (espelho dos Indicadores do
+   orcamento-editor): VMC, diferença, metas, ticket PP e a escada
+   VMC bruto − desconto de margem (prazo+dia) = VMC Total. Recalculado a
+   cada atualizarTotais — trocar o DIA SIMULADO muda o VMC ao vivo. ---- */
+function renderFinanceiro(r){
+  if(!$('#equipeFin')) return;
+  const v = calcularVMC(PROPOSTA);
+  const comp = r.total;                      /* comparável = total do cliente */
+  const abaixo = comp < v.total;
+  const elVmc = $('#finVmc');
+  elVmc.textContent = fmt(v.total);
+  elVmc.classList.toggle('ruim', abaixo);
+  const dif = comp - v.total;
+  const elDif = $('#finDif');
+  elDif.textContent = `${dif<0?'−':'+'}${fmt(Math.abs(dif))} (${dif<0?'−':'+'}${Math.abs(dif/v.total*100).toFixed(1).replace('.',',')}%)`;
+  elDif.classList.toggle('ruim', dif<0);
+  $('#finTicket').textContent = fmt(r.total/PROPOSTA.convidados);
+  $('#finMetas').innerHTML = [6,15,30].map(p=>{
+    const alvo = Math.round(v.total*(1+p/100));
+    return `<i class="meta${comp>=alvo?' ok':''}" title="${fmt(alvo)}">+${p}%</i>`;
+  }).join('');
+  $('#finEscada').textContent =
+    `VMC bruto ${fmt(v.bruto)} − margem (prazo ${v.descontoPrazo}% · dia ${v.descontoDia}%) ${fmt(v.descontoMargem)}`
+    + (v.juros ? ` + juros mín. 1,29% ${fmt(v.juros)}` : '')
+    + ` = VMC Total ${fmt(v.total)}`;
+  const al = $('#finAlerta');
+  if(v.abaixoPiso.length){
+    al.hidden = false;
+    al.textContent = 'Vendido abaixo do piso: ' + v.abaixoPiso
+      .map(i=>`${i.nome} (${fmt(i.unit)} < mín. ${fmt(i.piso)})`).join(' · ');
+  }else al.hidden = true;
 }
 
 function montarPills(){
@@ -1643,10 +1891,13 @@ function pintarPills(){
 function atualizarTotais(){
   const r = calcular(PROPOSTA);
   const C = PROPOSTA.convidados;
-  $('#subGastro').textContent = fmt(r.gastro);
-  $('#invPP').textContent = `· ${fmt(r.gastro/C)} por pessoa`;
-  $('#subEstrutura').textContent = fmt(r.estrutura);
-  $('#subServicos').textContent = fmt(r.servicos);
+  /* fator de rateio do desconto do gerente: o cliente vê as sublinhas já
+     líquidas e o total final — nunca "de X por Y" */
+  const fator = r.bruto>0 ? r.total/r.bruto : 1;
+  $('#subGastro').textContent = fmt(r.gastro*fator);
+  $('#invPP').textContent = `· ${fmt(r.gastro*fator/C)} por pessoa`;
+  $('#subEstrutura').textContent = fmt(r.estrutura*fator);
+  $('#subServicos').textContent = fmt(r.servicos*fator);
   $('#totalGeral').textContent = fmt(r.total);
   $('#invConvidados').textContent = C;
   $('#convVal').value = C;
@@ -1670,8 +1921,10 @@ function atualizarTotais(){
     li.querySelector('[data-passo="-1"]').disabled = q<=it.min;
     li.querySelector('[data-passo="1"]').disabled  = q>=it.max;
   });
-  /* bloco "Já incluso": a linha da Locação acompanha o dia simulado */
-  montarServicos();
+  /* bloco "Já incluso": serviços dinâmicos acompanham convidados/menu/dia */
+  montarServicos(r, fator);
+  /* painel da equipe: indicadores financeiros ao vivo (VMC muda com o dia) */
+  if(MODO_EQUIPE) renderFinanceiro(r);
   /* tierbar */
   $('#tbResumo').textContent = `${C} convidados · ${r.coq.curto} + ${r.menu.nome} + ${r.bar.nome}`;
   $('#tbTotal').textContent = fmt0(r.total);
@@ -2030,11 +2283,11 @@ const toastEl = document.createElement('div');
 toastEl.className = 'toast'; toastEl.setAttribute('role','status');
 document.body.appendChild(toastEl);
 let toastTimer = 0;
-function mostrarToast(msg){
+function mostrarToast(msg, dur){
   toastEl.textContent = msg;
   toastEl.classList.add('on');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>toastEl.classList.remove('on'), 2800);
+  toastTimer = setTimeout(()=>toastEl.classList.remove('on'), dur || 2800);
 }
 function copiarTexto(t){
   if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t);
@@ -2090,7 +2343,33 @@ if(MODO_EQUIPE){
         </select>
       </span></label>
     <p class="equipe-card__info" id="eqInfo">—</p>
-    <button type="button" class="btn btn--gold" id="btnGerarURL">Gerar URL para o cliente</button>`;
+    <button type="button" class="btn btn--gold" id="btnGerarURL">Gerar URL para o cliente</button>
+    <div class="equipe-fin" id="equipeFin">
+      <p class="equipe-card__tit">Financeiro (só equipe) · espelho do CRM</p>
+      <div class="equipe-fin__grid">
+        <p><span>V.M.C. Total</span><b id="finVmc">—</b></p>
+        <p><span>Diferença p/ o total</span><b id="finDif">—</b></p>
+        <p><span>Ticket médio PP</span><b id="finTicket">—</b></p>
+        <p><span>Metas sobre o VMC</span><span class="equipe-fin__metas" id="finMetas"></span></p>
+      </div>
+      <p class="equipe-fin__escada" id="finEscada">—</p>
+      <p class="equipe-fin__alerta" id="finAlerta" hidden></p>
+      <div class="equipe-fin__controles">
+        <label class="equipe-card__campo"><span>Perfil (trava VMC)</span>
+          <select id="finRole">
+            <option value="consultor">consultor</option>
+            <option value="admin">admin</option>
+            <option value="superadmin">superadmin</option>
+          </select></label>
+        <label class="equipe-card__campo"><span>Desconto do gerente</span>
+          <span class="equipe-card__linha">
+            <select id="finDescTipo" aria-label="Tipo do desconto"><option value="percentual">%</option><option value="valor">R$</option></select>
+            <input type="number" id="finDescValor" min="0" step="0.01" aria-label="Valor do desconto">
+            <button type="button" class="btn btn--ghost" id="btnAplicarDesc">Aplicar</button>
+            <button type="button" class="btn btn--ghost" id="btnRemoverDesc" hidden>Remover</button>
+          </span></label>
+      </div>
+    </div>`;
   document.querySelector('.planta__bar').after(card);
   if(ESCASSEZ) card.querySelector('#eqEscassezN').value = String(ESCASSEZ);
 
@@ -2147,10 +2426,56 @@ if(MODO_EQUIPE){
       + '&V=' + VALIDADE_ISO
       + '&R=' + ORDEM_LOCACAO.map(k=>LOCACAO[k].toString(36)).join('.')
       + '&C=' + valorEquipe(itAv).toString(36)
+      + (DESCONTO_GERENTE ? '&D=' + (DESCONTO_GERENTE.tipo==='percentual'
+          ? 'p.'+DESCONTO_GERENTE.valor : 'f.'+DESCONTO_GERENTE.valor.toString(36)) : '')
       + (ESCASSEZ ? '&E=' + ESCASSEZ : '');
     copiarTexto(u.toString())
       .then(()=>mostrarToast(`Link do cliente copiado — validade até ${dataBR(VALIDADE_ISO)}`))
       .catch(()=>mostrarToast('Não deu para copiar automaticamente — copie da barra de endereço'));
+  });
+
+  /* ---- financeiro (v18.08-18): perfil da trava + desconto do gerente ----
+     O desconto segue o modelo do CRM (linear sobre o bruto) e passa pela
+     trava de VMC ANTES de aplicar; bloqueio REVERTE o campo (regra do CRM:
+     quem chama reverte a alteração e mostra a mensagem). No CRM a trava
+     roda em toda operação de edição; no protótipo o cliente edita livre —
+     o gate acionável do consultor é o desconto, e o indicador V.M.C. fica
+     vermelho sempre que o total comparável cai abaixo do mínimo. */
+  card.querySelector('#finRole').addEventListener('change', e=>{ ROLE_DEMO = e.target.value; });
+  const syncBotoesDesc = ()=>{ card.querySelector('#btnRemoverDesc').hidden = !DESCONTO_GERENTE; };
+  if(DESCONTO_GERENTE){
+    card.querySelector('#finDescTipo').value = DESCONTO_GERENTE.tipo;
+    card.querySelector('#finDescValor').value = DESCONTO_GERENTE.valor;
+  }
+  syncBotoesDesc();
+  card.querySelector('#btnAplicarDesc').addEventListener('click', ()=>{
+    const tipo = card.querySelector('#finDescTipo').value;
+    const valor = parseFloat(card.querySelector('#finDescValor').value);
+    if(!Number.isFinite(valor) || valor<=0 || (tipo==='percentual' && valor>100)){
+      mostrarToast(tipo==='percentual' ? 'Informe um percentual maior que 0 e até 100' : 'Informe um valor em reais maior que zero');
+      return;
+    }
+    const anterior = DESCONTO_GERENTE;
+    DESCONTO_GERENTE = {tipo, valor: tipo==='valor' ? Math.round(valor) : valor};
+    const r = calcular(PROPOSTA);
+    const msg = checarTravaVMC(r.total, calcularVMC(PROPOSTA).total, ROLE_DEMO, 'A alteração não foi aplicada.');
+    if(msg){
+      DESCONTO_GERENTE = anterior;   /* reverte, como o CRM exige de quem chama */
+      if(anterior){
+        card.querySelector('#finDescTipo').value = anterior.tipo;
+        card.querySelector('#finDescValor').value = anterior.valor;
+      }else card.querySelector('#finDescValor').value = '';
+      mostrarToast(msg, 7000);
+      return;
+    }
+    atualizarTotais(); syncBotoesDesc();
+    mostrarToast('Desconto aplicado — o total do cliente já reflete');
+  });
+  card.querySelector('#btnRemoverDesc').addEventListener('click', ()=>{
+    DESCONTO_GERENTE = null;
+    card.querySelector('#finDescValor').value = '';
+    atualizarTotais(); syncBotoesDesc();
+    mostrarToast('Desconto removido');
   });
 }
 
@@ -3224,7 +3549,6 @@ $('#btnReset').addEventListener('click', ()=>{
    ================================================================= */
 Object.keys(GRUPOS).forEach(montarCards);
 montarItens();
-montarServicos();
 montarPills();
 montarPlanta();
 montarGaleria();
