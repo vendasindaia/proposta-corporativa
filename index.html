@@ -102,8 +102,6 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .btn--ghost:hover{background:var(--cream-2);border-color:var(--taupe);}
 .btn--ghost-light{background:rgba(255,255,255,.06);color:var(--cream);border-color:rgba(247,248,249,.4);}
 .btn--ghost-light:hover{background:rgba(255,255,255,.14);border-color:var(--cream);transform:translateY(-2px);}
-.btn--wa{background:var(--wa-deep);color:#fff;box-shadow:0 6px 18px rgba(60,116,73,.28);}
-.btn--wa:hover{background:#33623f;transform:translateY(-2px);}
 .btn--gold{background:var(--gold-soft);color:var(--ink);}
 .btn--gold:hover{background:#c2ac82;transform:translateY(-2px);}
 .btn--lg{font-size:.98rem;padding:1.05em 2em;}
@@ -168,7 +166,17 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .gbloco__title{font-family:var(--serif);font-weight:600;font-size:clamp(1.6rem,3.4vw,2.3rem);line-height:1.05;margin:0;color:var(--cream);}
 .gbloco__title em{font-style:italic;color:var(--gold-soft);}
 .gbloco__hint{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(247,248,249,.6);margin:0;}
-.niveis{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
+/* fileira ÚNICA rolável (v18.08-15): os pacotes nunca quebram de linha —
+   desktop e celular, o gesto é arrastar de lado. O wrapper pinta um
+   gradiente na borda direita quando ainda há cards escondidos ao lado. */
+.niveis-wrap{position:relative;}
+.niveis-wrap::after{content:"";position:absolute;top:0;right:0;bottom:10px;width:64px;pointer-events:none;
+  background:linear-gradient(270deg,var(--night) 0%,rgba(20,24,29,0) 100%);opacity:0;transition:opacity .25s;}
+.niveis-wrap.tem-mais::after{opacity:.92;}
+.niveis{position:relative;display:flex;flex-wrap:nowrap;gap:12px;overflow-x:auto;
+  scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scrollbar-color:rgba(247,248,249,.35) transparent;padding-bottom:10px;}
+.niveis .nivel{flex:0 0 max(200px,calc(25% - 9px));scroll-snap-align:start;}
 .nivel{position:relative;text-align:left;font-family:inherit;color:var(--cream);cursor:pointer;
   background:rgba(255,255,255,.045);border:1px solid rgba(247,248,249,.22);border-radius:var(--radius);
   padding:1.25rem 1.15rem 1.1rem;display:flex;flex-direction:column;gap:.5rem;
@@ -258,7 +266,6 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .visao.ativa{visibility:visible;opacity:1;}
 .visao__frame{position:relative;aspect-ratio:16/10;overflow:hidden;border-radius:var(--radius);
   border:1px solid var(--line-soft);background:#fff;}
-.visao__frame--video{background:var(--night);border-color:rgba(20,24,29,.4);}
 /* maquete 3D: o canvas ocupa o quadro; touch-action none (o gesto é da órbita) */
 .visao__frame--tres{background:#ECEDEF;}
 .tres__canvasbox{position:absolute;inset:0;touch-action:none;cursor:grab;}
@@ -282,14 +289,6 @@ html.sem-io .reveal{opacity:1;transform:none;}
   border:2.5px solid rgba(247,248,249,.2);border-top-color:var(--gold-soft);
   animation:pano-girar .9s linear infinite;pointer-events:none;}
 @keyframes pano-girar{to{transform:rotate(360deg)}}
-.visao__frame--video video{width:100%;height:100%;object-fit:contain;display:block;}
-.tour__play{position:absolute;inset:0;margin:auto;width:84px;height:84px;border-radius:50%;
-  background:rgba(20,24,29,.72);border:1.5px solid var(--gold-soft);color:var(--gold-soft);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(4px);
-  transition:background .25s,color .25s,transform .3s var(--ease-lux);}
-.tour__play:hover{background:var(--gold-soft);color:var(--ink);transform:scale(1.06);}
-.tour__play svg{width:30px;height:30px;fill:currentColor;stroke:none;margin-left:5px;}
-.tour__play[hidden]{display:none;}
 .visao__foot{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;
   margin-top:12px;min-height:44px;}
 .visao__legenda{font-size:.82rem;color:var(--brown);margin:0;line-height:1.55;}
@@ -406,7 +405,10 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .cta{position:relative;overflow:hidden;color:#fff;text-align:center;padding-block:clamp(72px,12vw,140px);}
 .cta__media{position:absolute;inset:0;z-index:0;background:var(--night);}
 .cta__media img{width:100%;height:100%;object-fit:cover;object-position:center 40%;}
-.cta__veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,24,29,.72),rgba(20,24,29,.86));}
+/* véu mais denso + reforço embaixo (v18.08-15): a foto do salão real é
+   clara — o gradiente garante contraste AA no título e nos textos brancos */
+.cta__veil{position:absolute;inset:0;background:
+  linear-gradient(180deg,rgba(20,24,29,.8) 0%,rgba(20,24,29,.84) 55%,rgba(20,24,29,.93) 100%);}
 .cta__inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;}
 .cta .eyebrow{color:var(--gold-soft);}
 .cta .eyebrow::before{display:none;}
@@ -525,6 +527,35 @@ html.sem-io .reveal{opacity:1;transform:none;}
   max-width:92vw;text-align:center;}
 .toast.on{opacity:1;transform:translate(-50%,0);visibility:visible;}
 
+/* ---------- aviso de proposta expirada (validade V do hash já passou) ---------- */
+.expirada{margin:0;padding:10px clamp(16px,4vw,40px);text-align:center;font-size:.8rem;
+  letter-spacing:.03em;line-height:1.5;background:var(--brown-deep);color:rgba(247,248,249,.85);}
+.expirada b{color:var(--gold-soft);font-weight:600;}
+
+/* ---------- modo equipe: card "Preparar proposta para envio" ---------- */
+.equipe-card{width:100%;margin-top:14px;padding:16px 18px;display:flex;flex-wrap:wrap;
+  gap:12px 20px;align-items:flex-end;background:var(--cream);
+  border:1px solid var(--gold-soft);border-radius:12px;box-shadow:var(--sh-1);}
+.equipe-card__tit{flex:1 1 100%;margin:0;font-size:.64rem;letter-spacing:.26em;
+  text-transform:uppercase;color:var(--gold-deep);}
+.equipe-card__campo{display:flex;flex-direction:column;gap:5px;}
+.equipe-card__campo>span{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--taupe);}
+.equipe-card__campo input,.equipe-card__campo select{font-family:inherit;font-size:.9rem;color:var(--ink);
+  background:#fff;border:1px solid var(--bege);border-radius:8px;padding:.5em .7em;}
+.equipe-card__campo input[type="date"]{width:10.5em;}
+.equipe-card__campo--num input{width:6.5em;}
+.equipe-card__linha{display:flex;align-items:center;gap:8px;}
+.equipe-card__linha input[type="checkbox"]{width:18px;height:18px;accent-color:var(--gold);}
+.equipe-card__info{flex:1 1 100%;margin:0;font-size:.8rem;color:var(--taupe);}
+
+/* ---------- alerta de escassez da data (E= no hash; dourado sóbrio, nunca alarmista) ---------- */
+.rcard__escassez{margin:12px 0 0;padding:9px 12px;display:flex;gap:8px;align-items:flex-start;
+  border:1px solid rgba(154,131,84,.45);border-radius:10px;background:rgba(176,154,110,.13);
+  font-size:.78rem;line-height:1.5;color:var(--gold-deep);}
+.rcard__escassez .ic{flex:0 0 auto;width:15px;height:15px;margin-top:2px;}
+.rcard__escassez b{font-weight:600;}
+.cta__escassez{margin:0 0 1.2rem;font-size:.82rem;letter-spacing:.05em;color:var(--gold-soft);}
+
 /* ---------- responsivo ---------- */
 @media (max-width:760px){
   body{padding-bottom:124px;} /* tierbar mobile tem 2 linhas: nada de conteúdo coberto */
@@ -552,13 +583,9 @@ html.sem-io .reveal{opacity:1;transform:none;}
      em telas de 360px fica só nessa margem) */
   .visao__frame{aspect-ratio:1/1;}
   .planta__canvas{min-width:560px;}
-  .tour__play{width:72px;height:72px;}
   .lux__fig img{max-height:64svh;}
   .lux__ante{left:6px;}
   .lux__prox{right:6px;}
-}
-@media (max-width:560px){
-  .niveis{grid-template-columns:1fr;}
 }
 /* ---------- movimento reduzido ---------- */
 @media (prefers-reduced-motion:reduce){
@@ -594,11 +621,10 @@ html.sem-io .reveal{opacity:1;transform:none;}
     <div class="hero__actions reveal" data-d="3">
       <a class="btn btn--solid btn--lg" href="#resumo">Ver a proposta
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14m0 0 6-6m-6 6-6-6"/></svg></a>
-      <a class="btn btn--ghost btn--lg js-wa" href="#" target="_blank" rel="noopener">Falar com a consultora</a>
     </div>
     <p class="hero__validade reveal" data-d="3">
       <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      ORC-2026-01837 · Proposta válida até 25/08/2026
+      ORC-2026-01837 · Proposta válida até <span class="js-validade">25/08/2026</span>
     </p>
   </div>
 </section>
@@ -612,7 +638,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
       <p class="sec__intro">Data, lugar e tamanho da festa. O número de convidados é seu: mexa nele e veja a proposta acompanhar.</p>
     </div>
     <div class="resumo__grid">
-      <div class="rcard reveal">
+      <div class="rcard reveal" id="cardData">
         <p class="rcard__lbl">Data do evento</p>
         <p class="rcard__val">24/09/2026</p>
         <p class="rcard__sub">quinta-feira · a partir das 19h</p>
@@ -635,7 +661,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
       <div class="rcard reveal" data-d="3">
         <p class="rcard__lbl">Simule o dia da semana</p>
         <div class="pills" role="group" aria-label="Simular dia da semana" id="pillsDia"></div>
-        <p class="rcard__nota">Neste espaço, o investimento é o mesmo em qualquer dia da semana.</p>
+        <p class="rcard__nota" id="notaDia">Neste espaço, o investimento é o mesmo em qualquer dia da semana.</p>
         <p class="rcard__aviso">Mudança de data sujeita a disponibilidade — confirme com seu consultor.</p>
       </div>
     </div>
@@ -656,7 +682,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
         <h3 class="gbloco__title">Coquetel <em>volante</em></h3>
         <p class="gbloco__hint">Servido na chegada · por pessoa</p>
       </div>
-      <div class="niveis" role="group" aria-label="Escolha o pacote de coquetel" id="cardsCoquetel"></div>
+      <div class="niveis-wrap"><div class="niveis" role="group" aria-label="Escolha o pacote de coquetel" id="cardsCoquetel"></div></div>
       <div class="gbloco__foot">
         <button type="button" class="vitrine" data-ver="coquetel" id="verCoquetel">
           <span class="vitrine__thumbs" aria-hidden="true"></span>
@@ -676,7 +702,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
         <h3 class="gbloco__title">O <em>jantar</em></h3>
         <p class="gbloco__hint">Buffet completo · por pessoa</p>
       </div>
-      <div class="niveis" role="group" aria-label="Escolha o menu do jantar" id="cardsMenu"></div>
+      <div class="niveis-wrap"><div class="niveis" role="group" aria-label="Escolha o menu do jantar" id="cardsMenu"></div></div>
       <div class="gbloco__foot">
         <button type="button" class="vitrine" data-ver="menu" id="verMenu">
           <span class="vitrine__thumbs" aria-hidden="true"></span>
@@ -696,7 +722,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
         <h3 class="gbloco__title">O <em>bar</em> da noite</h3>
         <p class="gbloco__hint">À vontade durante a festa · por pessoa</p>
       </div>
-      <div class="niveis" role="group" aria-label="Escolha o pacote de open bar" id="cardsOpenbar"></div>
+      <div class="niveis-wrap"><div class="niveis" role="group" aria-label="Escolha o pacote de open bar" id="cardsOpenbar"></div></div>
       <div class="gbloco__foot">
         <button type="button" class="vitrine" data-ver="openbar" id="verOpenbar">
           <span class="vitrine__thumbs" aria-hidden="true"></span>
@@ -723,7 +749,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
     </div>
     <ul class="itens reveal" id="listaItens"></ul>
     <p class="extras__micro reveal" data-d="1">Quer incluir algo que não está aqui (decoração, ativações)?
-      <b>Fale com a consultora — a gente desenha junto.</b></p>
+      É só pedir na nossa conversa — a gente desenha junto.</p>
   </div>
 </section>
 
@@ -740,7 +766,6 @@ html.sem-io .reveal{opacity:1;transform:none;}
         <button type="button" class="pill" data-visao="v2" aria-pressed="true">Personalizar em 2D</button>
         <button type="button" class="pill" data-visao="v3d" aria-pressed="false">Ver em 3D</button>
         <button type="button" class="pill" data-visao="v360" aria-pressed="false">Ver em 360°</button>
-        <button type="button" class="pill" data-visao="v3" aria-pressed="false">Tour em vídeo (layout padrão)</button>
       </div>
       <div class="visoes" id="visoes">
 
@@ -837,19 +862,8 @@ html.sem-io .reveal{opacity:1;transform:none;}
           </div>
         </div>
 
-        <!-- visão 3: tour gravado em vídeo -->
-        <div class="visao" data-v="v3">
-          <div class="visao__frame visao__frame--video">
-            <video id="tourVideo" src="assets/tour-salao-3d.mp4" poster="assets/tour-poster.jpg"
-              preload="none" playsinline aria-label="Tour em vídeo pelo salão montado no layout padrão"></video>
-            <button type="button" class="tour__play" id="tourPlay" aria-label="Assistir ao tour em vídeo do salão">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-            </button>
-          </div>
-          <div class="visao__foot">
-            <p class="visao__legenda">Tour gravado do salão no layout padrão da casa — a maquete 3D ao lado reflete o seu layout.</p>
-          </div>
-        </div>
+        <!-- o tour gravado em vídeo (layout padrão) saiu na v18.08-15: cada
+             evento tem layout próprio — o tour dinâmico do "Ver em 3D" cumpre o papel -->
 
       </div>
     </div>
@@ -887,7 +901,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
         <span>Total do investimento</span>
         <strong id="totalGeral" aria-live="polite">—</strong>
       </div>
-      <p class="inv__nota">Valores para <b id="invConvidados">200</b> convidados · Proposta válida até 25/08/2026 · Sem surpresas: taxas já inclusas.</p>
+      <p class="inv__nota">Valores para <b id="invConvidados">200</b> convidados · Proposta válida até <span class="js-validade">25/08/2026</span> · Sem surpresas: taxas já inclusas.</p>
       <button type="button" class="inv__reset" id="btnReset">Restaurar a proposta original</button>
     </div>
   </div>
@@ -898,7 +912,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap">
     <div class="sec__head reveal">
       <div class="sec__meta"><span class="sec__num">07</span><p class="eyebrow">Como funciona</p></div>
-      <h2 class="sec__title">Do ajuste ao <em>contrato</em>, sem fricção.</h2>
+      <h2 class="sec__title">Do ajuste ao <em>contrato</em>, sem complicação.</h2>
     </div>
     <ol class="passos">
       <li class="reveal">
@@ -923,17 +937,15 @@ html.sem-io .reveal{opacity:1;transform:none;}
 <!-- ===== CTA FINAL ===== -->
 <section class="cta" id="contato">
   <div class="cta__media" aria-hidden="true">
-    <img src="https://cardapio-buffet-lime.vercel.app/fotos/openbar/bar.jpg" alt="" loading="lazy" decoding="async">
+    <img src="assets/cta-salao-dimy.jpg" alt="" loading="lazy" decoding="async">
     <div class="cta__veil"></div>
   </div>
   <div class="wrap cta__inner">
     <p class="eyebrow reveal">DIMY · 24 de setembro de 2026</p>
     <h2 class="cta__title reveal" data-d="1">Vamos confirmar a <em>data</em> do seu evento?</h2>
     <p class="cta__lede reveal" data-d="2">A sua proposta já está pronta do seu jeito. Falta só a agenda.</p>
-    <a class="btn btn--wa btn--lg js-wa reveal" data-d="3" href="#" target="_blank" rel="noopener">
-      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z"/><path d="M8.8 9.2c0 3.3 2.7 6 6 6 .5 0 1-.2 1.2-.6l.4-.8c.2-.4 0-.9-.4-1.1l-1.3-.6c-.3-.2-.7-.1-1 .2l-.3.3a4.7 4.7 0 0 1-2-2l.3-.3c.3-.3.4-.7.2-1l-.6-1.3c-.2-.4-.7-.6-1.1-.4l-.8.4c-.4.2-.6.7-.6 1.2Z"/></svg>
-      Chamar a consultora no WhatsApp</a>
-    <p class="cta__fine reveal" data-d="3">A mensagem já vai com o resumo dos seus ajustes.</p>
+    <button type="button" class="btn btn--gold btn--lg reveal" data-d="3" id="btnCtaFinal">Confirmar os ajustes da proposta</button>
+    <p class="cta__fine reveal" data-d="3">O resumo dos seus ajustes segue junto para a nossa equipe.</p>
   </div>
 </section>
 
@@ -943,8 +955,8 @@ html.sem-io .reveal{opacity:1;transform:none;}
 <footer class="footer">
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
-    <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até 25/08/2026.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-14</span></p>
+    <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-15</span></p>
   </div>
 </footer>
 
@@ -1134,12 +1146,17 @@ const ITENS_TRAVADOS = [
 const ITENS_EDITAVEIS = [
   {id:'cafe',   nome:'Café (Térmica) 1,5L',  preco:5000,   min:0, max:60,  padrao:20},
   {id:'toalha', nome:'Toalha para Mesa',     preco:3500,   min:0, max:60,  padrao:20},
-  {id:'av',     nome:'Crédito - Audiovisual',preco:50000,  min:0, max:100, padrao:44},
+  /* equipeOnly: item de CRÉDITO — só o consultor define a quantidade (no
+     protótipo via &C= do hash; em produção o flag vem do snapshot por item) */
+  {id:'av',     nome:'Crédito - Audiovisual',preco:50000,  min:0, max:100, padrao:44, equipeOnly:true},
   {id:'dj',     nome:'DJ - Essencial',       preco:700000, min:0, max:1,   padrao:1},
   {id:'hora',   nome:'Hora extra (Locação)', preco:150000, min:0, max:10,  padrao:7}
 ];
+/* a Locação do Espaço saiu da lista fixa (v18.08-15): é por dia da semana
+   (LOCACAO, definida no bloco do link preparado pela equipe) e entra na
+   frente da lista na renderização */
 const SERVICOS = [
-  ['Locação do Espaço',2000000],['Equipe',1670220],['Gerador de Energia',250000],
+  ['Equipe',1670220],['Gerador de Energia',250000],
   ['Taxa de Segurança',100000],['Taxa de Limpeza',100000],['Taxa de Ecad',75000],
   ['Taxa de Estacionamento',50000]
 ];
@@ -1273,23 +1290,45 @@ const MESAS_PADRAO = [
 ];
 
 /* =================================================================
-   LAYOUT NA URL — a equipe monta as mesas (?equipe=1), copia o link
-   e o cliente abre a proposta já com o layout sugerido no hash.
-   Formato compacto: #L= + um par x.y em base36 por mesa, mesas
-   separadas por traço (ex.: #L=o3.95-rm.95-…). Cada par passa pelo
-   clampMesa: link editado à mão nunca põe mesa fora do piso.
-   Teto de 60 mesas, o mesmo do estado salvo.
-   O layout do hash vale como ESTADO INICIAL apenas quando não há
-   edição do cliente salva no localStorage — edição salva sempre
-   ganha, para um link reaberto não apagar o trabalho do cliente.
+   LINK PREPARADO PELA EQUIPE — hash #L=…&V=…&R=…&C=…&E=…
+   A equipe monta tudo no painel "Preparar proposta" (?equipe=1) e o
+   cliente abre a proposta pronta. Cada parte é opcional e o parser é
+   tolerante (parte ausente ou inválida = vale o padrão do orçamento):
+   · L: layout de mesas — um par x.y em base36 por mesa, separadas por
+     traço (ex.: #L=o3.95-rm.95-…). Cada par passa pelo clampMesa: link
+     editado à mão nunca põe mesa fora do piso. Teto de 60 mesas.
+     O layout vale como ESTADO INICIAL apenas quando não há edição do
+     cliente salva no localStorage — edição salva sempre ganha.
+   · V: validade YYYY-MM-DD (sem V vale a validade impressa, 25/08/2026).
+   · R: locação por dia em REAIS inteiros base36, na ordem
+     seg_qui.sexta.sabado.domingo (ex.: &R=fho.fho.iio.fho).
+   · C: quantidade do Crédito - Audiovisual em base36 (extra equipeOnly;
+     sem C vale o 44 do orçamento). Edição local do cliente nunca vale.
+   · E: alerta de escassez da data (1–3 outros orçamentos em aberto;
+     ausente/0 = sem alerta).
+   Em PRODUÇÃO nada disso viaja na URL: o painel vira a tela do
+   consultor no CRM e os valores saem do snapshot da proposta — a
+   validade de proposta_tokens.expires_at, as locações de
+   servicos_locacao_valores (seg_qui/sexta/sabado/domingo), o flag
+   equipeOnly por item e a escassez calculada dos orçamentos/agenda na
+   mesma data (a fonte do termômetro do chat), com override do
+   consultor. Desconto/margem seguem ferramenta interna: nunca no link.
    ================================================================= */
+function lerHash(){
+  const out = {};
+  (location.hash||'').replace(/^#/,'').split('&').forEach(p=>{
+    const m = /^([A-Za-z])=(.*)$/.exec(p);
+    if(m) out[m[1].toUpperCase()] = m[2];
+  });
+  return out;
+}
+const HASH = lerHash();
 function serializarLayout(mesas){
   return mesas.map(m=>Math.round(m.x).toString(36)+'.'+Math.round(m.y).toString(36)).join('-');
 }
 function lerLayoutDaURL(){
-  const h = /^#L=([0-9a-z.-]+)$/i.exec(location.hash||'');
-  if(!h) return null;
-  const mesas = h[1].split('-').slice(0,60).map(par=>{
+  if(!HASH.L || !/^[0-9a-z.-]+$/i.test(HASH.L)) return null;
+  const mesas = HASH.L.split('-').slice(0,60).map(par=>{
     const [xs,ys] = par.split('.');
     const x = parseInt(xs,36), y = parseInt(ys,36);
     return (Number.isFinite(x) && Number.isFinite(y)) ? clampMesa(x,y) : null;
@@ -1299,14 +1338,63 @@ function lerLayoutDaURL(){
 const LAYOUT_SUGERIDO = lerLayoutDaURL();  /* layout sugerido vindo do link (ou null) */
 const MODO_EQUIPE = new URLSearchParams(location.search).get('equipe')==='1';
 
+/* ---- validade efetiva (V do hash > padrão impresso) ---- */
+const VALIDADE_PADRAO = '2026-08-25';
+function validarISO(s){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');
+  if(!m) return null;
+  const d = new Date(+m[1], +m[2]-1, +m[3]);
+  return (d.getFullYear()===+m[1] && d.getMonth()===+m[2]-1 && d.getDate()===+m[3]) ? s : null;
+}
+const VALIDADE_ISO = validarISO(HASH.V) || VALIDADE_PADRAO;
+const dataBR = iso=>iso.split('-').reverse().join('/');
+
+/* ---- locação por dia (R do hash > padrão da casa), em REAIS inteiros ----
+   No protótipo os quatro valores do orçamento DIMY são iguais; o
+   mecanismo é o que importa — a equipe pode diferenciar sábado etc. */
+const LOCACAO_DIA = {seg_qui:20000, sexta:20000, sabado:20000, domingo:20000};
+const ORDEM_LOCACAO = ['seg_qui','sexta','sabado','domingo'];
+function lerLocacaoDaURL(){
+  if(!HASH.R) return null;
+  const partes = HASH.R.split('.');
+  if(partes.length!==4 || partes.some(p=>!/^[0-9a-z]+$/i.test(p))) return null;
+  const vals = partes.map(p=>parseInt(p,36));
+  if(vals.some(v=>!Number.isFinite(v) || v<0 || v>1000000)) return null;
+  return Object.fromEntries(ORDEM_LOCACAO.map((k,i)=>[k, vals[i]]));
+}
+const LOCACAO = lerLocacaoDaURL() || LOCACAO_DIA;
+const DIA2LOC = {'seg-qui':'seg_qui', sexta:'sexta', sabado:'sabado', domingo:'domingo'};
+const locacaoDoDia = dia => LOCACAO[DIA2LOC[dia] || 'seg_qui'] * 100;  /* em centavos */
+const LOCACAO_VARIA = ORDEM_LOCACAO.some(k=>LOCACAO[k]!==LOCACAO.seg_qui);
+
+/* ---- crédito audiovisual definido pela equipe (C do hash > 44 do orçamento) ---- */
+function lerCreditoDaURL(){
+  if(HASH.C===undefined || !/^[0-9a-z]+$/i.test(HASH.C)) return null;
+  const n = parseInt(HASH.C,36);
+  return (Number.isFinite(n) && n>=0 && n<=100) ? n : null;
+}
+const CREDITO_AV_URL = lerCreditoDaURL();  /* null = padrão do orçamento */
+/* valor efetivo de um extra equipeOnly: o da URL (equipe) ou o padrão do
+   orçamento — NUNCA a edição local do cliente */
+function valorEquipe(it){ return it.id==='av' && CREDITO_AV_URL!==null ? CREDITO_AV_URL : it.padrao; }
+
+/* ---- alerta de escassez da data (E do hash; ausente = sem alerta) ---- */
+function lerEscassezDaURL(){
+  const n = parseInt(HASH.E, 10);
+  return (Number.isFinite(n) && n>=1 && n<=3) ? n : 0;
+}
+const ESCASSEZ = lerEscassezDaURL();
+
 /* =================================================================
    ESTADO — um objeto só, persistido em localStorage
    ================================================================= */
 const CHAVE = 'proposta_dimy_prototipo';
 const PADRAO = {convidados:200, dia:'seg-qui', coquetel:'c4', menu:'m2', openbar:'b1',
-  extras:{cafe:20, toalha:20, av:44, dj:1, hora:7}, mesas:LAYOUT_SUGERIDO || MESAS_PADRAO, rev:1};
+  extras:Object.fromEntries(ITENS_EDITAVEIS.map(it=>[it.id, it.equipeOnly ? valorEquipe(it) : it.padrao])),
+  mesas:LAYOUT_SUGERIDO || MESAS_PADRAO, rev:1};
   /* PADRAO só é usado via cópia profunda (JSON), então as mesas não são mutadas;
-     com #L= na URL, a "proposta original" já inclui o layout sugerido da equipe */
+     com #L=/&C= na URL, a "proposta original" já inclui o layout sugerido e o
+     crédito definido pela equipe */
 let PROPOSTA = carregar();
 
 function carregar(){
@@ -1321,7 +1409,10 @@ function carregar(){
       menu: MENUS.some(m=>m.id===s.menu) ? s.menu : PADRAO.menu,
       openbar: OPENBARS.some(b=>b.id===s.openbar) ? s.openbar : PADRAO.openbar,
       extras: Object.fromEntries(ITENS_EDITAVEIS.map(it=>{
-        const v = s.extras && Number.isInteger(s.extras[it.id]) ? s.extras[it.id] : it.padrao;
+        /* extra equipeOnly: SEMPRE o valor da equipe (URL/orçamento) — a
+           edição local salva do cliente não se aplica a item de crédito */
+        const v = it.equipeOnly ? valorEquipe(it)
+          : (s.extras && Number.isInteger(s.extras[it.id]) ? s.extras[it.id] : it.padrao);
         return [it.id, limita(v, it.min, it.max)];
       })),
       /* sem o campo mesas = nunca abriu o editor → recebe o layout sugerido
@@ -1357,7 +1448,8 @@ function calcular(s){
   const ppEstrutura = ITENS_TRAVADOS.filter(i=>i.id==='cadeira'||i.id==='sousplat').reduce((a,i)=>a+i.preco,0);
   const extras = ITENS_EDITAVEIS.reduce((a,it)=>a + it.preco * s.extras[it.id], 0);
   const estrutura = ppEstrutura * s.convidados + extras;
-  const servicos = SERVICOS.reduce((a,x)=>a+x[1],0);
+  /* a locação depende do dia simulado (valores da equipe via &R=) */
+  const servicos = locacaoDoDia(s.dia) + SERVICOS.reduce((a,x)=>a+x[1],0);
   return {coq, menu, bar, gastro, estrutura, servicos, total: gastro + estrutura + servicos};
 }
 const fmtBRL = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
@@ -1410,12 +1502,30 @@ function montarCards(tipo){
     b.addEventListener('click', ()=>selecionar(tipo, op.id));
     box.appendChild(b);
   });
+  box.addEventListener('scroll', ()=>sombraNiveis(box), {passive:true});
+}
+
+/* fileira rolável: acende o gradiente "tem mais ao lado" enquanto houver
+   card escondido à direita */
+function sombraNiveis(box){
+  box.parentElement.classList.toggle('tem-mais',
+    box.scrollLeft + box.clientWidth < box.scrollWidth - 6);
+}
+/* rola a fileira (só ela — nunca a página) até o card selecionado ficar à vista */
+function revelarSelecionado(tipo){
+  const box = $(GRUPOS[tipo].alvo);
+  const card = box.querySelector('.nivel[aria-pressed="true"]');
+  if(!card) return;
+  const alvo = card.offsetLeft - (box.clientWidth - card.offsetWidth)/2;
+  box.scrollLeft = Math.max(0, Math.min(alvo, box.scrollWidth - box.clientWidth));
+  sombraNiveis(box);
 }
 
 function pintarSelecao(tipo){
   const g = GRUPOS[tipo], sel = PROPOSTA[tipo];
   $(g.alvo).querySelectorAll('.nivel').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.id===sel)));
   pintarVitrine(tipo);
+  revelarSelecionado(tipo);
 }
 
 /* cartão-vitrine: leque com as 3 primeiras fotos + nome do pacote selecionado */
@@ -1454,7 +1564,20 @@ function montarItens(){
     ul.appendChild(li);
   });
   ITENS_EDITAVEIS.forEach(it=>{
-    const li = document.createElement('li'); li.className='item'; li.dataset.edit=it.id;
+    const li = document.createElement('li'); li.className='item';
+    /* item de crédito (equipeOnly): sem stepper — o cliente vê a quantidade
+       definida pela consultoria com o mesmo tratamento dos itens travados */
+    if(it.equipeOnly){
+      li.dataset.trava = it.id;
+      li.innerHTML = `<div class="item__info"><p class="item__nome">${esc(it.nome)}</p>
+          <p class="item__preco">${fmt(it.preco)} a unidade</p></div>
+        <span class="trava"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <b class="trava__qtd">—</b>&nbsp;· definido pela consultoria</span>
+        <p class="item__total">—</p>`;
+      ul.appendChild(li);
+      return;
+    }
+    li.dataset.edit=it.id;
     li.innerHTML = `<div class="item__info"><p class="item__nome">${esc(it.nome)}</p>
         <p class="item__preco">${fmt(it.preco)} a unidade</p></div>
       <span class="qtd" role="group" aria-label="Quantidade de ${esc(it.nome)}">
@@ -1472,8 +1595,11 @@ function montarItens(){
   });
 }
 
+/* re-renderizada a cada recálculo: a linha da Locação mostra o valor do
+   dia simulado no seletor */
 function montarServicos(){
-  $('#listaServicos').innerHTML = SERVICOS.map(([n,v])=>
+  $('#listaServicos').innerHTML =
+    [['Locação do Espaço', locacaoDoDia(PROPOSTA.dia)], ...SERVICOS].map(([n,v])=>
     `<li><span>${esc(n)}</span><b>${fmt(v)}</b></li>`).join('');
 }
 
@@ -1509,17 +1635,28 @@ function atualizarTotais(){
     li.querySelector('.item__total').textContent = fmt(it.preco*C);
   });
   ITENS_EDITAVEIS.forEach(it=>{
-    const li = document.querySelector(`[data-edit="${it.id}"]`);
     const q = PROPOSTA.extras[it.id];
+    if(it.equipeOnly){  /* crédito: linha travada, só qtd × total */
+      const li = document.querySelector(`[data-trava="${it.id}"]`);
+      li.querySelector('.trava__qtd').textContent = q;
+      li.querySelector('.item__total').textContent = fmt(it.preco*q);
+      return;
+    }
+    const li = document.querySelector(`[data-edit="${it.id}"]`);
     li.querySelector('.qtd__val').textContent = q;
     li.querySelector('.item__total').textContent = fmt(it.preco*q);
     li.querySelector('[data-passo="-1"]').disabled = q<=it.min;
     li.querySelector('[data-passo="1"]').disabled  = q>=it.max;
   });
+  /* bloco "Já incluso": a linha da Locação acompanha o dia simulado */
+  montarServicos();
   /* tierbar */
   $('#tbResumo').textContent = `${C} convidados · ${r.coq.curto} + ${r.menu.nome} + ${r.bar.nome}`;
   $('#tbTotal').textContent = fmt0(r.total);
-  /* WhatsApp com resumo pré-preenchido (a pergunta é sempre a última linha) */
+  /* WhatsApp com resumo pré-preenchido (a pergunta é sempre a última linha).
+     v18.08-15: sem consumidores .js-wa na página (os CTAs saíram — a conversa
+     com o cliente já existe no WhatsApp); o builder fica, inofensivo com
+     zero elementos, para um futuro canal que precise do resumo. */
   const nMesas = PROPOSTA.mesas.length;
   const msg = `Olá! Aqui é da DIMY. Estou vendo a proposta ORC-2026-01837 (24/09/2026 · Salão de Eventos, Itapema).\n`+
     `Meus ajustes: ${C} convidados · Coquetel ${r.coq.nome} · ${r.menu.nome} · ${r.bar.nome}.\n`+
@@ -1635,7 +1772,7 @@ function abrirModal(){
     <p class="modal__aviso">Ao confirmar, sua consultora recebe os ajustes e retorna em até 1 dia útil.
       A data segue sujeita a disponibilidade.</p>
     <div class="modal__acoes">
-      <button type="button" class="btn btn--solid" id="btnEnviar">Enviar para a consultora</button>
+      <button type="button" class="btn btn--solid" id="btnEnviar">Enviar os ajustes</button>
       <button type="button" class="btn btn--ghost" data-fecha-modal>Continuar ajustando</button>
     </div>`;
   panel.querySelector('#btnEnviar').addEventListener('click', ()=>{
@@ -1661,6 +1798,8 @@ function fecharModal(){
   if(focoModal && focoModal.focus) focoModal.focus();
 }
 $('#btnConfirmar').addEventListener('click', abrirModal);
+/* CTA final: mesmo destino — o resumo dos ajustes segue para a equipe */
+$('#btnCtaFinal').addEventListener('click', abrirModal);
 modal.addEventListener('click', e=>{ if(e.target.closest('[data-fecha-modal]')) fecharModal(); });
 
 /* ---- Esc fecha + setas no lightbox + focus trap (dialogs) ---- */
@@ -1751,6 +1890,9 @@ function pintarPlanta(){
     : `${n} ${n===1?'mesa':'mesas'} · ${n}×${MESA.lugares} = ${lug} lugares — ` +
       (lug>=conv ? `atende os ${conv} convidados` : `faltam ${conv-lug}`);
   el.classList.toggle('ok', n>0 && lug>=conv);
+  /* painel da equipe: o card mostra o que vai no link */
+  const eqInfo = $('#eqInfo');
+  if(eqInfo) eqInfo.textContent = `Layout atual: ${n} ${n===1?'mesa':'mesas'} · versão ${PROPOSTA.rev}`;
   /* alvo de 44px para remover no toque (o × sobre a mesa fica pequeno no celular) */
   const btnRem = $('#btnRemoverSel');
   if(btnRem) btnRem.hidden = mesaSel<0;
@@ -1894,23 +2036,68 @@ $('#btnSalvarLayout').addEventListener('click', ()=>{
   mostrarToast('Layout salvo — o tour 3D e o vídeo vão usar esta versão');
 });
 
-/* ---- modo equipe (?equipe=1): botão que embute o layout atual no link ----
-   O link copiado sai SEM ?equipe e COM #L=, então o cliente recebe a
-   proposta com o layout sugerido e nunca vê este botão. */
+/* ---- modo equipe (?equipe=1): card "Preparar proposta para envio" ----
+   Substitui o antigo botão solto de copiar link. A URL gerada sai SEM
+   ?equipe e COM #L=…&V=…&R=…&C=…(&E=…): o cliente recebe a proposta
+   pronta e nunca vê este card. Em PRODUÇÃO este painel vira a tela do
+   consultor no CRM e os valores saem do snapshot da proposta
+   (proposta_tokens.expires_at, servicos_locacao_valores, crédito por
+   item, escassez do CRM com override do consultor) — nada viaja na URL. */
 if(MODO_EQUIPE){
-  const btnLink = document.createElement('button');
-  btnLink.type = 'button'; btnLink.className = 'btn btn--gold'; btnLink.id = 'btnCopiarLink';
-  btnLink.textContent = 'Copiar link com este layout';
-  btnLink.addEventListener('click', ()=>{
-    if(!PROPOSTA.mesas.length){ mostrarToast('Adicione mesas antes de copiar o link'); return; }
+  const card = document.createElement('div');
+  card.className = 'equipe-card'; card.id = 'equipeCard';
+  const d7 = new Date(); d7.setDate(d7.getDate()+7);   /* validade inicial: hoje+7 */
+  const iso7 = `${d7.getFullYear()}-${String(d7.getMonth()+1).padStart(2,'0')}-${String(d7.getDate()).padStart(2,'0')}`;
+  const ROTULO_LOC = {seg_qui:'Locação Seg–Qui', sexta:'Locação Sexta', sabado:'Locação Sábado', domingo:'Locação Domingo'};
+  const itAv = ITENS_EDITAVEIS.find(i=>i.id==='av');
+  card.innerHTML = `
+    <p class="equipe-card__tit">Preparar proposta para envio</p>
+    <label class="equipe-card__campo"><span>Válida até</span>
+      <input type="date" id="eqValidade" value="${iso7}"></label>
+    ${ORDEM_LOCACAO.map(k=>`<label class="equipe-card__campo equipe-card__campo--num"><span>${ROTULO_LOC[k]}</span>
+      <input type="text" inputmode="numeric" data-loc="${k}" value="${LOCACAO[k]}" aria-label="${ROTULO_LOC[k]}, em reais"></label>`).join('')}
+    <label class="equipe-card__campo equipe-card__campo--num"><span>Crédito - Audiovisual (qtd)</span>
+      <input type="number" id="eqCredito" min="0" max="100" step="1" value="${valorEquipe(itAv)}"></label>
+    <label class="equipe-card__campo"><span>Alerta de escassez da data</span>
+      <span class="equipe-card__linha">
+        <input type="checkbox" id="eqEscassezOn"${ESCASSEZ ? ' checked' : ''} aria-label="Exibir alerta de escassez">
+        <select id="eqEscassezN" aria-label="Quantos outros orçamentos em aberto">
+          <option value="1">1 outro orçamento</option>
+          <option value="2">2 outros orçamentos</option>
+          <option value="3">3 outros orçamentos</option>
+        </select>
+      </span></label>
+    <p class="equipe-card__info" id="eqInfo">—</p>
+    <button type="button" class="btn btn--gold" id="btnGerarURL">Gerar URL para o cliente</button>`;
+  document.querySelector('.planta__bar').after(card);
+  if(ESCASSEZ) card.querySelector('#eqEscassezN').value = String(ESCASSEZ);
+
+  card.querySelector('#btnGerarURL').addEventListener('click', ()=>{
+    if(!PROPOSTA.mesas.length){ mostrarToast('Adicione mesas antes de gerar o link'); return; }
+    const iso = validarISO(card.querySelector('#eqValidade').value);
+    if(!iso){
+      mostrarToast('Preencha o campo Válida até antes de gerar o link');
+      card.querySelector('#eqValidade').focus(); return;
+    }
+    /* locações em reais inteiros: dígitos simples valem, o resto é ignorado */
+    const locs = ORDEM_LOCACAO.map(k=>{
+      const v = parseInt(String(card.querySelector(`[data-loc="${k}"]`).value).replace(/\D/g,''), 10);
+      return Number.isFinite(v) ? Math.min(v, 1000000) : LOCACAO_DIA[k];
+    });
+    const cred = limita(parseInt(card.querySelector('#eqCredito').value,10)||0, 0, 100);
+    const escOn = card.querySelector('#eqEscassezOn').checked;
+    const escN  = limita(parseInt(card.querySelector('#eqEscassezN').value,10)||1, 1, 3);
     const u = new URL(location.href);
     u.searchParams.delete('equipe');
-    u.hash = 'L=' + serializarLayout(PROPOSTA.mesas);
+    u.hash = 'L=' + serializarLayout(PROPOSTA.mesas)
+      + '&V=' + iso
+      + '&R=' + locs.map(v=>v.toString(36)).join('.')
+      + '&C=' + cred.toString(36)
+      + (escOn ? '&E=' + escN : '');
     copiarTexto(u.toString())
-      .then(()=>mostrarToast('Link copiado — envie ao cliente'))
+      .then(()=>mostrarToast(`Link do cliente copiado — validade até ${dataBR(iso)}`))
       .catch(()=>mostrarToast('Não deu para copiar automaticamente — copie da barra de endereço'));
   });
-  $('#plantaCont').before(btnLink);
 }
 
 /* ---- as quatro visões do salão (pills com fade de 160ms) ----
@@ -1930,9 +2117,6 @@ function trocarVisao(v){
     visaoAtual = v;
     box.querySelectorAll('.visao').forEach(p=>p.classList.toggle('ativa', p.dataset.v===v));
     document.querySelectorAll('[data-visao]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.visao===v)));
-    /* saiu do tour: pausa o vídeo */
-    const vd = $('#tourVideo');
-    if(v!=='v3' && vd && !vd.paused) vd.pause();
     /* maquete 3D: regenera ao entrar; o laço de render só roda enquanto está na tela */
     if(v==='v3d') tresAtivar(); else tresParar();
     /* passeio 360°: mesma regra — RAF só com a visão na tela */
@@ -1942,15 +2126,6 @@ function trocarVisao(v){
 }
 document.querySelectorAll('[data-visao]').forEach(b=>b.addEventListener('click', ()=>trocarVisao(b.dataset.visao)));
 $('#btn3dEditar').addEventListener('click', ()=>trocarVisao('v2'));
-
-/* ---- tour em vídeo: nada baixa antes do play (preload=none); controls só depois ---- */
-$('#tourPlay').addEventListener('click', ()=>{
-  const vd = $('#tourVideo');
-  vd.setAttribute('controls','');
-  $('#tourPlay').hidden = true;
-  const p = vd.play();
-  if(p && p.catch) p.catch(()=>{ /* autoplay bloqueado: os controls já estão na tela */ });
-});
 
 /* =================================================================
    MAQUETE 3D — three.js r160 em MÓDULOS (assets/lib/three.module.js,
@@ -2664,7 +2839,7 @@ function panoParar(){
 function panoAtivar(){
   if(P360.falhou) return;
   if(!tresTemWebGL()){
-    panoFalhar('Este navegador está sem WebGL, que é quem desenha o passeio. Sem drama: o tour em vídeo mostra o salão montado do mesmo jeito.');
+    panoFalhar('Este navegador está sem WebGL, que é quem desenha o passeio. Sem drama: o editor 2D funciona normalmente neste aparelho.');
     return;
   }
   const amb = PANOS[P360.ambiente];
@@ -3007,6 +3182,42 @@ renderMesas();
 $('#convMenos').disabled = PROPOSTA.convidados<=30;
 $('#convMais').disabled = PROPOSTA.convidados>=500;
 atualizarTotais();
+
+/* ---- validade efetiva na página (hero, investimento, rodapé) ---- */
+document.querySelectorAll('.js-validade').forEach(el=>el.textContent = dataBR(VALIDADE_ISO));
+/* proposta vencida: aviso discreto no topo — nada é bloqueado no protótipo */
+(function(){
+  const [a,m,d] = VALIDADE_ISO.split('-').map(Number);
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  if(new Date(a, m-1, d) < hoje){
+    const av = document.createElement('p');
+    av.className = 'expirada'; av.setAttribute('role','status');
+    av.innerHTML = `Esta proposta expirou em <b>${dataBR(VALIDADE_ISO)}</b> — fale com a gente na conversa para renovar.`;
+    $('#conteudo').prepend(av);
+  }
+})();
+
+/* ---- nota do simulador de dia: dinâmica conforme as locações da equipe ---- */
+if(LOCACAO_VARIA)
+  $('#notaDia').textContent = 'O investimento varia conforme o dia — compare as opções.';
+
+/* ---- alerta de escassez da data (só com &E= no link; tom sóbrio, sem alarme) ---- */
+if(ESCASSEZ){
+  const s = ESCASSEZ===1 ? '' : 's';
+  const p = document.createElement('p');
+  p.className = 'rcard__escassez';
+  p.innerHTML = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    <span>Esta data tem mais <b>${ESCASSEZ} orçamento${s}</b> em aberto. A reserva só é garantida com o contrato assinado.</span>`;
+  $('#cardData').appendChild(p);
+  const linha = document.createElement('p');
+  linha.className = 'cta__escassez';
+  linha.textContent = 'A data de 24/09 segue disponível — e disputada.';
+  $('#btnCtaFinal').before(linha);
+}
+
+/* ---- fileiras roláveis: estado inicial da sombra + reajuste no resize ---- */
+Object.keys(GRUPOS).forEach(t=>sombraNiveis($(GRUPOS[t].alvo)));
+addEventListener('resize', ()=>Object.keys(GRUPOS).forEach(t=>sombraNiveis($(GRUPOS[t].alvo))), {passive:true});
 aoRolar();
 </script>
 </body>
