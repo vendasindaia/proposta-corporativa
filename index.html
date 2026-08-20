@@ -265,6 +265,19 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .tres__fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:16px;padding:24px;text-align:center;}
 .tres__fallback p{font-size:.9rem;color:var(--brown);max-width:44ch;margin:0;line-height:1.6;}
+/* passeio 360°: quadro escuro enquanto a foto chega; pills de ambiente por cima */
+.visao__frame--pano{background:#22272E;}
+.visao__frame--pano .tres__status{color:rgba(247,248,249,.78);}
+.visao__frame--pano .tres__fallback p{color:rgba(247,248,249,.85);}
+.pano__ambientes{position:absolute;top:12px;left:12px;z-index:6;display:flex;flex-wrap:wrap;gap:8px;}
+.pano__ambientes .pill{background:rgba(247,248,249,.88);backdrop-filter:blur(6px);
+  border-color:rgba(255,255,255,.55);color:var(--brown);}
+.pano__ambientes .pill:hover{color:var(--brown-deep);border-color:var(--cream);}
+.pano__ambientes .pill[aria-pressed="true"]{background:var(--brown-deep);border-color:var(--brown-deep);color:var(--cream);}
+.pano__spinner{position:absolute;inset:0;margin:auto;width:46px;height:46px;border-radius:50%;z-index:5;
+  border:2.5px solid rgba(247,248,249,.2);border-top-color:var(--gold-soft);
+  animation:pano-girar .9s linear infinite;pointer-events:none;}
+@keyframes pano-girar{to{transform:rotate(360deg)}}
 .visao__frame--video video{width:100%;height:100%;object-fit:contain;display:block;}
 .tour__play{position:absolute;inset:0;margin:auto;width:84px;height:84px;border-radius:50%;
   background:rgba(20,24,29,.72);border:1.5px solid var(--gold-soft);color:var(--gold-soft);
@@ -722,6 +735,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
       <div class="visoes-pills" role="group" aria-label="Escolha a visão do salão">
         <button type="button" class="pill" data-visao="v2" aria-pressed="true">Personalizar em 2D</button>
         <button type="button" class="pill" data-visao="v3d" aria-pressed="false">Ver em 3D</button>
+        <button type="button" class="pill" data-visao="v360" aria-pressed="false">Ver em 360°</button>
         <button type="button" class="pill" data-visao="v3" aria-pressed="false">Tour em vídeo (layout padrão)</button>
       </div>
       <div class="visoes" id="visoes">
@@ -790,6 +804,27 @@ html.sem-io .reveal{opacity:1;transform:none;}
               <button type="button" class="btn btn--ghost" id="btn3dEditar">Ajustar as mesas em 2D</button>
             </div>
             <p class="tour3d__nota" id="tourNota">O vídeo sai com o seu layout atual.</p>
+          </div>
+        </div>
+
+        <!-- visão 360°: panoramas fotorrealistas do Enscape da arquiteta em
+             cena three.js PRÓPRIA (esfera invertida, câmera parada no centro).
+             Dois ambientes com textura lazy POR AMBIENTE: salão montado e
+             Deck da Figueira — nada baixa antes do primeiro clique. -->
+        <div class="visao" data-v="v360">
+          <div class="visao__frame visao__frame--tres visao__frame--pano">
+            <div class="pano__ambientes" role="group" aria-label="Escolher o ambiente do passeio 360°">
+              <button type="button" class="pill" data-pano="salao" aria-pressed="true">Salão montado</button>
+              <button type="button" class="pill" data-pano="deck" aria-pressed="false">Deck da Figueira</button>
+            </div>
+            <div class="tres__canvasbox" id="panoBox" tabindex="0" role="img"
+              aria-label="Passeio 360° fotorrealista pelo espaço. Arraste para olhar ao redor, roda ou pinça aproxima, toque duplo recentraliza; no teclado, setas giram e as teclas de mais e menos aproximam."></div>
+            <div class="pano__spinner" id="panoSpin" hidden aria-hidden="true"></div>
+            <p class="tres__status" id="panoStatus" hidden>Carregando o passeio 360°…</p>
+          </div>
+          <div class="visao__foot">
+            <p class="visao__legenda" id="panoLegenda">Passeio fotorrealista · salão montado no formato clássico — monte o SEU layout na aba Personalizar.</p>
+            <p class="tour3d__nota">Imagem 360° · Salão de Eventos Itapema</p>
           </div>
         </div>
 
@@ -900,7 +935,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até 25/08/2026.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-11</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-12</span></p>
   </div>
 </footer>
 
@@ -1869,7 +1904,7 @@ if(MODO_EQUIPE){
   $('#plantaCont').before(btnLink);
 }
 
-/* ---- as três visões do salão (pills com fade de 160ms) ----
+/* ---- as quatro visões do salão (pills com fade de 160ms) ----
    trocaAlvo/clearTimeout: o ÚLTIMO clique sempre vence. Antes, um clique
    dentro da janela do fade era engolido pelo guard (visaoAtual só muda no
    setTimeout) — dava para "entrar" no 3D sem a troca acontecer. */
@@ -1891,6 +1926,8 @@ function trocarVisao(v){
     if(v!=='v3' && vd && !vd.paused) vd.pause();
     /* maquete 3D: regenera ao entrar; o laço de render só roda enquanto está na tela */
     if(v==='v3d') tresAtivar(); else tresParar();
+    /* passeio 360°: mesma regra — RAF só com a visão na tela */
+    if(v==='v360') panoAtivar(); else panoParar();
     box.classList.remove('trocando');
   },160);
 }
@@ -2307,6 +2344,220 @@ tresBox.addEventListener('keydown', ev=>{
   tresCamera();
 });
 addEventListener('resize', ()=>{ if(visaoAtual==='v3d') tresDimensionar(); }, {passive:true});
+
+/* =================================================================
+   PASSEIO 360° — panoramas equiretangulares fotorrealistas (Enscape
+   da arquiteta, 6144×3072) numa cena PRÓPRIA, separada da maquete:
+   esfera invertida, câmera parada no centro; arrastar gira (inércia
+   leve), roda/pinça ajusta o FOV (45–100°), duplo clique recentraliza.
+   Mesmo three.js lazy da maquete (carregarThree) e mesmo padrão de
+   RAF: só roda com a visão na tela. A textura de CADA ambiente só
+   baixa quando ele é escolhido (lazy por ambiente).
+   YAWS medidos abrindo as imagens em 20/08 — na esfera invertida a
+   direção de um ponto do pano é lon = u·360° (u = fração da largura):
+   · salão: telão "DIMY" em u≈0,785 → lon 283° (lat −2°)
+   · deck: fachada/janelões e portas em u≈0,63 → lon 228° (lat 2°;
+     medido em u≈0,60 e afinado no screenshot: entra o deck e a copa
+     da figueira emoldurando a fachada, sem a parede cega)
+   ================================================================= */
+const panoBox = $('#panoBox');
+const PANOS = {
+  salao:{arquivo:'assets/pano-salao-mesas.jpg', lon:283, lat:-2, tx:null,
+    legenda:'Passeio fotorrealista · salão montado no formato clássico — monte o SEU layout na aba Personalizar.'},
+  deck:{arquivo:'assets/pano-deck-figueira.jpg', lon:228, lat:2, tx:null,
+    legenda:'Passeio fotorrealista · Deck da Figueira — recepção e coquetel ao ar livre.'}
+};
+const P360 = {
+  pronto:false, falhou:false, raf:0, ambiente:'salao', pedido:null, emVoo:null,
+  cena:null, cam:null, renderer:null, mat:null,
+  lon:283, lat:-2, fov:70, fov0:70, vLon:0, vLat:0, arrasto:false,
+  ponteiros:new Map(), pinca:0
+};
+function panoFalhar(msg){
+  P360.falhou = true;
+  $('#panoSpin').hidden = true; $('#panoStatus').hidden = true;
+  panoBox.innerHTML = `<div class="tres__fallback"><p>${msg}</p>
+    <button type="button" class="btn btn--solid" id="btnPanoFallback">Assistir ao tour em vídeo</button></div>`;
+  panoBox.querySelector('#btnPanoFallback').addEventListener('click', ()=>trocarVisao('v3'));
+  $('#panoLegenda').textContent = 'O passeio 360° não abre neste navegador — o tour em vídeo mostra o salão montado.';
+}
+function panoCarregarTextura(id){
+  const amb = PANOS[id];
+  if(amb.tx) return Promise.resolve(amb.tx);
+  return new Promise((res, rej)=>{
+    new THREE.TextureLoader().load(amb.arquivo, tx=>{
+      tx.colorSpace = THREE.SRGBColorSpace;
+      amb.tx = tx; res(tx);
+    }, undefined, ()=>rej(new Error(amb.arquivo)));
+  });
+}
+function panoIniciar(){
+  const TH = window.THREE;
+  P360.renderer = new TH.WebGLRenderer({antialias:true});
+  P360.renderer.setPixelRatio(Math.min(devicePixelRatio||1, 2));
+  panoBox.appendChild(P360.renderer.domElement);
+  P360.cena = new TH.Scene();
+  const geo = new TH.SphereGeometry(50, 64, 48);
+  geo.scale(-1, 1, 1);                       /* vista por dentro, sem espelhar */
+  P360.mat = new TH.MeshBasicMaterial();
+  P360.cena.add(new TH.Mesh(geo, P360.mat));
+  P360.cam = new TH.PerspectiveCamera(P360.fov, 1, .1, 100);
+  P360.pronto = true;
+}
+function panoAplicar(id){
+  const amb = PANOS[id];
+  amb.tx.anisotropy = Math.min(8, P360.renderer.capabilities.getMaxAnisotropy());
+  P360.mat.map = amb.tx;
+  P360.mat.needsUpdate = true;
+  P360.lon = amb.lon; P360.lat = amb.lat; P360.fov = P360.fov0;
+  P360.vLon = P360.vLat = 0;
+  panoCamera();
+  $('#panoLegenda').textContent = amb.legenda;
+  document.querySelectorAll('[data-pano]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.pano===id)));
+}
+/* troca de ambiente: fade curto se a textura já está aqui; senão spinner +
+   download — e o ÚLTIMO clique sempre vence (P360.pedido, como nas visões) */
+function panoMostrar(id){
+  P360.ambiente = id; P360.pedido = id;
+  const amb = PANOS[id];
+  if(P360.pronto && amb.tx){
+    panoBox.classList.add('trocando');
+    setTimeout(()=>{
+      if(P360.pedido!==id) return;         /* outro clique venceu no meio do fade */
+      panoAplicar(id);
+      panoBox.classList.remove('trocando');
+    }, 170);
+    return;
+  }
+  if(P360.emVoo===id) return;              /* este download já está a caminho */
+  P360.emVoo = id;
+  $('#panoStatus').hidden = false; $('#panoSpin').hidden = false;
+  if(P360.pronto) panoBox.classList.add('trocando');
+  carregarThree().then(()=>panoCarregarTextura(id)).then(()=>{
+    if(P360.emVoo===id) P360.emVoo = null;
+    if(P360.pedido!==id) return;           /* o cliente já pediu o outro ambiente */
+    if(!P360.pronto) panoIniciar();
+    panoAplicar(id);
+    $('#panoStatus').hidden = true; $('#panoSpin').hidden = true;
+    panoBox.classList.remove('trocando');
+    if(visaoAtual==='v360') panoAbrir();
+  }).catch(()=>{
+    if(P360.emVoo===id) P360.emVoo = null;
+    if(P360.pedido!==id) return;
+    $('#panoStatus').hidden = true; $('#panoSpin').hidden = true;
+    panoBox.classList.remove('trocando');
+    if(P360.pronto) mostrarToast('Este ambiente não carregou agora — tente de novo.');
+    else panoFalhar('O passeio 360° não carregou agora. Sem drama: o tour em vídeo mostra o salão montado do mesmo jeito.');
+  });
+}
+function panoCamera(){
+  P360.lat = limita(P360.lat, -85, 85);
+  P360.fov = limita(P360.fov, 45, 100);
+  const phi = (90 - P360.lat)*Math.PI/180, th = P360.lon*Math.PI/180;
+  P360.cam.fov = P360.fov;
+  P360.cam.updateProjectionMatrix();
+  P360.cam.lookAt(Math.sin(phi)*Math.cos(th), Math.cos(phi), Math.sin(phi)*Math.sin(th));
+}
+function panoDimensionar(){
+  if(!P360.pronto) return;
+  const w = panoBox.clientWidth||2, h = panoBox.clientHeight||2;
+  P360.renderer.setSize(w, h, false);
+  P360.cam.aspect = w/h;
+  P360.cam.updateProjectionMatrix();
+}
+function panoLaco(){
+  P360.raf = requestAnimationFrame(panoLaco);
+  if(!P360.arrasto && (Math.abs(P360.vLon)>.02 || Math.abs(P360.vLat)>.02)){
+    P360.lon += P360.vLon; P360.lat += P360.vLat;   /* inércia leve após soltar */
+    P360.vLon *= .9; P360.vLat *= .9;
+    panoCamera();
+  }
+  P360.renderer.render(P360.cena, P360.cam);
+}
+function panoAbrir(){
+  panoDimensionar();
+  panoCamera();
+  if(!P360.raf) panoLaco();
+}
+function panoParar(){
+  if(P360.raf){ cancelAnimationFrame(P360.raf); P360.raf = 0; }
+}
+function panoAtivar(){
+  if(P360.falhou) return;
+  if(!tresTemWebGL()){
+    panoFalhar('Este navegador está sem WebGL, que é quem desenha o passeio. Sem drama: o tour em vídeo mostra o salão montado do mesmo jeito.');
+    return;
+  }
+  if(P360.pronto && PANOS[P360.ambiente].tx){ panoAbrir(); return; }
+  panoMostrar(P360.ambiente);
+}
+document.querySelectorAll('[data-pano]').forEach(b=>b.addEventListener('click', ()=>{
+  if(!P360.falhou) panoMostrar(b.dataset.pano);
+}));
+/* olhar ao redor: 1 dedo/mouse gira (a imagem segue o dedo, com inércia) ·
+   2 dedos = pinça no FOV · roda = FOV · duplo clique = recentraliza · teclado */
+panoBox.addEventListener('pointerdown', ev=>{
+  if(!P360.pronto) return;
+  panoBox.setPointerCapture(ev.pointerId);
+  P360.ponteiros.set(ev.pointerId, {x:ev.clientX, y:ev.clientY});
+  P360.arrasto = true; P360.vLon = 0; P360.vLat = 0;
+  if(P360.ponteiros.size===2){
+    const p = [...P360.ponteiros.values()];
+    P360.pinca = Math.hypot(p[0].x-p[1].x, p[0].y-p[1].y);
+  }
+});
+panoBox.addEventListener('pointermove', ev=>{
+  const p = P360.ponteiros.get(ev.pointerId);
+  if(!p || !P360.pronto) return;
+  if(P360.ponteiros.size===1){
+    const s = .105 * P360.fov/70;          /* com zoom, o giro acompanha o FOV */
+    const dLon = (p.x-ev.clientX)*s, dLat = (ev.clientY-p.y)*s;
+    P360.lon += dLon; P360.lat += dLat;
+    P360.vLon = limita(dLon, -2.2, 2.2); P360.vLat = limita(dLat, -2.2, 2.2);
+  }
+  p.x = ev.clientX; p.y = ev.clientY;
+  if(P360.ponteiros.size===2){
+    const q = [...P360.ponteiros.values()];
+    const d = Math.hypot(q[0].x-q[1].x, q[0].y-q[1].y);
+    if(P360.pinca && d>0) P360.fov *= P360.pinca/d;
+    P360.pinca = d;
+  }
+  panoCamera();
+});
+const panoSoltar = ev=>{
+  P360.ponteiros.delete(ev.pointerId);
+  P360.pinca = 0;
+  P360.arrasto = P360.ponteiros.size>0;
+};
+panoBox.addEventListener('pointerup', panoSoltar);
+panoBox.addEventListener('pointercancel', panoSoltar);
+panoBox.addEventListener('wheel', ev=>{
+  if(!P360.pronto) return;
+  ev.preventDefault();
+  P360.fov += ev.deltaY*.05;
+  panoCamera();
+}, {passive:false});
+panoBox.addEventListener('dblclick', ()=>{
+  if(!P360.pronto) return;
+  const amb = PANOS[P360.ambiente];
+  P360.lon = amb.lon; P360.lat = amb.lat; P360.fov = P360.fov0;
+  P360.vLon = P360.vLat = 0;
+  panoCamera();
+});
+panoBox.addEventListener('keydown', ev=>{
+  if(!P360.pronto) return;
+  const k = ev.key;
+  if(k==='ArrowLeft') P360.lon -= 5;
+  else if(k==='ArrowRight') P360.lon += 5;
+  else if(k==='ArrowUp') P360.lat += 4;
+  else if(k==='ArrowDown') P360.lat -= 4;
+  else if(k==='+'||k==='=') P360.fov -= 4;
+  else if(k==='-') P360.fov += 4;
+  else return;
+  ev.preventDefault();
+  panoCamera();
+});
+addEventListener('resize', ()=>{ if(visaoAtual==='v360') panoDimensionar(); }, {passive:true});
 
 /* =================================================================
    TOUR AUTOMÁTICO — a câmera percorre o salão como no vídeo da casa,
