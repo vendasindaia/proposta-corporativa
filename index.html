@@ -990,7 +990,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-18</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-19</span></p>
   </div>
 </footer>
 
@@ -1188,7 +1188,7 @@ const ITENS_EDITAVEIS = [
   {id:'hora',   nome:'Hora extra (Locação)', preco:150000, min:0, max:10,  padrao:7}
 ];
 /* =================================================================
-   MOTOR FINANCEIRO — ESPELHO DO CRM (v18.08-18)
+   MOTOR FINANCEIRO — ESPELHO DO CRM (v18.08-19)
    "A lógica do cálculo tem que ser tudo igual ao CRM, só a apresentação
    diferente." Fórmulas espelhadas de orcamentos.service.ts:
    recalcularServicos (:1586), calcularVMCDetalhado (:2902),
@@ -2434,7 +2434,7 @@ if(MODO_EQUIPE){
       .catch(()=>mostrarToast('Não deu para copiar automaticamente — copie da barra de endereço'));
   });
 
-  /* ---- financeiro (v18.08-18): perfil da trava + desconto do gerente ----
+  /* ---- financeiro (v18.08-19): perfil da trava + desconto do gerente ----
      O desconto segue o modelo do CRM (linear sobre o bruto) e passa pela
      trava de VMC ANTES de aplicar; bloqueio REVERTE o campo (regra do CRM:
      quem chama reverte a alteração e mostra a mensagem). No CRM a trava
@@ -2639,9 +2639,10 @@ function carregarMesa(){
       g.scene.traverse(o=>{
         if(!o.isMesh) return;
         const mt = o.material, nome = mt.name || '';
-        /* tintas da casa: cadeira em madeira média, tecido em marfim quente */
-        if(/^madeira/i.test(nome)) mt.color.set(0x7E5F3E);
-        else if(/toalha|obrus/i.test(nome)) mt.color.set(0xF1EAD9);
+        /* v18.08-19: a madeira agora vem TEXTURIZADA do GLB — tinta removida
+           (multiplicaria e escureceria o veio). A toalha mantém o banho marfim
+           sobre a trama bege (fica mais cremosa, aprovado). */
+        if(/toalha|obrus/i.test(nome)) mt.color.set(0xF1EAD9);
         if('envMapIntensity' in mt) mt.envMapIntensity = .35;
         partes.push({geo:o.geometry, mat:mt, m:o.matrixWorld.clone()});
       });
