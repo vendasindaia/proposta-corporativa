@@ -878,9 +878,9 @@ html.sem-io .reveal{opacity:1;transform:none;}
         <div class="visao" data-v="v360">
           <div class="visao__frame visao__frame--tres visao__frame--pano">
             <div class="pano__ambientes" role="group" aria-label="Escolher o ambiente do passeio 360°">
-              <button type="button" class="pill" data-pano="layout" aria-pressed="false">Seu layout</button>
-              <button type="button" class="pill" data-pano="salao" aria-pressed="true">Salão montado</button>
-              <button type="button" class="pill" data-pano="deck" aria-pressed="false">Deck da Figueira</button>
+              <button type="button" class="pill" data-pano="layout" aria-pressed="true">Seu layout</button>
+              <button type="button" class="pill" data-pano="interno" aria-pressed="false">Salão interno</button>
+              <button type="button" class="pill" data-pano="deck" aria-pressed="false">Salão externo · Deck</button>
             </div>
             <div class="tres__canvasbox" id="panoBox" tabindex="0" role="img"
               aria-label="Passeio 360° fotorrealista pelo espaço. Arraste para olhar ao redor, roda ou pinça aproxima, toque duplo recentraliza; no teclado, setas giram e as teclas de mais e menos aproximam."></div>
@@ -888,7 +888,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
             <p class="tres__status" id="panoStatus" hidden>Carregando o passeio 360°…</p>
           </div>
           <div class="visao__foot">
-            <p class="visao__legenda" id="panoLegenda">Passeio fotorrealista · salão montado no formato clássico — monte o SEU layout na aba Personalizar.</p>
+            <p class="visao__legenda" id="panoLegenda">O seu layout em 360° · panorama gerado da maquete, com as suas mesas.</p>
             <div class="tour3d__acoes">
               <button type="button" class="btn btn--ghost" id="btnPanoAtualizar" hidden>↻ Atualizar com o layout atual</button>
             </div>
@@ -990,7 +990,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-19</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-20</span></p>
   </div>
 </footer>
 
@@ -2981,27 +2981,35 @@ const panoBox = $('#panoBox');
 const PANOS = {
   /* "Seu layout" (v18.08-14): panorama RENDERIZADO da maquete com as mesas do
      cliente — sem arquivo; a textura nasce em panoGerarLayout e o cache é por
-     PROPOSTA.rev (PANOL). lon 356 = olhando o palco/telão a partir do centro. */
+     PROPOSTA.rev (PANOL). lon 356 = olhando o palco/telão a partir do centro.
+     v18.08-20: é o ambiente PADRÃO — a visão 360° sempre ABRE nele. */
   layout:{dinamico:true, lon:356, lat:-2, tx:null, legenda:''},
-  salao:{arquivo:'assets/pano-salao-mesas.jpg', lon:283, lat:-2, tx:null,
-    legenda:'Passeio fotorrealista · salão montado no formato clássico — monte o SEU layout na aba Personalizar.'},
+  /* "Salão interno" (v18.08-20): o MESMO gerador, com ZERO mesas — o salão
+     texturizado vazio, pronto para receber o evento. Cache ESTÁTICO após a
+     1ª geração (não depende de rev). Substituiu o pano fotográfico "Salão
+     montado" no seletor; o arquivo pano-salao-mesas.jpg segue em uso como
+     environment PMREM da maquete 3D. */
+  interno:{dinamico:true, vazio:true, lon:356, lat:-2, tx:null,
+    legenda:'O salão interno · pronto para receber o seu evento.'},
   deck:{arquivo:'assets/pano-deck-figueira.jpg', lon:228, lat:2, tx:null,
-    legenda:'Passeio fotorrealista · Deck da Figueira — recepção e coquetel ao ar livre.'}
+    legenda:'Passeio fotorrealista · Salão externo — Deck da Figueira, recepção e coquetel ao ar livre.'}
 };
 const PANOL = { rev:0 };   /* versão do layout que o panorama dinâmico retrata */
 const P360 = {
-  pronto:false, falhou:false, raf:0, ambiente:'salao', pedido:null, emVoo:null,
+  pronto:false, falhou:false, raf:0, ambiente:'layout', pedido:null, emVoo:null,
   cena:null, cam:null, renderer:null, mat:null,
-  lon:283, lat:-2, fov:70, fov0:70, vLon:0, vLat:0, arrasto:false,
+  lon:356, lat:-2, fov:70, fov0:70, vLon:0, vLat:0, arrasto:false,
   ponteiros:new Map(), pinca:0
 };
+/* v18.08-20: o fallback apontava para a visão de tour em vídeo (v3), que
+   saiu na v18.08-15 — agora devolve ao editor 2D, que funciona sempre */
 function panoFalhar(msg){
   P360.falhou = true;
   $('#panoSpin').hidden = true; $('#panoStatus').hidden = true;
   panoBox.innerHTML = `<div class="tres__fallback"><p>${msg}</p>
-    <button type="button" class="btn btn--solid" id="btnPanoFallback">Assistir ao tour em vídeo</button></div>`;
-  panoBox.querySelector('#btnPanoFallback').addEventListener('click', ()=>trocarVisao('v3'));
-  $('#panoLegenda').textContent = 'O passeio 360° não abre neste navegador — o tour em vídeo mostra o salão montado.';
+    <button type="button" class="btn btn--solid" id="btnPanoFallback">Voltar para o editor 2D</button></div>`;
+  panoBox.querySelector('#btnPanoFallback').addEventListener('click', ()=>trocarVisao('v2'));
+  $('#panoLegenda').textContent = 'O passeio 360° não abre neste navegador — no 2D e na galeria dá para ver o salão do mesmo jeito.';
 }
 function panoCarregarTextura(id){
   const amb = PANOS[id];
@@ -3034,14 +3042,14 @@ function panoAplicar(id){
   P360.lon = amb.lon; P360.lat = amb.lat; P360.fov = P360.fov0;
   P360.vLon = P360.vLat = 0;
   panoCamera();
-  $('#panoLegenda').textContent = amb.dinamico
-    ? `O seu layout em 360° · versão ${PANOL.rev}`
-    : amb.legenda;
-  $('#panoNota').textContent = amb.dinamico
-    ? 'Panorama gerado agora da maquete, com as suas mesas'
-    : 'Imagem 360° · Salão de Eventos Itapema';
-  /* o botão ↻ só faz sentido dentro do ambiente dinâmico */
-  $('#btnPanoAtualizar').hidden = !amb.dinamico;
+  $('#panoLegenda').textContent = amb.vazio ? amb.legenda
+    : (amb.dinamico ? `O seu layout em 360° · versão ${PANOL.rev}` : amb.legenda);
+  $('#panoNota').textContent = amb.vazio
+    ? 'Panorama gerado da maquete · Salão de Eventos Itapema'
+    : (amb.dinamico ? 'Panorama gerado agora da maquete, com as suas mesas'
+    : 'Imagem 360° · Salão de Eventos Itapema');
+  /* o botão ↻ só faz sentido no ambiente que acompanha o layout */
+  $('#btnPanoAtualizar').hidden = !(amb.dinamico && !amb.vazio);
   document.querySelectorAll('[data-pano]').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.pano===id)));
 }
 /* troca de ambiente: fade curto se a textura já está aqui; senão spinner +
@@ -3050,7 +3058,9 @@ function panoAplicar(id){
 function panoMostrar(id){
   P360.ambiente = id; P360.pedido = id;
   const amb = PANOS[id];
-  const precisaGerar = amb.dinamico && (!amb.tx || PANOL.rev !== PROPOSTA.rev);
+  /* dinâmico por rev = só o "Seu layout"; o "Salão interno" (vazio) tem
+     cache estático: gerou uma vez, nunca regenera */
+  const precisaGerar = amb.dinamico && (!amb.tx || (!amb.vazio && PANOL.rev !== PROPOSTA.rev));
   if(P360.pronto && amb.tx && !precisaGerar){
     panoBox.classList.add('trocando');
     setTimeout(()=>{
@@ -3062,10 +3072,11 @@ function panoMostrar(id){
   }
   if(P360.emVoo===id) return;              /* este download/geração já está a caminho */
   P360.emVoo = id;
-  $('#panoStatus').textContent = amb.dinamico ? 'Montando o seu layout em 360°…' : 'Carregando o passeio 360°…';
+  $('#panoStatus').textContent = amb.vazio ? 'Montando o salão em 360°…'
+    : (amb.dinamico ? 'Montando o seu layout em 360°…' : 'Carregando o passeio 360°…');
   $('#panoStatus').hidden = false; $('#panoSpin').hidden = false;
   if(P360.pronto) panoBox.classList.add('trocando');
-  (amb.dinamico ? panoGerarLayout() : carregarThree().then(()=>panoCarregarTextura(id))).then(()=>{
+  (amb.dinamico ? panoGerarLayout(id) : carregarThree().then(()=>panoCarregarTextura(id))).then(()=>{
     if(P360.emVoo===id) P360.emVoo = null;
     if(P360.pedido!==id) return;           /* o cliente já pediu o outro ambiente */
     if(!P360.pronto) panoIniciar();
@@ -3079,7 +3090,7 @@ function panoMostrar(id){
     $('#panoStatus').hidden = true; $('#panoSpin').hidden = true;
     panoBox.classList.remove('trocando');
     if(P360.pronto) mostrarToast('Este ambiente não carregou agora — tente de novo.');
-    else panoFalhar('O passeio 360° não carregou agora. Sem drama: o tour em vídeo mostra o salão montado do mesmo jeito.');
+    else panoFalhar('O passeio 360° não carregou agora. Sem drama: a galeria e o editor 2D mostram o salão do mesmo jeito.');
   });
 }
 /* =================================================================
@@ -3159,18 +3170,34 @@ function layoutRenderizarPanorama(){
     catch(e2){ return fazer(1024, TH.UnsignedByteType); }
   }
 }
-/* garante a maquete inteira (three + salão + mesa real + cena) e rende o pano */
-function panoGerarLayout(){
+/* garante a maquete inteira (three + salão + mesa real + cena) e rende o pano.
+   id='layout' → com as mesas do estado (cache por rev);
+   id='interno' → o salão VAZIO: zera a lista de mesas só durante o render e
+   restaura em finally (cache estático — não depende de rev). */
+function panoGerarLayout(id){
+  const amb = PANOS[id] || PANOS.layout;
   return carregarThree()
     .then(()=>Promise.all([carregarSalao(), carregarMesa()]))
     .then(()=>{
       if(!T3.pronto) tresIniciar();
-      tresMesas();                     /* a cena SEMPRE nasce do estado salvo */
-      const tx = layoutRenderizarPanorama();
-      const amb = PANOS.layout;
+      let tx;
+      if(amb.vazio){
+        const guarda = PROPOSTA.mesas;
+        try{
+          PROPOSTA.mesas = [];
+          tresMesas();                 /* cena sem nenhuma mesa */
+          tx = layoutRenderizarPanorama();
+        }finally{
+          PROPOSTA.mesas = guarda;     /* a maquete volta ao estado do cliente */
+          tresMesas();
+        }
+      }else{
+        tresMesas();                   /* a cena SEMPRE nasce do estado salvo */
+        tx = layoutRenderizarPanorama();
+        PANOL.rev = PROPOSTA.rev;
+      }
       if(amb.tx) amb.tx.dispose();     /* só o pano mais novo fica em memória */
       amb.tx = tx;
-      PANOL.rev = PROPOSTA.rev;
     });
 }
 $('#btnPanoAtualizar').addEventListener('click', ()=>{
@@ -3178,10 +3205,9 @@ $('#btnPanoAtualizar').addEventListener('click', ()=>{
   PANOL.rev = -1;                      /* força regenerar mesmo sem rev nova */
   panoMostrar('layout');
 });
-/* sem WebGL não há maquete para renderizar: o ambiente some do seletor */
+/* sem WebGL não há maquete para renderizar: os ambientes GERADOS somem do seletor */
 if(!tresTemWebGL()){
-  const pillLayout = document.querySelector('[data-pano="layout"]');
-  if(pillLayout) pillLayout.remove();
+  document.querySelectorAll('[data-pano="layout"],[data-pano="interno"]').forEach(p=>p.remove());
   $('#btnPanoAtualizar').hidden = true;
 }
 function panoCamera(){
@@ -3222,10 +3248,17 @@ function panoAtivar(){
     panoFalhar('Este navegador está sem WebGL, que é quem desenha o passeio. Sem drama: o editor 2D funciona normalmente neste aparelho.');
     return;
   }
-  const amb = PANOS[P360.ambiente];
-  /* dinâmico com layout NOVO (rev avançou): regenera já na entrada da visão */
-  if(P360.pronto && amb.tx && !(amb.dinamico && PANOL.rev !== PROPOSTA.rev)){ panoAbrir(); return; }
-  panoMostrar(P360.ambiente);
+  /* v18.08-20: a visão SEMPRE abre no "Seu layout" (mesmo que o cliente
+     tivesse trocado de ambiente antes de sair); regenera quando a rev
+     avançou, como sempre */
+  const amb = PANOS.layout;
+  if(P360.pronto && amb.tx && PANOL.rev === PROPOSTA.rev){
+    P360.ambiente = 'layout'; P360.pedido = 'layout';
+    panoAplicar('layout');
+    panoAbrir();
+    return;
+  }
+  panoMostrar('layout');
 }
 document.querySelectorAll('[data-pano]').forEach(b=>b.addEventListener('click', ()=>{
   if(!P360.falhou) panoMostrar(b.dataset.pano);
