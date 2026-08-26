@@ -1,0 +1,296 @@
+{
+ "ambiente": "solar",
+ "pxm": 36.4,
+ "largura_px": 1920,
+ "altura_px": 864,
+ "offset_x_m": -9.3706,
+ "offset_z_m": -8.7766,
+ "formula": "x_m = px / pxm + offset_x_m ; z_m = py / pxm + offset_z_m  (topo da imagem = -Z, direita = +X)",
+ "glbcal": {
+  "px0": 960,
+  "x0": 17.003,
+  "py0": 432,
+  "z0": 3.0915
+ },
+ "piso_y": 0.3,
+ "corte_render_y": 2.8,
+ "bbox": {
+  "min": [
+   -8.865,
+   -0.2,
+   -8.267
+  ],
+  "max": [
+   42.871,
+   7.701,
+   14.451
+  ]
+ },
+ "grade": {
+  "w": 480,
+  "h": 216,
+  "passo": 4,
+  "celulas_validas": 16966,
+  "tampo_raio_m": 0.8,
+  "tolerancia_m": 0.15,
+  "formato": "bitpack LSB-first, i = gy*w + gx, base64"
+ },
+ "areas": [
+  {
+   "nome": "Pátio da Árvore",
+   "piso_y": 0.3,
+   "materiais_piso": [
+    "__Beige_1_0"
+   ],
+   "retangulo_px": [
+    90,
+    41,
+    691,
+    614
+   ],
+   "retangulo_m": [
+    -6.89,
+    -7.65,
+    9.6,
+    8.1
+   ],
+   "poligono_m": [
+    [
+     -4.97,
+     -7.65
+    ],
+    [
+     9.6,
+     -6.12
+    ],
+    [
+     9.6,
+     8.1
+    ],
+    [
+     -6.89,
+     8.1
+    ]
+   ],
+   "poligono_px": [
+    [
+     160,
+     41
+    ],
+    [
+     691,
+     97
+    ],
+    [
+     691,
+     614
+    ],
+    [
+     90,
+     614
+    ]
+   ],
+   "celulas_validas": 9281,
+   "area_valida_m2": 112.1
+  },
+  {
+   "nome": "Hall / Cerimônia",
+   "piso_y": 0.85,
+   "materiais_piso": [
+    "material_7",
+    "Madeira_34__Feixes_1"
+   ],
+   "retangulo_px": [
+    698,
+    305,
+    1153,
+    534
+   ],
+   "retangulo_m": [
+    9.8,
+    -0.4,
+    22.3,
+    5.9
+   ],
+   "poligono_m": [
+    [
+     9.8,
+     -0.4
+    ],
+    [
+     22.3,
+     -0.4
+    ],
+    [
+     22.3,
+     4.44
+    ],
+    [
+     17.9,
+     4.44
+    ],
+    [
+     17.9,
+     5.9
+    ],
+    [
+     9.8,
+     5.9
+    ]
+   ],
+   "poligono_px": [
+    [
+     698,
+     305
+    ],
+    [
+     1153,
+     305
+    ],
+    [
+     1153,
+     481
+    ],
+    [
+     993,
+     481
+    ],
+    [
+     993,
+     534
+    ],
+    [
+     698,
+     534
+    ]
+   ],
+   "celulas_validas": 3453,
+   "area_valida_m2": 41.7
+  },
+  {
+   "nome": "Salão Balada",
+   "piso_y": 0.3,
+   "materiais_piso": [
+    "material_44",
+    "Madeira_05__Fileira_1"
+   ],
+   "retangulo_px": [
+    1335,
+    37,
+    1812,
+    281
+   ],
+   "retangulo_m": [
+    27.3,
+    -7.75,
+    40.42,
+    -1.06
+   ],
+   "poligono_m": null,
+   "poligono_px": null,
+   "celulas_validas": 4232,
+   "area_valida_m2": 51.1
+  }
+ ],
+ "niveis_piso": {
+  "patio": 0.3,
+  "hall": 0.85,
+  "ala_hall": 0.8,
+  "balada": 0.3
+ },
+ "blocos_movidos": [
+  {
+   "bloco": "Salão Balada (bloco isolado ~50 m ao sul no export)",
+   "translacao_m_modelo": [
+    17,
+    0,
+    -54.14
+   ]
+  }
+ ],
+ "recentro_modelo_m": [
+  4.83,
+  0,
+  -104.95
+ ],
+ "unidade_origem": "polegada (0.0254) Z_UP → metros Y-up pelo ColladaLoader",
+ "glb": {
+  "arquivo": "salao.glb",
+  "triangulos": 1076274,
+  "meshes": 69,
+  "bytes": 13090840,
+  "compressao": "gltfpack 1.2 -cc -vtf (EXT_meshopt_compression, posição 14 bits, UV float)",
+  "texturas": "44 do export, ≤1024 px, JPEG q4 (1 PNG com alfa)"
+ },
+ "conferencia_escala_m": {
+  "metodo": "raycast horizontal parede a parede no GLB final (y = 1,2–1,9 m); CAD em cm das plantas SOLAR VAZIO",
+  "salao_balada": {
+   "cad": [
+    12.7,
+    6.36
+   ],
+   "glb": [
+    13.03,
+    6.69
+   ],
+   "erro_pct": [
+    2.6,
+    5.2
+   ],
+   "nota": "largura medida da cortina do lado oeste (x 27,39) até a parede leste (x 40,42); do bordo do piso (27,30) dá 13,12 m (+3,3%)"
+  },
+  "patio_arvore": {
+   "cad": [
+    15.8,
+    15.68
+   ],
+   "glb": [
+    15.8,
+    15.67
+   ],
+   "erro_pct": [
+    0,
+    -0.1
+   ],
+   "nota": "medido em z=3 (largura) e x=-4,5 (profundidade); paredes oeste e norte são inclinadas como no CAD: em z=6 a largura cai para 14,25 (parede da plataforma do bar) e em x=3 a profundidade para 14,94"
+  },
+  "hall": {
+   "cad": [
+    8.32,
+    6.69
+   ],
+   "glb": [
+    8.07,
+    6.35
+   ],
+   "erro_pct": [
+    -3,
+    -5.1
+   ]
+  },
+  "ala_hall": {
+   "cad": [
+    4.49,
+    11.51
+   ],
+   "glb": [
+    4.4,
+    4.72
+   ],
+   "erro_pct": [
+    -2,
+    -59
+   ],
+   "nota": "no modelo a ala só tem 4,7 m abertos; o resto do comprimento do CAD está fechado em salas escuras (sanitários/serviço) fora da área útil"
+  }
+ },
+ "remocoes": {
+  "sobras_fora_dos_blocos": "354 objetos com centro em z_modelo > -44,5 m (prédio pequeno + lajes soltas ao sul, sem relação com as 3 áreas)",
+  "cenografia_pesada": "materiais 'black' + '__Translucent_Glass_Gold_2' (330 k triângulos, 700 peças escondidas acima do forro da Balada, y 3,14–3,97)",
+  "linhas_luzes_cameras": "3.866 linhas de aresta, 9 câmeras skp_camera_*"
+ },
+ "planta_render": {
+  "corte_y": 2.8,
+  "como": "plano de recorte (clipping) em y = 2,8 m no render ortográfico: tudo acima (telhados em 3,3–4,25 m, forro caixotado do pátio com 82 spots em 3,5–4,8 m, forro/telhado da Balada em 3,2–4,0 m) some; identificados pelo histograma de triângulos horizontais por altura da conversão e pelo render sem corte (topo-sem-corte.png)"
+ }
+}
