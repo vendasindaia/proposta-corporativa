@@ -307,6 +307,10 @@ html.sem-io .reveal{opacity:1;transform:none;}
 /* peças do SVG */
 .regua__linha{stroke:var(--taupe);stroke-width:2.5;fill:none;opacity:.7;}
 .regua__txt{font-family:var(--sans);font-size:24px;letter-spacing:.12em;fill:var(--taupe);opacity:.85;}
+/* v18.08-23: rótulos das áreas do ambiente (só quando o registro nomeia as áreas) */
+.area__fundo{fill:rgba(247,248,249,.82);stroke:rgba(36,43,51,.18);stroke-width:1.5;}
+.area__txt{font-family:var(--serif);font-weight:600;font-size:34px;fill:var(--brown-deep);letter-spacing:.02em;}
+.area__sub{font-family:var(--sans);font-size:18px;letter-spacing:.14em;fill:var(--taupe);}
 .mesa{cursor:grab;touch-action:none;outline:none;}
 .mesa--drag{cursor:grabbing;}
 /* desenho esquemático = RESERVA: some quando a foto da mesa (sprite) carrega */
@@ -830,6 +834,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
                     </symbol>
                   </defs>
                   <g id="reguaCamada" class="regua" aria-hidden="true"></g>
+                  <g id="areasCamada" class="areas" aria-hidden="true"></g>
                   <g id="mesasCamada"></g>
                 </svg>
               </div>
@@ -992,7 +997,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-22</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-23</span></p>
   </div>
 </footer>
 
@@ -1446,17 +1451,33 @@ const AMBIENTES = {
     glb:{src:'assets/ambientes/solar/salao.glb', cal:{px0:960, x0:17.003, py0:432, z0:3.0915},
       pisoY:0.30, corteY:2.8, luzCentrada:true},
     /* PROPS (v18.08-22) — objetos 3D plantados sobre a maquete; só na cena
-       (3D, tour, 360° gerado): a planta 2D e a máscara NÃO mudam. A árvore
-       do pátio não veio no export do Solar: é a figueira do salao-real.glb
-       de Itapema (materiais tree_trunk/Leather_Red_Brown/Leaf1/Leaf2),
-       recortada, podada para a caixa de vidro (3,6 × 4,2 m; copa só acima
-       do telhado, 4,6 m) e reescalada para 9 m — assets/ambientes/solar/
-       arvore.glb, 1,7 MB, base do tronco na origem, metros do Solar.
+       (3D, tour, 360° gerado): a planta 2D e a máscara NÃO mudam.
+       v18.08-23: a árvore é a ÁRVORE REAL exportada pela arquiteta
+       (Árvore.dae do SketchUp, polegadas/Z_UP → metros/Y-up pelo mesmo
+       ColladaLoader do pipeline do salão): 11,36 m de altura, tronco com a
+       casca texturizada (Leather_Red_Brown), folhas doubleSided. O DAE veio
+       num arquivo NOVO (a "Heather" do template na origem; base do tronco
+       em 16,6 × −15,8 m, a 91 m do canteiro se aplicado o recentro do
+       salão), então NÃO está nas coordenadas do Solar: o GLB foi recentrado
+       na base do tronco (x,z) e no chão (y) e é plantado por px, como antes.
+       Inteira, a copa (12,7 × 12,0 m, folhas desde 1,57 m) atravessava a
+       caixa de vidro e o forro — decisão do dono (27/08): PODADA com a
+       receita da v22, no giro que deixa mais galhos no poço (rotY 0: 24,9 %
+       contra 23,7/23,3/22,9 % em 180/90/270): abaixo do topo da caixa de
+       vidro (4,8 m) só fica o que está dentro do poço medido (3,25 × 4,0 m;
+       qualquer vértice fora tira o triângulo/cacho inteiro) e fora dele o
+       corte sobe em cone (0,45 m/m além de 2 m do eixo) para não sobrar toco
+       de galho solto sobre o telhado; a copa acima do telhado fica inteira.
+       Saíram 41,7 % dos triângulos de galho e 43,9 % dos cachos de folha;
+       as folhas restantes simplificadas a 30 % (erro 3 mm) e sem normais
+       (flatShading); tronco/casca doubleSided para os cortes no vidro não
+       mostrarem tubo oco → 291 k tris, 1,54 MB. Backups no scratchpad
+       (arvore/real/: v22 podada de Itapema e v23 inteira).
        px = centro do canteiro de grama (356,283 → x 0,41 · z −1,00);
        alt = topo do canteiro (0,35) acima do pisoY do pátio (0,30).
        O corte do telhado (corteY) vale só para o GLB do ambiente: a copa
        aparece inteira na vista aérea. */
-    props:[{glb:'assets/ambientes/solar/arvore.glb', nome:'figueira', px:{x:356,y:283}, alt:.05, escala:1, rotY:0}],
+    props:[{glb:'assets/ambientes/solar/arvore.glb', nome:'arvore', px:{x:356,y:283}, alt:.05, escala:1, rotY:0}],
     telao:false,
     envMap:'assets/ambientes/solar/panos/arvore.jpg',
     camera:{alvoPx:null, orb:{theta:.6, phi:.78, raio:27}},   // alvo = centro da área principal
@@ -2358,6 +2379,21 @@ function montarPlanta(){
   document.getElementById('cadeirasMesa').innerHTML = Array.from({length:8},(_,i)=>
     `<g transform="rotate(${i*45})"><rect class="mesa__cadeira" x="-8.5" y="-45.5" width="17" height="10.5" rx="4"/></g>`).join('');
   /* régua de escala: 5 m na escala calibrada, canto inferior esquerdo do piso */
+  /* rótulos das áreas (v18.08-23): centro de cada área nomeada do registro —
+     pedido do dono: no Solar ficava confuso montar o layout sem saber o que é cada ambiente */
+  const camAreas = $('#areasCamada');
+  camAreas.innerHTML = (AMB.areas||[]).filter(a=>a.nome).map(a=>{
+    /* etiqueta no CANTO superior esquerdo da área (o centro costuma ter mesa) */
+    const x0 = a.poligono && a.poligono.length ? Math.min(...a.poligono.map(p=>p[0])) : a.x0;
+    const y0 = a.poligono && a.poligono.length ? Math.min(...a.poligono.map(p=>p[1])) : a.y0;
+    const sub = a.pisoY!=null ? `PISO ${a.pisoY.toFixed(2).replace('.',',')} M` : '';
+    const w = Math.max(220, a.nome.length*19+60), h = sub ? 78 : 56;
+    const cx = x0 + w/2 + 18, cy = y0 + h/2 + 18;
+    return `<g transform="translate(${cx.toFixed(1)},${(cy-h/2).toFixed(1)})">`+
+      `<rect class="area__fundo" x="${-w/2}" y="0" width="${w}" height="${h}" rx="12"/>`+
+      `<text class="area__txt" x="0" y="${sub?36:38}" text-anchor="middle">${a.nome}</text>`+
+      (sub?`<text class="area__sub" x="0" y="62" text-anchor="middle">${sub}</text>`:'')+`</g>`;
+  }).join('');
   const L = Math.round(5*pxm*10)/10;
   const regua = $('#reguaCamada');
   regua.setAttribute('transform', `translate(${SALAO_PRINCIPAL.x0+22},${SALAO_PRINCIPAL.y1-24})`);
