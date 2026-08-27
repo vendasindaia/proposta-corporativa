@@ -1003,7 +1003,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-25</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-26</span></p>
   </div>
 </footer>
 
@@ -1451,6 +1451,24 @@ const AMBIENTES = {
        poligono:[[1335,37],[1812,37],[1812,281],[1335,281]]}
     ],
     principal:0,
+    /* ABAS POR AMBIENTE (v18.08-26, decisão do dono: 'prefiro que vire aba'):
+       cada ambiente do Solar é uma aba do 2D, com recorte próprio e máscara
+       recortada à área (mascaraDaArea). O 3D, o tour e o 360 continuam lendo
+       AMB.areas (as três, como antes); mesa de aba nova leva m.p no link. */
+    pisos:[
+      {id:'patio', nome:'Pátio da Árvore', mascaraDaArea:true,
+       recorte:{x:60, y:11, w:660, h:634},
+       areas:[{nome:'Pátio da Árvore', x0:90, x1:691, y0:41, y1:614, pisoY:0.30,
+         poligono:[[160,41],[691,97],[691,614],[90,614]]}]},
+      {id:'hall', nome:'Hall / Cerimônia', pisoY:0.85, mascaraDaArea:true,
+       recorte:{x:668, y:275, w:520, h:290}, mesasPadrao:[],
+       areas:[{nome:'Hall / Cerimônia', x0:698, x1:1153, y0:305, y1:534, pisoY:0.85,
+         poligono:[[698,305],[1153,305],[1153,481],[993,481],[993,534],[698,534]]}]},
+      {id:'balada', nome:'Salão Balada', pisoY:0.30, mascaraDaArea:true,
+       recorte:{x:1305, y:7, w:540, h:305}, mesasPadrao:[],
+       areas:[{nome:'Salão Balada', x0:1335, x1:1812, y0:37, y1:281, pisoY:0.30,
+         poligono:[[1335,37],[1812,37],[1812,281],[1335,281]]}]}
+    ],
     mesasPadrao:[
       {x:192,y:104},{x:342,y:104},{x:492,y:104},
       {x:162,y:253},{x:450,y:253},{x:600,y:253},
@@ -1581,9 +1599,9 @@ const AMBIENTES = {
     pxm:43.55102,
     mascara:{b64:MASCARA_MEZ_TERREO_B64, w:480, h:270, passo:4},
     areas:[
-      {nome:'Ala esquerda', x0:563, x1:1398, y0:108, y1:908, pisoY:0.18, rotuloPiso:'TÉRREO · SOB O DECK',
+      {nome:'Ala esquerda', x0:563, x1:1398, y0:108, y1:908, pisoY:0.18,
        poligono:[[563,108],[1011,108],[1011,495],[1398,495],[1398,908],[563,908]]},   /* o L inteiro: distribuir por fileiras sobre a máscara */
-      {nome:'Ala do bar',   x0:1011, x1:1398, y0:495, y1:908, pisoY:0.18, rotuloPiso:'TÉRREO · PÉ-DIREITO DUPLO'}
+      {nome:'Ala do bar',   x0:1011, x1:1398, y0:495, y1:908, pisoY:0.18}
     ],
     principal:0,
     /* LAYOUT PADRÃO — fixado do distribuir automático de cada piso (v18.08-24):
@@ -1595,7 +1613,7 @@ const AMBIENTES = {
        planta:{src:'assets/ambientes/mezanino/planta-mezanino.jpg', w:1920, h:1080,
          alt:'Planta do deck do mezanino vista de cima', recorte:{x:470, y:60, w:980, h:960}},
        mascara:{b64:MASCARA_MEZ_DECK_B64, w:480, h:270, passo:4},
-       areas:[{nome:'Deck do mezanino', x0:563, x1:1011, y0:108, y1:908, pisoY:3.30, rotuloPiso:'+3,1 M · DECK DE MADEIRA',
+       areas:[{nome:'Deck do mezanino', x0:563, x1:1011, y0:108, y1:908, pisoY:3.30,
          poligono:[[563,108],[1011,108],[1011,908],[563,908]]}],
        principal:0, mesasPadrao:[{x:599,y:132},{x:779,y:132},{x:983,y:132},{x:647,y:310},{x:927,y:310},{x:741,y:489},{x:741,y:667},{x:741,y:846}]}
     ],
@@ -1673,20 +1691,39 @@ const MASCARA = decodificarMascara(AMB.mascara.b64);
    e o link levam todos. Tudo o que é 3D/tour/360 continua ancorado no térreo
    (AREA, SALAO_PRINCIPAL, AMB.areas) — o piso só muda o que o cliente edita. */
 const PISOS = ((AMB.pisos && AMB.pisos.length) ? AMB.pisos : [{id:'terreo', nome:'Térreo'}]).map((p,i)=> i===0
-  ? {...p, id:p.id||'terreo', nome:p.nome||'Térreo', planta:AMB.planta, mascara:AMB.mascara, areas:AMB.areas,
-     principal:AMB.principal, mesasPadrao:AMB.mesasPadrao||[], pisoY:AMB.glb.pisoY, _mascara:MASCARA}
+  ? {...p, id:p.id||'terreo', nome:p.nome||'Térreo', planta:p.planta||AMB.planta, mascara:p.mascara||AMB.mascara,
+     areas:p.areas||AMB.areas, principal:p.principal!=null ? p.principal : AMB.principal,
+     mesasPadrao:p.mesasPadrao||AMB.mesasPadrao||[], pisoY:p.pisoY!=null ? p.pisoY : AMB.glb.pisoY}
   : {...p, areas:p.areas||[], principal:p.principal||0, mesasPadrao:p.mesasPadrao||[]});
 let PISO_I = 0, PISO = PISOS[0];
 const pisoDe = m=>{ const p = m ? (m.p|0) : 0; return (p>0 && p<PISOS.length) ? p : 0; };
 function mascaraDoPiso(p){
   const P = PISOS[p] || PISOS[0];
-  if(P._mascara===undefined) P._mascara = P.mascara ? decodificarMascara(P.mascara.b64) : null;
-  return P._mascara;
+  if(P._mascara!==undefined) return P._mascara;
+  const fonte = P.mascara || AMB.mascara;
+  let m = fonte ? decodificarMascara(fonte.b64) : null;
+  /* aba-ambiente (v18.08-26): a máscara da aba é a do piso RECORTADA à sua
+     área — a mesa da aba do Hall não escapa para o pátio. O tour/360 seguem
+     usando a máscara inteira (pisoValido sem o argumento p). */
+  if(m && P.mascaraDaArea){
+    const G = P.mascara ? {w:P.mascara.w, h:P.mascara.h, passo:P.mascara.passo} : MG;
+    const A = P.areas[P.principal||0];
+    const dentro = (x,y)=> A.poligono ? dentroPoligono(A.poligono, x, y) : (x>=A.x0 && x<=A.x1 && y>=A.y0 && y<=A.y1);
+    const c = new Uint8Array(m.length);
+    for(let gy=0; gy<G.h; gy++) for(let gx=0; gx<G.w; gx++){
+      const i = gy*G.w+gx;
+      if((m[i>>3] & (1<<(i&7))) && dentro(gx*G.passo, gy*G.passo)) c[i>>3] |= (1<<(i&7));
+    }
+    m = c;
+  }
+  P._mascara = m;
+  return m;
 }
 const gradeDoPiso = p=>{ const P = PISOS[p] || PISOS[0]; return P.mascara ? {w:P.mascara.w, h:P.mascara.h, passo:P.mascara.passo} : MG; };
-/* p = piso (ausente = térreo): o 3D, o tour e o 360 chamam sem p; o editor passa PISO_I */
+/* p ausente = máscara INTEIRA do piso térreo (3D, tour, 360); p numérico
+   (0 inclusive) = máscara da ABA p — que pode ser recortada à área */
 function pisoValido(x, y, p){
-  const M = p ? mascaraDoPiso(p) : MASCARA, G = p ? gradeDoPiso(p) : MG;
+  const M = (p==null) ? MASCARA : mascaraDoPiso(p), G = (p==null) ? MG : gradeDoPiso(p);
   if(!M) return false;
   const gx = limita(Math.round(x / G.passo), 0, G.w-1);
   const gy = limita(Math.round(y / G.passo), 0, G.h-1);
@@ -1715,7 +1752,7 @@ function clampMesaRect(x, y, p){ /* reserva: só roda se a máscara falhar no de
 }
 function clampMesa(x, y, p){
   p = (p>0 && p<PISOS.length) ? p : 0;
-  const M = p ? mascaraDoPiso(p) : MASCARA, G = p ? gradeDoPiso(p) : MG, PL = PISOS[p].planta || AMB.planta;
+  const M = mascaraDoPiso(p), G = gradeDoPiso(p), PL = PISOS[p].planta || AMB.planta;
   if(!M) return clampMesaRect(x, y, p);
   x = limita(x, 0, PL.w-1); y = limita(y, 0, PL.h-1);
   if(pisoValido(x, y, p)) return {x: Math.round(x), y: Math.round(y), p};
@@ -2514,7 +2551,7 @@ function montarPlanta(){
      só o retângulo `recorte` (px absolutos), sem mudar nenhuma coordenada:
      a <img> vira só o gabarito de proporção (escondida) e o fundo passa a
      ser um <image> dentro do SVG, que o viewBox recorta */
-  const R = PL.recorte;
+  const R = PISO.recorte || PL.recorte;   /* recorte da ABA (Solar) ou da planta (Mezanino) */
   /* quadro do editor: com recorte ou seletor de pisos, a altura passa a ser a
      do conteúdo (barra de pisos + planta inteira) em vez do 16:10 fixo — senão
      a planta quadrada do Mezanino sai cortada em cima e embaixo. Salão e
@@ -2553,21 +2590,9 @@ function montarPlanta(){
   document.getElementById('cadeirasMesa').innerHTML = Array.from({length:8},(_,i)=>
     `<g transform="rotate(${i*45})"><rect class="mesa__cadeira" x="-8.5" y="-45.5" width="17" height="10.5" rx="4"/></g>`).join('');
   /* régua de escala: 5 m na escala calibrada, canto inferior esquerdo do piso */
-  /* rótulos das áreas (v18.08-23): centro de cada área nomeada do registro —
-     pedido do dono: no Solar ficava confuso montar o layout sem saber o que é cada ambiente */
-  const camAreas = $('#areasCamada');
-  camAreas.innerHTML = (PISO.areas||[]).filter(a=>a.nome).map(a=>{
-    /* etiqueta no CANTO superior esquerdo da área (o centro costuma ter mesa) */
-    const x0 = a.poligono && a.poligono.length ? Math.min(...a.poligono.map(p=>p[0])) : a.x0;
-    const y0 = a.poligono && a.poligono.length ? Math.min(...a.poligono.map(p=>p[1])) : a.y0;
-    const sub = a.rotuloPiso!=null ? a.rotuloPiso : (a.pisoY!=null ? `PISO ${a.pisoY.toFixed(2).replace('.',',')} M` : '');
-    const w = Math.max(220, a.nome.length*19+60), h = sub ? 78 : 56;
-    const cx = x0 + w/2 + 18, cy = y0 + h/2 + 18;
-    return `<g transform="translate(${cx.toFixed(1)},${(cy-h/2).toFixed(1)})">`+
-      `<rect class="area__fundo" x="${-w/2}" y="0" width="${w}" height="${h}" rx="12"/>`+
-      `<text class="area__txt" x="0" y="${sub?36:38}" text-anchor="middle">${a.nome}</text>`+
-      (sub?`<text class="area__sub" x="0" y="62" text-anchor="middle">${sub}</text>`:'')+`</g>`;
-  }).join('');
+  /* v18.08-26 (decisão do dono): a identificação do ambiente é a ABA —
+     nenhum título desenhado dentro da planta */
+  $('#areasCamada').innerHTML = '';
   const L = Math.round(5*pxm*10)/10;
   const regua = $('#reguaCamada');
   const AP = PISO.areas[PISO.principal] || SALAO_PRINCIPAL;
@@ -4140,7 +4165,10 @@ function tourRoteiroGenerico(){
      máscara do piso (o deck do Mezanino é um L estreito), preferindo a
      coluna com menos mesas no caminho, olhando o térreo lá embaixo */
   for(let pi=1; pi<PISOS.length; pi++){
-    const Pz = PISOS[pi]; if(Pz.pisoY==null) continue;
+    const Pz = PISOS[pi];
+    /* aba de ambiente no mesmo chão (Solar: hall/balada) não ganha dolly
+       próprio — o roteiro por áreas já passa nela; só nível ≥1,5 m acima */
+    if(Pz.pisoY==null || Pz.pisoY < PISOS[0].pisoY + 1.5) continue;
     const Gz = gradeDoPiso(pi), Mz = mascaraDoPiso(pi); if(!Mz) continue;
     const mesasZ = PROPOSTA.mesas.filter(m=>pisoDe(m)===pi);
     let melhor = null;
