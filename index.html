@@ -643,6 +643,19 @@ html.sem-io .reveal{opacity:1;transform:none;}
 <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
 
 <!-- ===== TOPBAR ===== -->
+<script>
+/* MODO SÓ-LAYOUT (?modo=layout, v18.08-31): dentro do CRM abre apenas a
+   dinâmica do layout — editor 2D, maquete 3D e tour. A URL completa da
+   proposta é um CONSUMIDOR desta base, não o que o sistema embute. */
+if(new URLSearchParams(location.search).get('modo')==='layout') document.documentElement.classList.add('so-layout');
+</script>
+<style>
+html.so-layout header.topbar, html.so-layout section:not(#planta), html.so-layout footer,
+html.so-layout .tierbar, html.so-layout .expirada{display:none !important;}
+html.so-layout #planta .sec__meta{display:none;}
+html.so-layout #planta{padding-top:34px !important;}
+html.so-layout body{padding-bottom:0;}
+</style>
 <header class="topbar" id="topbar">
   <div class="wrap topbar__inner">
     <a class="brand" href="#topo" aria-label="DIMY — voltar ao início da proposta">
@@ -1007,7 +1020,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-30</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-31</span></p>
   </div>
 </footer>
 
@@ -1977,6 +1990,7 @@ function lerLayoutDaURL(){
 }
 const LAYOUT_SUGERIDO = lerLayoutDaURL();  /* layout sugerido vindo do link (ou null) */
 const MODO_EQUIPE = new URLSearchParams(location.search).get('equipe')==='1';
+const MODO_LAYOUT = new URLSearchParams(location.search).get('modo')==='layout';   /* só a dinâmica do layout (CRM) */
 
 /* ---- validade efetiva (V do hash > padrão impresso) ---- */
 const VALIDADE_PADRAO = '2026-08-25';
@@ -2757,8 +2771,8 @@ function pintarPlanta(){
   const el = $('#plantaCont');
   el.textContent = n===0
     ? 'Nenhuma mesa ainda — comece pelo distribuir automático.'
-    : `${n} ${n===1?'mesa':'mesas'} · ${n}×${MESA.lugares} = ${lug} lugares — ` +
-      (lug>=conv ? `atende os ${conv} convidados` : `faltam ${conv-lug}`) +
+    : `${n} ${n===1?'mesa':'mesas'} · ${n}×${MESA.lugares} = ${lug} lugares` +
+      (MODO_LAYOUT ? '' : ' — ' + (lug>=conv ? `atende os ${conv} convidados` : `faltam ${conv-lug}`)) +
       (PISOS.length>1 ? ' · ' + PISOS.map((P,i)=>`${P.nome} ${PROPOSTA.mesas.filter(m=>pisoDe(m)===i).length}`).join(' · ') : '');
   el.classList.toggle('ok', n>0 && lug>=conv);
   pintarPisos();
@@ -2927,7 +2941,7 @@ $('#btnSalvarLayout').addEventListener('click', ()=>{
    consultor no CRM e os valores saem do snapshot da proposta
    (proposta_tokens.expires_at, servicos_locacao_valores, crédito por
    item, escassez do CRM com override do consultor) — nada viaja na URL. */
-if(MODO_EQUIPE){
+if(MODO_EQUIPE && !MODO_LAYOUT){
   const card = document.createElement('div');
   card.className = 'equipe-card'; card.id = 'equipeCard';
   const d7 = new Date(); d7.setDate(d7.getDate()+7);   /* validade inicial: hoje+7 */
@@ -4584,6 +4598,11 @@ function aplicarAmbiente(){
   $('#espacoNome').textContent = AMB.nome;
   $('#espacoCidade').textContent = AMB.cidadeLonga;
   $('.js-espaco-em').textContent = AMB.emTitulo;
+  /* modo só-layout (CRM): título neutro — aqui não é a proposta de ninguém */
+  if(MODO_LAYOUT){
+    $('#planta .sec__title').innerHTML = `Layout · <em>${AMB.nome}</em>`;
+    $('#planta .sec__intro').textContent = 'Monte o layout em 2D, confira em 3D e grave o tour do espaço.';
+  }
   $('.js-galeria-intro').textContent = AMB.galeriaIntro;
   $('#panoNota').textContent = `Imagem 360° · ${AMB.nota360}`;
   const cta = $('#ctaImg');
