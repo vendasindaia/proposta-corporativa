@@ -1,0 +1,526 @@
+{
+ "ambiente": "mirante",
+ "nome": "Mirante da Lagoa (Florianópolis) — térreo + lounge superior",
+ "pxm": 40,
+ "largura_px": 1920,
+ "altura_px": 1080,
+ "offset_x_m": -23.7,
+ "offset_z_m": -14.1,
+ "formula": "x_m = px / pxm + offset_x_m ; z_m = py / pxm + offset_z_m  (topo da imagem = -Z, direita = +X)",
+ "glbcal": {
+  "px0": 960,
+  "x0": 0.3,
+  "py0": 540,
+  "z0": -0.6
+ },
+ "piso_y": 0.35,
+ "bbox": {
+  "min": [
+   -13.434,
+   -3.118,
+   -10.346
+  ],
+  "max": [
+   14.042,
+   8.6,
+   9.187
+  ]
+ },
+ "grade": {
+  "w": 480,
+  "h": 270,
+  "passo": 4,
+  "celulas_validas": 22647,
+  "tampo_raio_m": 0.4,
+  "tolerancia_m": 0.15,
+  "formato": "bitpack LSB-first, i = gy*w + gx, base64"
+ },
+ "pisos": [
+  {
+   "id": "terreo",
+   "nome": "Térreo",
+   "piso_y": 0.35,
+   "planta": "planta.jpg",
+   "mascara": "mascara.b64",
+   "corte_render_y": 2.8,
+   "grade": {
+    "w": 480,
+    "h": 270,
+    "passo": 4,
+    "celulas_validas": 22647,
+    "tampo_raio_m": 0.4,
+    "tolerancia_m": 0.15,
+    "formato": "bitpack LSB-first, i = gy*w + gx, base64"
+   },
+   "m2_mascara": 226.5
+  },
+  {
+   "id": "superior",
+   "nome": "Lounge Superior",
+   "piso_y": 3.7,
+   "planta": "planta-superior.jpg",
+   "mascara": "mascara-superior.b64",
+   "corte_render_y": 6.9,
+   "grade": {
+    "w": 480,
+    "h": 270,
+    "passo": 4,
+    "celulas_validas": 8114,
+    "tampo_raio_m": 0.4,
+    "tolerancia_m": 0.15,
+    "formato": "bitpack LSB-first, i = gy*w + gx, base64"
+   },
+   "m2_mascara": 81.1
+  }
+ ],
+ "areas": [
+  {
+   "nome": "Hall dos Espelhos",
+   "piso": "terreo",
+   "piso_y": 0.35,
+   "retangulo_px": [
+    418,
+    394,
+    991,
+    932
+   ],
+   "m2_mascara": 135.9,
+   "celulas_validas": 13586,
+   "nota": "bloco oeste; paredes revestidas de cortina metálica ondulada e espelhos; divisória ondulada baixa (2,6 m) cruza o ambiente em z≈0"
+  },
+  {
+   "nome": "Salão do Mirante",
+   "piso": "terreo",
+   "piso_y": 0.35,
+   "retangulo_px": [
+    991,
+    196,
+    1474,
+    932
+   ],
+   "m2_mascara": 90.6,
+   "celulas_validas": 9061,
+   "nota": "trapézio com fachada diagonal de vidro (o mirante); cortinas DOSSEL na parede da entrada; forro branco inclinado"
+  },
+  {
+   "nome": "Lounge Superior",
+   "piso": "superior",
+   "piso_y": 3.7,
+   "retangulo_px": [
+    417,
+    522,
+    864,
+    932
+   ],
+   "m2_mascara": 81.1,
+   "celulas_validas": 8114,
+   "nota": "salão único com piso de grama sintética sobre a laje; duas paredes cegas (oeste e lado da entrada) e vidro sobre mureta nas demais"
+  }
+ ],
+ "areas_mascara": {
+  "terreo": [
+   {
+    "nome": "Hall dos Espelhos",
+    "piso_y": 0.35,
+    "materiais_piso": [
+     "__"
+    ],
+    "retangulo_px": [
+     418,
+     394,
+     991,
+     932
+    ],
+    "retangulo_m": [
+     -13.25,
+     -4.26,
+     1.08,
+     9.19
+    ],
+    "poligono_m": [
+     [
+      -13.25,
+      -1.5
+     ],
+     [
+      -12.1,
+      -1.5
+     ],
+     [
+      -12.1,
+      -3.1
+     ],
+     [
+      -6.55,
+      -3.1
+     ],
+     [
+      -6.55,
+      -4.26
+     ],
+     [
+      1.08,
+      -4.26
+     ],
+     [
+      1.08,
+      9.19
+     ],
+     [
+      -13.25,
+      9.19
+     ]
+    ],
+    "poligono_px": [
+     [
+      418,
+      504
+     ],
+     [
+      464,
+      504
+     ],
+     [
+      464,
+      440
+     ],
+     [
+      686,
+      440
+     ],
+     [
+      686,
+      394
+     ],
+     [
+      991,
+      394
+     ],
+     [
+      991,
+      932
+     ],
+     [
+      418,
+      932
+     ]
+    ],
+    "celulas_validas": 13586,
+    "area_valida_m2": 135.9
+   },
+   {
+    "nome": "Salao do Mirante",
+    "piso_y": 0.35,
+    "materiais_piso": [
+     "__"
+    ],
+    "retangulo_px": [
+     991,
+     196,
+     1474,
+     932
+    ],
+    "retangulo_m": [
+     1.08,
+     -9.19,
+     13.14,
+     9.19
+    ],
+    "poligono_m": [
+     [
+      1.08,
+      -9.19
+     ],
+     [
+      13.14,
+      -9.19
+     ],
+     [
+      2.02,
+      9.19
+     ],
+     [
+      1.08,
+      9.19
+     ]
+    ],
+    "poligono_px": [
+     [
+      991,
+      196
+     ],
+     [
+      1474,
+      196
+     ],
+     [
+      1029,
+      932
+     ],
+     [
+      991,
+      932
+     ]
+    ],
+    "celulas_validas": 9061,
+    "area_valida_m2": 90.6
+   }
+  ],
+  "superior": [
+   {
+    "nome": "Lounge Superior",
+    "piso_y": 3.7,
+    "materiais_piso": [
+     "__Vegetation_Grass1_5",
+     "_0128_White"
+    ],
+    "retangulo_px": [
+     417,
+     522,
+     864,
+     932
+    ],
+    "retangulo_m": [
+     -13.28,
+     -1.04,
+     -2.09,
+     9.19
+    ],
+    "poligono_m": null,
+    "poligono_px": null,
+    "celulas_validas": 8114,
+    "area_valida_m2": 81.1
+   }
+  ]
+ },
+ "escada": {
+  "existe": false,
+  "nota": "nenhuma escada modelada em nenhum dos dois exports e nenhum vão na laje (varredura do mapa de altura: nenhuma célula do bloco oeste com topo <3,2 m). O acesso vertical real não está representado; pé/topo não informados para não inventar."
+ },
+ "pilares": [],
+ "pilares_nota": "sem pilares dentro da área caminhável; os montantes pretos ficam na linha das fachadas de vidro e a máscara já os exclui por material/altura",
+ "bar": {
+  "volume_ripado_px": [
+   818,
+   213,
+   992,
+   510
+  ],
+  "volume_ripado_m": [
+   -3.24,
+   -8.78,
+   1.1,
+   -1.35
+  ],
+  "altura_m": 3.59,
+  "nota": "volume de madeira ripada (material_12) entre o corredor de entrada e o hall — bar/apoio; a máscara o exclui"
+ },
+ "porta_entrada": {
+  "parede": "fachada da entrada (z_modelo=-24,9; topo da imagem)",
+  "vao_m": {
+   "x0": 1.04,
+   "x1": 5.97,
+   "z": -8.96
+  },
+  "vao_px": {
+   "x0": 990,
+   "x1": 1187,
+   "y": 204
+  },
+  "centro_px": [
+   1088,
+   204
+  ],
+  "largura_m": 4.93,
+  "evidencia": "portas de correr com caixilho de alumínio preto (Aluminio_Preto_Fosco + Color_M08 + material_36), y 0,33–3,57",
+  "inicio_tour": {
+   "m": [
+    3.5,
+    -7.5
+   ],
+   "px": [
+    1088,
+    264
+   ],
+   "olhando_para": {
+    "m": [
+     2.0,
+     2.0
+    ],
+    "px": [
+     1028,
+     644
+    ]
+   },
+   "nota": "entra-se rumo ao interior do salão do mirante (+z na imagem)"
+  }
+ },
+ "niveis_piso": {
+  "piso_terreo": 0.35,
+  "deck_externo_rebaixado": -0.1,
+  "topo_paredes_onduladas": 2.61,
+  "forro_hall": 3.0,
+  "laje_cobertura": 3.7,
+  "borda_laje_rebaixada": 3.6,
+  "pergolado_telhado_mirante": 3.9,
+  "lamina_diagonal_telhado": 4.6,
+  "piso_superior": 3.7,
+  "topo_paredes_superior": 7.59,
+  "cobertura_superior": [
+   8.1,
+   8.6
+  ]
+ },
+ "altura_livre": {
+  "terreo_ate_forro_m": 2.65,
+  "lounge_ate_deck_madeira_m": 4.4,
+  "nota": "forro do hall em 3,0 sobre piso 0,35; cobertura do lounge 8,1–8,6 sobre piso 3,70"
+ },
+ "hipotese_origem": {
+  "pergunta": "os dois exports compartilham a origem (superior assenta sobre o térreo)?",
+  "resultado": "NÃO nos arquivos: térreo em X[2,36..29,83]×Z[-26,09..-6,55] (piso 0,35, laje 3,70) e superior em X[-28,16..-16,81]×Z[-10,86..-0,63] (piso no 0 local) — regiões DISJUNTAS, afastadas ~19 m em X (caso Mezanino×Salão).",
+  "translacao_aplicada_m": [
+   30.52,
+   3.7,
+   -5.92
+  ],
+  "ancoras": {
+   "dx_30_52": "fachada externa oeste do térreo (x=2,36) recebe a fachada externa oeste do superior (x=-28,16): 2,36-(-28,16)=30,52",
+   "dz_-5_92": "fachada externa do térreo em z=-6,55 recebe a fachada externa do superior em z=-0,63: -6,55-(-0,63)=-5,92",
+   "dy_3_70": "topo da laje do térreo (nível 3,70, maior área do histograma: 595 m²) recebe o piso local 0,00 do superior"
+  },
+  "por_que": "o export foi nomeado como piso superior do mesmo prédio; empilhar as duas fachadas cegas do lounge sobre as duas fachadas externas do bloco oeste é a única ancoragem em que parede assenta sobre parede, e deixa as faces envidraçadas do lounge abertas para o terraço e para o lado do mirante. Precedente Solar: o SketchUp exporta blocos onde o modelador os deixou.",
+  "leitura_alternativa": "os dois exports também fecham como implantação de encosta (dois pavilhões vizinhos ~19 m, origem de planta compartilhada); sem terreno nos arquivos não há número para o desnível — se essa leitura prevalecer, basta reconverter sem moverBlocos.",
+  "decisao": "empilhado com a translação documentada acima; nada além da translação (sem rotação, sem escala)"
+ },
+ "blocos_movidos": [
+  {
+   "bloco": "export Mirante Superior Vazio inteiro (77 meshes)",
+   "dx": 30.52,
+   "dy": 3.7,
+   "dz": -5.92
+  }
+ ],
+ "recentro_modelo_m": [
+  15.79,
+  0,
+  -15.74
+ ],
+ "unidade_origem": "SketchUp COLLADA, unit meter=0.0254 (polegada), Z_UP; o conversor assa metros/Y-up",
+ "bbox_modelo": {
+  "terreo": {
+   "min": [
+    2.356,
+    -3.118,
+    -26.086
+   ],
+   "max": [
+    29.832,
+    4.595,
+    -6.553
+   ]
+  },
+  "superior_antes_da_translacao": {
+   "min": [
+    -28.162,
+    -0.15,
+    -10.858
+   ],
+   "max": [
+    -16.81,
+    4.9,
+    -0.633
+   ]
+  }
+ },
+ "glb": {
+  "arquivo": "salao.glb",
+  "bytes": 2373544,
+  "mb": 2.4,
+  "triangulos": 58029,
+  "meshes": 32,
+  "materiais": 32,
+  "compressao": "gltfpack -cc (EXT_meshopt_compression); sem -vtf (nenhum aviso de erro de UV)",
+  "texturas": "16 imagens JPEG embutidas",
+  "triangulos_dae_terreo_com_instancias": 4488892,
+  "triangulos_dae_superior": 99252,
+  "triangulos_finais": 58029
+ },
+ "conferencia_cad": {
+  "fonte": "sem CAD disponível para o Mirante; conferência interna GLB × planta",
+  "medidas_raycast_m": {
+   "hall_largura_x_em_z5": 18.19,
+   "salao_mirante_x_em_z_menos4": 8.66,
+   "salao_mirante_z_em_x8": 7.37,
+   "lounge_superior_x": 11.0,
+   "lounge_superior_z_ate_vidro": 8.87
+  },
+  "nota": "raycasts parede-a-parede do próprio GLB batem com o traçado da planta (mesma fonte); a escala vem da unidade exata do DAE (0,0254 m)"
+ },
+ "remocoes": {
+  "cortina_de_led_instanciada": [
+   {
+    "material": "material (fios)",
+    "pecas": 2664,
+    "triangulos": 2600064
+   },
+   {
+    "material": "__Color_D02_1+Emissive1 (pontos de luz)",
+    "pecas": 1776,
+    "triangulos": 1619712
+   }
+  ],
+  "nota_instanciados": "cortina de luzinhas na parede divisória (x_modelo≈16,9, z -24,4..-17,2): removeInstanciadas {minInst:100, minTris:50}; a parede escura por trás permanece",
+  "materiais_removidos": [
+   "Material__1 (casca sem textura duplicada das cortinas do lounge; ficou a Carpet_Berber_Multi)"
+  ],
+  "linhas_luzes_cameras": {
+   "terreo": 4037,
+   "superior": 6
+  },
+  "nao_removido": "espelhos, maçanetas, portas, ripados, pergolado e postes — estrutura ou acabamento visível"
+ },
+ "simplificacao": {
+  "DOSSEL_TWO_SIDED": "cortinas do salão: 65.708→3.942 tris (weldPos 0,12 + prune; cor média 5f5f5f, DoubleSide)",
+  "material_16": "ripado preto do forro do hall: 183.000→23.994 tris (weldPos 0,3)",
+  "Carpet_Berber_Multi": "cortinas do lounge: 47.616→5.713 tris (weldPos 0,12 + prune; cor média ebe7e1, DoubleSide)",
+  "intocados": "piso, paredes, laje, telhado, vidros, portas, bar"
+ },
+ "planta_render": {
+  "terreo": {
+   "corte_y": 2.8,
+   "como": "abaixo do forro do hall (3,0) e do fundo da laje do lounge (3,55); acima das portas (2,43)"
+  },
+  "superior": {
+   "corte_y": 6.9,
+   "como": "abaixo do pergolado interno (7,0) e da cobertura (8,1–8,6); a laje do térreo aparece ao redor como contexto"
+  },
+  "dollhouse": {
+   "corte_y": 7.9,
+   "como": "tira só a cobertura do lounge; o térreo permanece coberto"
+  }
+ },
+ "texturas": {
+  "aplicadas": [
+   "__.jpg (piso do térreo)",
+   "material_9.jpg",
+   "material_35.jpg",
+   "material_14.jpg (2 versões, uma por export)",
+   "material_12.jpg (bar ripado)",
+   "material_12_1.jpg (porta)",
+   "material_10.jpg",
+   "images-29sdfg.jpeg",
+   "espelho_.jpg",
+   "espelho__0.jpg",
+   "material_5.jpg",
+   "material_6.jpg",
+   "material_27.jpg (paredes do lounge)",
+   "__Vegetation_Grass1_5.jpg (grama do lounge)"
+  ],
+  "achatadas_para_cor": [
+   "DOSSEL_TWO_SIDED.jpg → 5f5f5f",
+   "Carpet_Berber_Multi.jpg → ebe7e1"
+  ],
+  "ausentes": "nenhuma (texFalhas=[] nas duas conversões)"
+ }
+}
