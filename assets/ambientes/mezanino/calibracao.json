@@ -537,16 +537,16 @@
  },
  "glb": {
   "arquivo": "salao.glb",
-  "bytes": 627136,
-  "mb": 0.6,
-  "triangulos": 161872,
+  "bytes": 3930012,
+  "mb": 3.9,
+  "triangulos": 170136,
   "meshes": 44,
   "materiais": 44,
-  "compressao": "gltfpack 1.2 -cc -km (EXT_meshopt_compression + KHR_mesh_quantization, posição 14 bits; -km mantém os nomes de material; sem UV porque não há textura)",
-  "texturas": "NENHUMA — as 27 imagens da pasta \"MZ Vazio/\" não vieram; cores por nome de material (tex-manifest-mezanino.json)",
+  "compressao": "gltfpack 1.2 -cc -km -vtf (EXT_meshopt_compression + KHR_mesh_quantization, posição 14 bits, UV em ponto flutuante — o aviso de 60% de erro em UV quantizada pediu -vtf; -km mantém os nomes de material)",
+  "texturas": "26 de 27 imagens da pasta \"MZ Vazio/\" embutidas (JPEG; piso cerâmico material_22* e madeiras do deck a 2048 px, demais ≤1024 — ver tex-manifest.json); só material_101.jpg não veio no zip (material removido do GLB, sem impacto)",
   "triangulos_dae_com_instancias": 32916518,
   "triangulos_apos_remover_instanciados": 742886,
-  "triangulos_raw_final": 161872
+  "triangulos_raw_final": 170136
  },
  "conferencia_cad": {
   "fonte": "planta-itapema-pdf.jpg (planta da arquiteta): rótulo \"Espaço 3 · a: 229,80 m² · nível −0,70 · Piso: PISO CERÂMICO · Pé direito: 5,82 m\", \"Projeção Mezanino\", \"Parede Acústica\", escada 01–16 \"Sobe\" com \"GUARDA-CORPO H=1,10 / CORRIMÃO 90cm\"",
@@ -620,9 +620,9 @@
   "nao_removido": "piso/paredes/pilares do térreo do Espaço 3 NÃO são duplicata do salao-real.glb (são outra sala, 34 m a leste) — mantidos; nada abaixo de 1,5 m foi cortado; o único volume abaixo do piso é o poço do elevador (−2,82)"
  },
  "simplificacao": {
-  "DOSSEL_TWO_SIDED": "cortinas: solda por posição + remoção das faces gêmeas (two-sided) + MeshoptSimplifier 0,25 → 45170 de 361.394",
-  "material_6": "luminárias do forro da ala direita: mesmo tratamento → 26302 de 244.000",
-  "GUARDA_CORPO_-_CROMADO": "0,5 → 38536 de 46.800 (montantes já eram mínimos)",
+  "DOSSEL_TWO_SIDED": "cortinas: solda por posição (a UV da textura é preservada — cada posição soldada carrega a UV do 1º vértice) + remoção das faces gêmeas (two-sided) + MeshoptSimplifier 0,25 → 45170 de 361.394",
+  "material_6": "luminárias do forro da ala direita: solda por posição (sem textura) → 26302 de 244.000",
+  "GUARDA_CORPO_-_CROMADO": "com a textura veio UV por face: o simplificador não achou aresta compartilhada e ficou em 46.800 (na versão sem textura reduzia para 38.536)",
   "intocados": "piso, deck, paredes, pilares (_0136_Charcoal), escada (__Metal_Seamed_2/Metal_*), guarda-corpo (cabos, inox, cinza), vidros, bar"
  },
  "planta_render": {
@@ -635,7 +635,7 @@
    "como": "plano de recorte em y = 4,8 (1,5 m acima do deck): some o forro (5,80), a cobertura (7,33), as luminárias (5,76–6,10) e o volume rebaixado da ala direita (4,95); ficam deck, piso do térreo, paredes (fundo), pilares, escada, elevador, bar e as cortinas cortadas"
   }
  },
- "texturas": "tex-manifest.json (27 texturas ausentes → cor por nome de material)",
+ "texturas": "tex-manifest.json — zip \"MZ Vazio\" chegou em 27/08/2026: 26 de 27 texturas aplicadas e embutidas no salao.glb (UV preservado); material_101.jpg não veio (material removido, sem impacto) e Vidro01 segue com a cor forçada de vidro (não tem textura no DAE)",
  "translacao_hipotetica_nao_aplicada": {
   "nota": "se algum dia se quiser POUSAR o mezanino sobre o bloco principal do salão (decisão de proposta, não de fidelidade): centro do deck (60,73; 22,80) → centro do bloco principal do salão (7,8; −0,575) = dx −52,9 m, dz −23,4 m; e o piso do Espaço 3 (0,18) teria de subir para cima do forro do salão (4,64) = dy ≥ +4,5 m. Não cabe: a sala tem 18,8 m de fundo contra 14,35 m do salão."
  }

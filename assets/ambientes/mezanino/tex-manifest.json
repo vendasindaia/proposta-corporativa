@@ -1,423 +1,298 @@
 {
- "pasta_esperada": "MZ Vazio/",
- "origem": "C:/Users/usuário/Downloads/MZ Vazio.dae",
- "nota": "27 texturas referenciadas pelo DAE que NÃO vieram no export (pedidas à arquiteta). Enquanto não chegam, o conversor pinta por NOME de material (corPorMaterial em cfg-mezanino.json). Quando a pasta chegar: rodar preprocess-tex.mjs mezanino.dae <pasta> \"MZ Vazio\" e tirar as regras de cor.",
- "materiais": {
-  "Translucent_Glass_Gray": {
-   "textura": null,
-   "cor_dae": "0.5019608 0.5019608 0.5019608 0.5019608",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
+ "pasta": "MZ Vazio/",
+ "origem": "C:/Users/usuário/Downloads/MZ Vazio.zip (27/08/2026)",
+ "status": "26 de 27 texturas do DAE aplicadas e EMBUTIDAS no salao.glb; material_101.jpg não veio no zip, mas material_101 é decoração de piso removida do GLB (removeMaterials) — sem impacto",
+ "processamento": "preprocess-tex.mjs: ≤1024 px (2048 no piso cerâmico material_22*.jpg e nas madeiras do deck Madeira_*.png), JPEG q4 (nenhuma tinha alfa real); total 1,6 MB antes de embutir",
+ "cores_restantes": {
+  "Vidro01": "sem textura no DAE; forçado B5DFD4 semitransparente 0.3 (vidro)",
+  "material_101": "textura ausente → cinza 8E8E8A, mas o material está removido do GLB"
+ },
+ "texturas": {
+  "A_o_02___spero.png": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 6,
+   "max": 1024,
+   "orig": "1024x1024 rgb24",
+   "arquivoOrigem": "A_o_02___spero.png",
+   "materiais": [
+    "Aço_02__Áspero"
+   ]
   },
-  "_0136_Charcoal": {
-   "textura": null,
-   "cor_dae": "0.1568627 0.1568627 0.1568627 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
+  "Concrete_08__Grainy.png": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 230,
+   "max": 1024,
+   "orig": "1024x1024 rgb24",
+   "arquivoOrigem": "Concrete_08__Grainy.png",
+   "materiais": [
+    "Concrete_08__Grainy"
+   ]
   },
-  "material_45": {
-   "textura": "sampler ID170",
-   "cor_dae": null,
-   "cor_aplicada": "8E8E8A",
-   "opacity": null,
-   "regra": "^(material_|vray_)",
-   "nota": "genéricos: cinza-neutro"
+  "Concreto_01_1.png": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 421,
+   "max": 1024,
+   "orig": "1024x1024 rgb24",
+   "arquivoOrigem": "Concreto_01_1.png",
+   "materiais": [
+    "Concreto_01_1"
+   ]
   },
-  "material_22": {
-   "textura": "sampler ID184",
-   "cor_dae": null,
-   "cor_aplicada": "8E8E8A",
-   "opacity": null,
-   "regra": "^(material_|vray_)",
-   "nota": "genéricos: cinza-neutro"
+  "DOSSEL_TWO_SIDED.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 200,
+   "max": 1024,
+   "orig": "1398x1255 yuvj420p",
+   "arquivoOrigem": "DOSSEL_TWO_SIDED.jpg",
+   "materiais": [
+    "DOSSEL_TWO_SIDED"
+   ]
   },
-  "Concreto_01_1": {
-   "textura": "sampler ID237",
-   "cor_dae": null,
-   "cor_aplicada": "9A9A96",
-   "opacity": null,
-   "regra": "^(Concrete|Concreto|A_o_|Aço_)",
-   "nota": "concreto/aço áspero: cinza"
+  "GUARDA_CORPO_-_CORDA_A_O.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 7,
+   "max": 1024,
+   "orig": "256x256 yuvj420p",
+   "arquivoOrigem": "GUARDA_CORPO_-_CORDA_A_O.jpg",
+   "materiais": [
+    "GUARDA_CORPO_-_CORDA_AÇO"
+   ]
   },
-  "Color_M08": {
-   "textura": null,
-   "cor_dae": "0.1176471 0.1176471 0.1176471 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
+  "GUARDA_CORPO_-_CROMADO.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 1,
+   "max": 1024,
+   "orig": "128x128 yuvj420p",
+   "arquivoOrigem": "GUARDA_CORPO_-_CROMADO.jpg",
+   "materiais": [
+    "GUARDA_CORPO_-_CROMADO"
+   ]
   },
-  "__Metal_Aluminum_Anodized_1": {
-   "textura": "sampler ID327",
-   "cor_dae": null,
-   "cor_aplicada": "4A4D52",
-   "opacity": null,
-   "regra": "^(METAL|Metal_|__Metal_|GUARDA_CORPO)",
-   "nota": "metais: cinza-escuro levemente metálico"
+  "METAL_ALUM_NIO.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 3,
+   "max": 1024,
+   "orig": "640x642 yuvj420p",
+   "arquivoOrigem": "METAL_ALUM_NIO.jpg",
+   "materiais": [
+    "METAL_ALUMÍNIO"
+   ]
   },
-  "Suede_Dark_Gray": {
-   "textura": "sampler ID423",
-   "cor_dae": null,
-   "cor_aplicada": "4B4B4B",
-   "opacity": null,
-   "regra": "^Suede_Dark_Gray",
-   "nota": "camurça cinza-escuro"
+  "METAL_ALUM_NIO_0.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 3,
+   "max": 1024,
+   "orig": "640x642 yuvj420p",
+   "arquivoOrigem": "METAL_ALUM_NIO_0.jpg",
+   "materiais": [
+    "METAL_ALUMÍNIO_0"
+   ]
   },
-  "ESPELHO3": {
-   "textura": null,
-   "cor_dae": "1 1 1 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
+  "Madeira_05__Fileira.png": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 110,
+   "max": 2048,
+   "orig": "1024x1024 rgb24",
+   "arquivoOrigem": "Madeira_05__Fileira.png",
+   "materiais": [
+    "Madeira_05__Fileira"
+   ]
   },
-  "Espelho1": {
-   "textura": null,
-   "cor_dae": "0.7098039 0.7294118 0.6862745 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
+  "Madeira_05__Fileira_2.png": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 110,
+   "max": 2048,
+   "orig": "1024x1024 rgb24",
+   "arquivoOrigem": "Madeira_05__Fileira_2.png",
+   "materiais": [
+    "Madeira_05__Fileira_2"
+   ]
   },
-  "Mirror_01": {
-   "textura": "sampler ID469",
-   "cor_dae": null,
-   "cor_aplicada": "A8C8E0",
-   "opacity": 0.35,
-   "regra": "^(Translucent_Glass_|Mirror_)",
-   "nota": "vidro/espelho: azulado semitransparente"
+  "Madeira_41__Fileira.png": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 138,
+   "max": 2048,
+   "orig": "2048x2048 rgb24",
+   "arquivoOrigem": "Madeira_41__Fileira.png",
+   "materiais": [
+    "Madeira_41__Fileira"
+   ]
   },
-  "METAL_ALUMÍNIO": {
-   "textura": "sampler ID606",
-   "cor_dae": null,
-   "cor_aplicada": "4A4D52",
-   "opacity": null,
-   "regra": "^(METAL|Metal_|__Metal_|GUARDA_CORPO)",
-   "nota": "metais: cinza-escuro levemente metálico"
+  "Metal_Embossed.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 1,
+   "max": 1024,
+   "orig": "128x128 yuvj420p",
+   "arquivoOrigem": "Metal_Embossed.jpg",
+   "materiais": [
+    "Metal_Embossed"
+   ]
   },
-  "METAL_ALUMÍNIO_0": {
-   "textura": "sampler ID644",
-   "cor_dae": null,
-   "cor_aplicada": "4A4D52",
-   "opacity": null,
-   "regra": "^(METAL|Metal_|__Metal_|GUARDA_CORPO)",
-   "nota": "metais: cinza-escuro levemente metálico"
+  "Metal_Steel_Textured.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 6,
+   "max": 1024,
+   "orig": "256x256 yuvj444p",
+   "arquivoOrigem": "Metal_Steel_Textured.jpg",
+   "materiais": [
+    "Metal_Steel_Textured"
+   ]
   },
-  "GUARDA_CORPO_-_AÇO_INOX": {
-   "textura": null,
-   "cor_dae": "0.4039216 0.4039216 0.4039216 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
+  "Metal_Steel_Textured_White.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 6,
+   "max": 1024,
+   "orig": "256x256 yuvj420p",
+   "arquivoOrigem": "Metal_Steel_Textured_White.jpg",
+   "materiais": [
+    "Metal_Steel_Textured_White"
+   ]
   },
-  "GUARDA_CORPO_-_CINZA": {
-   "textura": null,
-   "cor_dae": "0.2196078 0.2196078 0.2196078 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
+  "Mirror_01.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 5,
+   "max": 1024,
+   "orig": "700x700 yuvj444p",
+   "arquivoOrigem": "Mirror_01.jpg",
+   "materiais": [
+    "Mirror_01"
+   ]
   },
-  "GUARDA_CORPO_-_CROMADO": {
-   "textura": "sampler ID843",
-   "cor_dae": null,
-   "cor_aplicada": "4A4D52",
-   "opacity": null,
-   "regra": "^(METAL|Metal_|__Metal_|GUARDA_CORPO)",
-   "nota": "metais: cinza-escuro levemente metálico"
+  "Pedra_01__Parede_1.png": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 159,
+   "max": 1024,
+   "orig": "1024x1024 rgb24",
+   "arquivoOrigem": "Pedra_01__Parede_1.png",
+   "materiais": [
+    "Pedra_01__Parede_1"
+   ]
   },
-  "material": {
-   "textura": null,
-   "cor_dae": "1 1 1 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
+  "Suede_Dark_Gray.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 29,
+   "max": 1024,
+   "orig": "500x500 yuvj420p",
+   "arquivoOrigem": "Suede_Dark_Gray.jpg",
+   "materiais": [
+    "Suede_Dark_Gray"
+   ]
   },
-  "GUARDA_CORPO_-_CORDA_AÇO": {
-   "textura": "sampler ID964",
-   "cor_dae": null,
-   "cor_aplicada": "4A4D52",
-   "opacity": null,
-   "regra": "^(METAL|Metal_|__Metal_|GUARDA_CORPO)",
-   "nota": "metais: cinza-escuro levemente metálico"
+  "Translucent_Glass_Safety.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 5,
+   "max": 1024,
+   "orig": "150x151 yuvj420p",
+   "arquivoOrigem": "Translucent_Glass_Safety.jpg",
+   "materiais": [
+    "Translucent_Glass_Safety"
+   ]
   },
-  "DOSSEL_TWO_SIDED": {
-   "textura": "sampler ID1021",
-   "cor_dae": null,
-   "cor_aplicada": "E8DCC4",
-   "opacity": null,
-   "regra": "^DOSSEL_TWO_SIDED",
-   "nota": "cortinas: creme"
+  "Translucent_Glass_Tinted.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 0,
+   "max": 1024,
+   "orig": "144x144 yuvj420p",
+   "arquivoOrigem": "Translucent_Glass_Tinted.jpg",
+   "materiais": [
+    "Translucent_Glass_Tinted"
+   ]
   },
-  "Metal_Embossed": {
-   "textura": "sampler ID1050",
-   "cor_dae": null,
-   "cor_aplicada": "4A4D52",
-   "opacity": null,
-   "regra": "^(METAL|Metal_|__Metal_|GUARDA_CORPO)",
-   "nota": "metais: cinza-escuro levemente metálico"
+  "__Metal_Aluminum_Anodized_1.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 3,
+   "max": 1024,
+   "orig": "256x256 yuvj420p",
+   "arquivoOrigem": "__Metal_Aluminum_Anodized_1.jpg",
+   "materiais": [
+    "__Metal_Aluminum_Anodized_1"
+   ]
   },
-  "Metal_Steel_Textured_White": {
-   "textura": "sampler ID1063",
-   "cor_dae": null,
-   "cor_aplicada": "4A4D52",
-   "opacity": null,
-   "regra": "^(METAL|Metal_|__Metal_|GUARDA_CORPO)",
-   "nota": "metais: cinza-escuro levemente metálico"
+  "__Metal_Rough_3.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 1,
+   "max": 1024,
+   "orig": "128x128 yuvj420p",
+   "arquivoOrigem": "__Metal_Rough_3.jpg",
+   "materiais": [
+    "__Metal_Rough_3"
+   ]
   },
-  "__Metal_Seamed_2": {
-   "textura": "sampler ID1092",
-   "cor_dae": null,
-   "cor_aplicada": "4A4D52",
-   "opacity": null,
-   "regra": "^(METAL|Metal_|__Metal_|GUARDA_CORPO)",
-   "nota": "metais: cinza-escuro levemente metálico"
+  "__Metal_Seamed_2.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 1,
+   "max": 1024,
+   "orig": "128x128 yuvj420p",
+   "arquivoOrigem": "__Metal_Seamed_2.jpg",
+   "materiais": [
+    "__Metal_Seamed_2"
+   ]
   },
-  "Metal_Steel_Textured": {
-   "textura": "sampler ID1143",
-   "cor_dae": null,
-   "cor_aplicada": "4A4D52",
-   "opacity": null,
-   "regra": "^(METAL|Metal_|__Metal_|GUARDA_CORPO)",
-   "nota": "metais: cinza-escuro levemente metálico"
+  "material_22.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 67,
+   "max": 2048,
+   "orig": "1180x1181 yuvj420p",
+   "arquivoOrigem": "material_22.jpg",
+   "materiais": [
+    "material_22"
+   ]
   },
-  "EMISSIVO_50": {
-   "textura": null,
-   "cor_dae": "0.9960784 0.9960784 0.9960784 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
+  "material_22_1.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 67,
+   "max": 2048,
+   "orig": "1180x1181 yuvj420p",
+   "arquivoOrigem": "material_22_1.jpg",
+   "materiais": [
+    "material_22_1"
+   ]
   },
-  "__Color_D02_1": {
-   "textura": null,
-   "cor_dae": "1 0.6470588 0 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
+  "material_45.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 97,
+   "max": 1024,
+   "orig": "1200x800 yuvj420p",
+   "arquivoOrigem": "material_45.jpg",
+   "materiais": [
+    "material_45"
+   ]
   },
-  "Emissive1": {
-   "textura": null,
-   "cor_dae": "0.8588235 0.6941176 0.3490196 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "material_22_1": {
-   "textura": "sampler ID9590",
-   "cor_dae": null,
-   "cor_aplicada": "8E8E8A",
-   "opacity": null,
-   "regra": "^(material_|vray_)",
-   "nota": "genéricos: cinza-neutro"
-  },
-  "Color_C02": {
-   "textura": null,
-   "cor_dae": "0.8941176 0.8941176 0.8941176 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "Emissive2": {
-   "textura": null,
-   "cor_dae": "0.9568627 0.9568627 0.5411765 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "Madeira_05__Fileira": {
-   "textura": "sampler ID12242",
-   "cor_dae": null,
-   "cor_aplicada": "8B6A45",
-   "opacity": null,
-   "regra": "^Madeira_",
-   "nota": "madeira: marrom médio"
-  },
-  "Madeira_05__Fileira_2": {
-   "textura": "sampler ID12251",
-   "cor_dae": null,
-   "cor_aplicada": "8B6A45",
-   "opacity": null,
-   "regra": "^Madeira_",
-   "nota": "madeira: marrom médio"
-  },
-  "Madeira_41__Fileira": {
-   "textura": "sampler ID12276",
-   "cor_dae": null,
-   "cor_aplicada": "8B6A45",
-   "opacity": null,
-   "regra": "^Madeira_",
-   "nota": "madeira: marrom médio"
-  },
-  "material_6": {
-   "textura": null,
-   "cor_dae": "0.003921569 0.003921569 0.003921569 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "LACA_BRANCA": {
-   "textura": null,
-   "cor_dae": "0.972549 0.9803922 1 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "Vidro01": {
-   "textura": null,
-   "cor_dae": "0.7098039 0.8745098 0.8313725 0",
-   "cor_aplicada": "B5DFD4",
-   "opacity": 0.3,
-   "regra": "^Vidro01$",
-   "nota": "difuso do DAE com alfa 0 (vidro): forçado para semitransparente"
-  },
-  "Material58": {
-   "textura": null,
-   "cor_dae": "0.6392157 0.6392157 0.6392157 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "__Metal_Rough_3": {
-   "textura": "sampler ID19450",
-   "cor_dae": null,
-   "cor_aplicada": "4A4D52",
-   "opacity": null,
-   "regra": "^(METAL|Metal_|__Metal_|GUARDA_CORPO)",
-   "nota": "metais: cinza-escuro levemente metálico"
-  },
-  "__Black_1": {
-   "textura": null,
-   "cor_dae": "0.427451 0.427451 0.427451 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "Material59": {
-   "textura": null,
-   "cor_dae": "0.003921569 0.003921569 0.003921569 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "material_5": {
-   "textura": null,
-   "cor_dae": "0.6392157 0.6392157 0.6392157 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "Color_I05": {
-   "textura": null,
-   "cor_dae": "0.5372549 0.1803922 0.2039216 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "Color_C15": {
-   "textura": null,
-   "cor_dae": "0.6 0.5372549 0.4745098 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "__Color_005_3": {
-   "textura": null,
-   "cor_dae": "0.4470588 0.4470588 0.4470588 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "Color_003": {
-   "textura": null,
-   "cor_dae": "0.5019608 0.5019608 0.5019608 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "material_101": {
-   "textura": "sampler ID20135",
-   "cor_dae": null,
-   "cor_aplicada": "8E8E8A",
-   "opacity": null,
-   "regra": "^(material_|vray_)",
-   "nota": "genéricos: cinza-neutro"
-  },
-  "Translucent_Glass_Tinted": {
-   "textura": "sampler ID20292",
-   "cor_dae": null,
-   "cor_aplicada": "A8C8E0",
-   "opacity": 0.35,
-   "regra": "^(Translucent_Glass_|Mirror_)",
-   "nota": "vidro/espelho: azulado semitransparente"
-  },
-  "Aço_02__Áspero": {
-   "textura": "sampler ID20317",
-   "cor_dae": null,
-   "cor_aplicada": "9A9A96",
-   "opacity": null,
-   "regra": "^(Concrete|Concreto|A_o_|Aço_)",
-   "nota": "concreto/aço áspero: cinza"
-  },
-  "Concrete_08__Grainy": {
-   "textura": "sampler ID20408",
-   "cor_dae": null,
-   "cor_aplicada": "9A9A96",
-   "opacity": null,
-   "regra": "^(Concrete|Concreto|A_o_|Aço_)",
-   "nota": "concreto/aço áspero: cinza"
-  },
-  "Pedra_01__Parede_1": {
-   "textura": "sampler ID20421",
-   "cor_dae": null,
-   "cor_aplicada": "8C857A",
-   "opacity": null,
-   "regra": "^Pedra_",
-   "nota": "pedra: cinza-quente"
-  },
-  "Color_M05": {
-   "textura": null,
-   "cor_dae": "0.4470588 0.4470588 0.4470588 1",
-   "cor_aplicada": null,
-   "opacity": null,
-   "regra": null,
-   "nota": "cor difusa do DAE mantida"
-  },
-  "Translucent_Glass_Safety": {
-   "textura": "sampler ID20468",
-   "cor_dae": null,
-   "cor_aplicada": "A8C8E0",
-   "opacity": 0.35,
-   "regra": "^(Translucent_Glass_|Mirror_)",
-   "nota": "vidro/espelho: azulado semitransparente"
-  },
-  "vray_CRN.Material__6": {
-   "textura": "sampler ID20489",
-   "cor_dae": null,
-   "cor_aplicada": "8E8E8A",
-   "opacity": null,
-   "regra": "^(material_|vray_)",
-   "nota": "genéricos: cinza-neutro"
+  "vray_CRN.Material__6.jpg": {
+   "mime": "image/jpeg",
+   "alpha": false,
+   "kb": 8,
+   "max": 1024,
+   "orig": "173x546 yuvj420p",
+   "arquivoOrigem": "vray_CRN.Material__6.jpg",
+   "materiais": [
+    "vray_CRN.Material__6"
+   ]
   }
  }
 }
