@@ -881,7 +881,8 @@ html.sem-io .reveal{opacity:1;transform:none;}
           <div class="visao__frame visao__frame--tres visao__frame--pano">
             <!-- as pills são montadas do registro do ambiente (AMB.panos, v18.08-21):
                  Salão = Seu layout · Salão interno · Salão externo · Deck;
-                 Solar = Seu layout · Solar interno · 6 panos fotográficos -->
+                 Solar = Seu layout · 6 panos fotográficos (o "Solar interno"
+                 gerado saiu na v18.08-22: panoInterno:false no registro) -->
             <div class="pano__ambientes" role="group" aria-label="Escolher o ambiente do passeio 360°"></div>
             <div class="tres__canvasbox" id="panoBox" tabindex="0" role="img"
               aria-label="Passeio 360° fotorrealista pelo espaço. Arraste para olhar ao redor, roda ou pinça aproxima, toque duplo recentraliza; no teclado, setas giram e as teclas de mais e menos aproximam."></div>
@@ -991,7 +992,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-21</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-22</span></p>
   </div>
 </footer>
 
@@ -1361,6 +1362,7 @@ const AMBIENTES = {
     envMap:'assets/pano-salao-mesas.jpg',
     camera:{alvoPx:{x:970,y:470}, orb:{theta:.35, phi:.8, raio:30}},
     olhoPanoPx:{x:1100,y:600},                            // olho do "Seu layout" (meio da pista)
+    panoInterno:true,                                     // mantém a pill "Salão interno" (v18.08-22)
     panos:[
       {id:'layout',  rotulo:'Seu layout', dinamico:true, lon:356, lat:-2},
       {id:'interno', rotulo:'Salão interno', dinamico:true, vazio:true, lon:356, lat:-2,
@@ -1443,11 +1445,27 @@ const AMBIENTES = {
     ],
     glb:{src:'assets/ambientes/solar/salao.glb', cal:{px0:960, x0:17.003, py0:432, z0:3.0915},
       pisoY:0.30, corteY:2.8, luzCentrada:true},
+    /* PROPS (v18.08-22) — objetos 3D plantados sobre a maquete; só na cena
+       (3D, tour, 360° gerado): a planta 2D e a máscara NÃO mudam. A árvore
+       do pátio não veio no export do Solar: é a figueira do salao-real.glb
+       de Itapema (materiais tree_trunk/Leather_Red_Brown/Leaf1/Leaf2),
+       recortada, podada para a caixa de vidro (3,6 × 4,2 m; copa só acima
+       do telhado, 4,6 m) e reescalada para 9 m — assets/ambientes/solar/
+       arvore.glb, 1,7 MB, base do tronco na origem, metros do Solar.
+       px = centro do canteiro de grama (356,283 → x 0,41 · z −1,00);
+       alt = topo do canteiro (0,35) acima do pisoY do pátio (0,30).
+       O corte do telhado (corteY) vale só para o GLB do ambiente: a copa
+       aparece inteira na vista aérea. */
+    props:[{glb:'assets/ambientes/solar/arvore.glb', nome:'figueira', px:{x:356,y:283}, alt:.05, escala:1, rotY:0}],
     telao:false,
     envMap:'assets/ambientes/solar/panos/arvore.jpg',
     camera:{alvoPx:null, orb:{theta:.6, phi:.78, raio:27}},   // alvo = centro da área principal
     olhoPanoPx:null,                                           // dinâmico: panoOlho()
-    /* panos fotográficos (6144×3072): lon = u·360° do ponto que abre a vista */
+    /* panos fotográficos (6144×3072): lon = u·360° do ponto que abre a vista.
+       panoInterno:false (v18.08-22): o "Solar interno" (gerado, sem mesas)
+       repetia a foto "Hall e pátio da árvore" — a pill some do seletor; o
+       registro segue com a entrada para religar com um flag. */
+    panoInterno:false,
     panos:[
       {id:'layout',  rotulo:'Seu layout', dinamico:true, lonDinamico:true, lon:270, lat:-2},
       {id:'interno', rotulo:'Solar interno', dinamico:true, vazio:true, lonDinamico:true, lon:270, lat:-2,
@@ -1466,10 +1484,15 @@ const AMBIENTES = {
         legenda:'Passeio fotorrealista · 2º andar, sala B.'}
     ],
     nota360:'Solar Florianópolis',
-    /* tour genérico (entrada → área principal → órbita numa mesa → grua),
-       gerado das áreas; entradaFrac = posição da porta ao longo da divisa
-       hall↔pátio (0,63 ≈ y 450 na planta; o meio da divisa cai na parede) */
+    /* tour genérico (v18.08-22): SEQUÊNCIA DE PLANOS por área, emendados
+       por fusão em preto — entrada → cada área de tourOrdem (índices de
+       areas; sem o campo, a ordem do registro) → órbita na árvore (prop)
+       ou numa mesa → grua. entradaFrac = posição da porta ao longo da
+       divisa hall↔pátio (0,63 ≈ y 450 na planta; o meio cai na parede).
+       Sem 2º andar: o GLB não tem piso caminhável acima de 0,85 m (os
+       níveis 3,2–4,7 m são telhado/forro, sem teto por cima). */
     tour:{entradaFrac:.63},
+    tourOrdem:[1, 2, 0],                                       /* hall → Balada → pátio da árvore */
     /* GALERIA — curadoria 26/08 do banco de mídias (loc-solar, 20 fotos):
        3 do pátio da árvore montado para jantar, o casarão de dia e à noite
        e o bar sob a copa. Ficaram de fora as de noiva/bolo/cerimônia. */
@@ -2740,8 +2763,10 @@ const T3 = {
   cena:null, cam:null, renderer:null, alvo:null, mesas3d:null,
   salao:null, salaoEmVoo:null,
   mesaGlb:null, mesaEmVoo:null, geoFlor:null, matFlor:null,
+  props:null, propsEmVoo:null,                          /* props do ambiente (v18.08-22): [{cfg, obj}] */
   orb:{...AMB.camera.orb}, orb0:{...AMB.camera.orb},   /* órbita inicial do ambiente */
-  plano:null,                                           /* plano de corte do telhado (só com corteY) */
+  plano:null, corteLigado:false,                        /* plano de corte do telhado (só com corteY) */
+  fadeCena:null, fadeMat:null, fadeCam:null,            /* fusão em preto do tour (v18.08-22) */
   ponteiros:new Map(), pinca:0
 };
 /* =================================================================
@@ -2919,6 +2944,38 @@ function carregarMesa(){
   })).catch(e=>{ T3.mesaEmVoo = null; throw e; });
   return T3.mesaEmVoo;
 }
+/* PROPS do ambiente (v18.08-22): GLBs extras plantados na maquete (Solar: a
+   figueira do pátio, assets/ambientes/solar/arvore.glb). Baixam UMA vez,
+   em paralelo com o salão, e ficam em cache em T3.props = [{cfg, obj}];
+   ambiente sem props (Salão de Eventos) resolve na hora com []. Um prop
+   que não carrega é descartado — a maquete abre do mesmo jeito sem ele. */
+function carregarProps(){
+  if(T3.props) return Promise.resolve(T3.props);
+  if(!AMB.props || !AMB.props.length){ T3.props = []; return Promise.resolve(T3.props); }
+  if(T3.propsEmVoo) return T3.propsEmVoo;
+  T3.propsEmVoo = Promise.all([
+    import('./assets/lib/GLTFLoader.js'),
+    carregarMeshopt()
+  ]).then(([mod, decoder])=>Promise.all(AMB.props.map(cfg=>new Promise(res=>{
+    const loader = new mod.GLTFLoader();
+    loader.setMeshoptDecoder(decoder);
+    loader.load(cfg.glb, g=>{
+      const obj = g.scene;
+      obj.name = cfg.nome || 'prop';
+      obj.traverse(o=>{
+        if(!o.isMesh) return;
+        o.castShadow = true; o.receiveShadow = true;   /* a copa sombreia o pátio */
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for(const mt of mats) if(mt && 'envMapIntensity' in mt) mt.envMapIntensity = .35;
+      });
+      res({cfg, obj});
+    }, undefined, ()=>res(null));
+  })))).then(lista=>{ T3.props = lista.filter(Boolean); return T3.props; })
+    .catch(e=>{ T3.propsEmVoo = null; throw e; });
+  return T3.propsEmVoo;
+}
+/* tudo o que a cena precisa — salão + mesa real + props — em paralelo */
+function carregarMaquete(){ return Promise.all([carregarSalao(), carregarMesa(), carregarProps()]); }
 /* textura do telão gerada em canvas: fundo grafite, monograma dourado.
    Em produção este canvas dá lugar à logo do cliente (campo do snapshot). */
 function telaoMaterial(TH){
@@ -2979,6 +3036,26 @@ function tresIniciar(){
      ligustros, bares e o forro com spots — tudo em metros, calibrado
      1:1 com o editor via pxParaM/GLBCAL. */
   T3.cena.add(T3.salao);
+
+  /* PROPS (v18.08-22): plantados em px da planta → metros, base no piso da
+     ÁREA (pisoYEm) + alt, com a escala e o giro do registro. Ficam fora do
+     plano de corte do telhado (que é local ao GLB do ambiente, abaixo). */
+  for(const p of (T3.props||[])){
+    const c = p.cfg, m = pxParaM(c.px.x, c.px.y);
+    p.obj.position.set(m.x, pisoYEm(c.px.x, c.px.y) + (c.alt||0), m.z);
+    p.obj.rotation.y = c.rotY||0;
+    p.obj.scale.setScalar(c.escala||1);
+    T3.cena.add(p.obj);
+  }
+
+  /* FUSÃO do tour (v18.08-22): um quad preto desenhado POR CIMA do quadro
+     com a opacidade TOUR.fade — vai para o canvas, então a gravação
+     (MediaRecorder) leva a fusão entre os planos junto */
+  T3.fadeCena = new TH.Scene();
+  T3.fadeMat = new TH.MeshBasicMaterial({color:0x000000, transparent:true, opacity:0, depthTest:false, depthWrite:false});
+  T3.fadeCena.add(new TH.Mesh(new TH.PlaneGeometry(2, 2), T3.fadeMat));
+  T3.fadeCam = new TH.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  T3.fadeCam.position.z = .5;
 
   /* reflexos suaves: PMREM do panorama real do ambiente (Salão: o pano do
      salão montado; Solar: panos/arvore.jpg) como environment — acende os
@@ -3064,6 +3141,19 @@ function tresIniciar(){
      só enquanto a câmera está ACIMA dele (tresCorte): a órbita vira
      "dollhouse" e, por dentro (tour, panorama), nada é cortado */
   T3.plano = AMB.glb.corteY ? new TH.Plane(new TH.Vector3(0,-1,0), AMB.glb.corteY) : null;
+  /* v18.08-22: o corte é LOCAL, nos materiais do GLB do ambiente — os props
+     (a árvore) ficam de fora e a copa aparece inteira na vista aérea. Liga e
+     desliga movendo a constante do plano (tresCorteAplicar), sem recompilar
+     shader nem mexer nos planos globais do renderer. */
+  if(T3.plano){
+    T3.renderer.localClippingEnabled = true;
+    T3.salao.traverse(o=>{
+      if(!o.isMesh) return;
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      for(const mt of mats) if(mt) mt.clippingPlanes = [T3.plano];
+    });
+    tresCorteAplicar(false);
+  }
   T3.pronto = true;
 }
 /* mesas = INSTÂNCIAS da MESA REAL (v18.08-14): cada parte do GLB lite
@@ -3144,17 +3234,31 @@ function tresCamera(){
     T3.alvo.z + o.raio*Math.sin(o.phi)*Math.cos(o.theta));
   T3.cam.lookAt(T3.alvo);
 }
-/* corte do telhado pela altura da câmera (só ambientes com corteY) */
+/* corte do telhado pela altura da câmera (só ambientes com corteY).
+   v18.08-22: liga/desliga pela constante do plano local — CORTE_OFF (1e4 m)
+   deixa tudo abaixo do plano, ou seja, nada cortado */
+const CORTE_OFF = 1e4;
+function tresCorteAplicar(ligado){
+  if(!T3.plano) return;
+  T3.corteLigado = ligado;
+  T3.plano.constant = ligado ? AMB.glb.corteY : CORTE_OFF;
+}
 function tresCorte(){
   if(!T3.plano) return;
   const acima = T3.cam.position.y > AMB.glb.corteY + .3;
-  if(acima !== (T3.renderer.clippingPlanes.length>0)) T3.renderer.clippingPlanes = acima ? [T3.plano] : [];
+  if(acima !== T3.corteLigado) tresCorteAplicar(acima);
 }
 function tresLaco(ts){
   T3.raf = requestAnimationFrame(tresLaco);
   if(TOUR.ativo) tourAtualizar(ts || performance.now());
   tresCorte();
   T3.renderer.render(T3.cena, T3.cam);
+  if(TOUR.ativo && TOUR.fade > 0){          /* fusão em preto entre os planos do tour */
+    T3.fadeMat.opacity = TOUR.fade;
+    T3.renderer.autoClear = false;
+    T3.renderer.render(T3.fadeCena, T3.fadeCam);
+    T3.renderer.autoClear = true;
+  }
 }
 function tresParar(){
   if(TOUR.ativo) tourParar(false); /* saiu da visão no meio do tour: para e descarta gravação */
@@ -3183,9 +3287,9 @@ function tresAtivar(){
   if(T3.carregando) return;
   T3.carregando = true;
   $('#tresStatus').hidden = false;
-  /* three (módulo) + GLTFLoader + meshopt + os DOIS GLBs (salão e mesa real)
-     — tudo lazy, só nesta primeira abertura; ambos ficam em cache */
-  carregarThree().then(()=>Promise.all([carregarSalao(), carregarMesa()])).then(()=>{
+  /* three (módulo) + GLTFLoader + meshopt + os GLBs (salão, mesa real e os
+     props do ambiente) — tudo lazy, só nesta primeira abertura; ficam em cache */
+  carregarThree().then(carregarMaquete).then(()=>{
     T3.carregando = false;
     tresIniciar();
     $('#tresStatus').hidden = true;
@@ -3282,8 +3386,11 @@ const panoBox = $('#panoBox');
    lonDinamico (Solar): o olho é calculado do layout (panoOlho) e a vista
    abre olhando o centro da área principal. */
 const PANOS = {};
-AMB.panos.forEach(p=>{ PANOS[p.id] = {...p, tx:null, legenda:p.legenda||''}; });
-document.querySelector('.pano__ambientes').innerHTML = AMB.panos.map((p,i)=>
+/* v18.08-22: panoInterno:false tira o "<espaço> interno" (gerado, vazio) do
+   seletor — no Solar ele repetia a foto do hall/pátio; o Salão mantém */
+const PANOS_LISTA = AMB.panos.filter(p=>!(p.vazio && AMB.panoInterno===false));
+PANOS_LISTA.forEach(p=>{ PANOS[p.id] = {...p, tx:null, legenda:p.legenda||''}; });
+document.querySelector('.pano__ambientes').innerHTML = PANOS_LISTA.map((p,i)=>
   `<button type="button" class="pill" data-pano="${p.id}" aria-pressed="${i===0?'true':'false'}">${esc(p.rotulo)}</button>`).join('');
 const PANOL = { rev:0 };   /* versão do layout que o panorama dinâmico retrata */
 const P360 = {
@@ -3406,7 +3513,7 @@ function layoutRenderizarPanorama(olhoPx){
     const cam = new TH.CubeCamera(.1, 300, cubo);
     cam.position.set(olho.x, olhoY, olho.z);
     T3.cena.add(cam);
-    rd.clippingPlanes = [];                        /* por dentro: forro inteiro, sem corte */
+    tresCorteAplicar(false);                       /* por dentro: forro inteiro, sem corte */
     rd.shadowMap.needsUpdate = true;               /* sombra fresca no cubo */
     cam.update(rd, T3.cena);
     T3.cena.remove(cam);
@@ -3471,7 +3578,7 @@ function layoutRenderizarPanorama(olhoPx){
 function panoGerarLayout(id){
   const amb = PANOS[id] || PANOS.layout;
   return carregarThree()
-    .then(()=>Promise.all([carregarSalao(), carregarMesa()]))
+    .then(carregarMaquete)
     .then(()=>{
       if(!T3.pronto) tresIniciar();
       /* olho calculado com o layout do cliente (vale também para o vazio,
@@ -3640,29 +3747,30 @@ addEventListener('resize', ()=>{ if(visaoAtual==='v360') panoDimensionar(); }, {
    GARANTIA DUPLA (v18.08-11): todo início de tour reconstrói as mesas
    do estado salvo (tresMesas), além da reconstrução na entrada da
    visão — cena e roteiro da câmera nunca desencontram. */
-const TOUR = {ativo:false, segs:[], i:0, segIni:0, gravador:null, pedacos:[], ultimoTamanho:0};
+const TOUR = {ativo:false, segs:[], i:0, segIni:0, fade:0, gravador:null, pedacos:[], ultimoTamanho:0};
 function easeInOut(k){ return k<.5 ? 2*k*k : 1 - Math.pow(-2*k+2, 2)/2; }
 /* v18.08-21: roteiro autoral do Salão (tour:'salao') ou o genérico por
    ambiente (Solar) — os dois devolvem a mesma lista de trechos */
 function tourMontarRoteiro(){
   return AMB.tour==='salao' ? tourRoteiroSalao() : tourRoteiroGenerico();
 }
-/* TOUR GENÉRICO (v18.08-21) — entrada → área principal → meia-volta numa
-   mesa → grua, tudo derivado das ÁREAS do registro (nenhum px fixo aqui):
-   · entrada = a divisa entre a área principal e a área vizinha mais
-     próxima (ponto a tour.entradaFrac ao longo do trecho compartilhado —
-     a porta raramente fica no meio; sem o campo, o meio); sem vizinha,
-     a borda direita. A câmera nasce 0,7 m para DENTRO da divisa: as
-     portas do GLB vêm FECHADAS (folha modelada), então começar do lado
-     de fora faria a câmera atravessar a folha (medido em 26/08).
-   · ponto aberto = o mesmo olho do 360° (panoOlho): piso livre perto do
-     centro, fora das mesas.
-   · mesa de interesse = a mais próxima do ponto aberto.
-   · grua = sobe acima do centro da área, deslocada para o lado da entrada,
-     a ~0,85× a maior dimensão da área (vista geral em diagonal; com
-     corteY o telhado some e o layout aparece).
-   Alturas relativas ao piso LOCAL (pisoYEm): descer do hall (0,85) ao
-   pátio (0,30) acontece dentro do trecho, sem degrau visível. */
+/* TOUR GENÉRICO (v18.08-22) — SEQUÊNCIA DE PLANOS por área, emendados
+   por FUSÃO em preto (~0,4 s): nada de caminho contínuo atravessando porta
+   fechada ou parede, e serve para qualquer ambiente. Fonte = AMB.areas
+   (retângulo + pisoY), a entrada (tourEntrada) e os props; a ordem vem de
+   AMB.tourOrdem (índices de areas) ou é a ordem do registro. Planos:
+   · entrada: 0,7 m para dentro da porta da 1ª área, olhando o centro dela
+     (a divisa com a área vizinha mais próxima, a tour.entradaFrac do trecho
+     compartilhado — a porta raramente fica no meio; as portas do GLB vêm
+     FECHADAS, então a câmera nasce já do lado de dentro);
+   · cada área: dolly lento + pan pelo eixo maior a 1,65 m sobre o piso DA
+     ÁREA (pisoYEm) e um contraplano voltando;
+   · área principal: dolly da porta ao ponto aberto entre as mesas (o mesmo
+     olho do 360°, panoOlho) + órbita curta na árvore (1º prop) ou, sem
+     prop, na mesa mais próxima;
+   · grua: sobe para a vista geral em diagonal (com corteY o telhado some).
+   6–8 s por plano (Solar: 8 planos, ~55 s); a legenda mostra o nome da
+   área do plano. O Salão de Eventos mantém o roteiro autoral (tour:'salao'). */
 function tourEntrada(P){
   let melhor = null;
   for(const Q of AMB.areas){
@@ -3684,41 +3792,112 @@ function tourEntrada(P){
   const x = (x1>x0) ? x0 + frac*(x1-x0) : (P.x0+P.x1)/2;
   return dyQ>0 ? {b:{x, y:P.y1}, dir:{x:0, y:-1}} : {b:{x, y:P.y0}, dir:{x:0, y:1}};
 }
+/* piso livre de uma área: células válidas da máscara dentro dela → centroide,
+   eixo principal (PCA, em px) e extensões ao longo dele; null se quase nada */
+function tourPisoLivre(P){
+  const pts = [], passo = MG.passo;
+  for(let y=P.y0; y<=P.y1; y+=passo) for(let x=P.x0; x<=P.x1; x+=passo)
+    if(pisoValido(x, y) && (!P.poligono || dentroPoligono(P.poligono, x, y))) pts.push([x, y]);
+  if(pts.length < 12) return null;
+  let cx = 0, cy = 0; for(const p of pts){ cx += p[0]; cy += p[1]; } cx /= pts.length; cy /= pts.length;
+  let sxx = 0, sxy = 0, syy = 0;
+  for(const p of pts){ const dx = p[0]-cx, dy = p[1]-cy; sxx += dx*dx; sxy += dx*dy; syy += dy*dy; }
+  const ang = .5*Math.atan2(2*sxy, sxx-syy);
+  const ax = {x:Math.cos(ang), y:Math.sin(ang)}, lat = {x:-ax.y, y:ax.x};
+  let aMin = 1e9, aMax = -1e9, lMin = 1e9, lMax = -1e9;
+  for(const p of pts){
+    const a = (p[0]-cx)*ax.x + (p[1]-cy)*ax.y, l = (p[0]-cx)*lat.x + (p[1]-cy)*lat.y;
+    aMin = Math.min(aMin, a); aMax = Math.max(aMax, a); lMin = Math.min(lMin, l); lMax = Math.max(lMax, l);
+  }
+  return {C:{x:cx, y:cy}, ax, lat, aMin, aMax, lMin, lMax, pts};
+}
+function tourCelulaPerto(pts, p){
+  let melhor = pts[0], md = Infinity;
+  for(const q of pts){ const d = (q[0]-p.x)*(q[0]-p.x) + (q[1]-p.y)*(q[1]-p.y); if(d<md){ md = d; melhor = q; } }
+  return {x:melhor[0], y:melhor[1]};
+}
 function tourRoteiroGenerico(){
   const TH = window.THREE;
   const V = (px,py,h)=>{ const p = pxParaM(px,py); return new TH.Vector3(p.x, pisoYEm(px,py) + h, p.z); };
   const linear = (A,B)=>k=>new TH.Vector3().lerpVectors(A, B, k);
   const fixo = A=>()=>A.clone();
-  const P = SALAO_PRINCIPAL, C = centroPrincipalPx();
-  const ent = tourEntrada(P);
-  const porta  = {x:ent.b.x + ent.dir.x*0.7*pxm, y:ent.b.y + ent.dir.y*0.7*pxm};   /* logo depois da folha */
-  const dentro = {x:ent.b.x + ent.dir.x*3.0*pxm, y:ent.b.y + ent.dir.y*3.0*pxm};
-  const fundo  = {x:ent.b.x + ent.dir.x*7.0*pxm, y:ent.b.y + ent.dir.y*7.0*pxm};   /* olhar inicial: reto para dentro */
-  const O = panoOlho();
-  /* mesa de interesse: a mais próxima do ponto aberto (sem mesas: o próprio ponto) */
-  let mesaPx = O, menor = Infinity;
-  for(const m of PROPOSTA.mesas){ const d = (m.x-O.x)*(m.x-O.x) + (m.y-O.y)*(m.y-O.y); if(d<menor){ menor = d; mesaPx = m; } }
-  const mesaC = V(mesaPx.x, mesaPx.y, .8);                 /* o olhar mira o tampo */
-  const orbR = 2.5, orbAlt = pisoYEm(mesaPx.x, mesaPx.y) + 1.5;
-  const Opos = V(O.x, O.y, 1.7);
-  const a0 = Math.atan2(Opos.z-mesaC.z, Opos.x-mesaC.x);
-  const orbP = a=>new TH.Vector3(mesaC.x + orbR*Math.cos(a), orbAlt, mesaC.z + orbR*Math.sin(a));
+  const OLHO = 1.65;                                       /* altura do olhar sobre o piso da área */
+  const temProp = !!(AMB.props && AMB.props.length);
+  const ordem = (AMB.tourOrdem && AMB.tourOrdem.length) ? AMB.tourOrdem : AMB.areas.map((_,i)=>i);
+  const nomeDe = a=>a.nome || AMB.nome;
+  /* geometria de uma área: centro, eixo maior (ax), eixo lateral (lat) e medidas em px */
+  const geo = P=>{
+    const w = P.x1-P.x0, h = P.y1-P.y0, horiz = w >= h;
+    return {C:{x:(P.x0+P.x1)/2, y:(P.y0+P.y1)/2}, ax:horiz?{x:1,y:0}:{x:0,y:1}, lat:horiz?{x:0,y:1}:{x:1,y:0},
+            L:horiz?w:h, T:horiz?h:w};
+  };
+  const em = (g, a, l)=>({x:g.C.x + g.ax.x*a + g.lat.x*l, y:g.C.y + g.ax.y*a + g.lat.y*l});
+  const planos = [];
+  /* 1 · ENTRADA: 0,7 m para dentro da porta da 1ª área da ordem (a folha do
+     GLB vem fechada — começar fora atravessaria a porta), olhando o centro */
+  const A0 = AMB.areas[ordem[0]] || SALAO_PRINCIPAL, g0 = geo(A0), e0 = tourEntrada(A0);
+  const porta = {x:e0.b.x + e0.dir.x*0.7*pxm, y:e0.b.y + e0.dir.y*0.7*pxm};
+  const passo = {x:e0.b.x + e0.dir.x*2.2*pxm, y:e0.b.y + e0.dir.y*2.2*pxm};
+  planos.push({dur:6, legenda:`Entrada · ${nomeDe(A0)}`, fusao:true,
+    pos:linear(V(porta.x,porta.y,OLHO), V(passo.x,passo.y,OLHO)),
+    look:linear(V(g0.C.x,g0.C.y,1.2), V(g0.C.x,g0.C.y,1.4))});
+  /* 2 · CADA ÁREA da ordem */
+  for(const i of ordem){
+    const P = AMB.areas[i]; if(!P) continue;
+    const g = geo(P);
+    if(i===AMB.principal){
+      /* dolly da porta ao ponto aberto (entre as mesas), olhando o prop
+         (árvore, a 2,6 m — o tronco na caixa de vidro) ou o centro da área */
+      const e = tourEntrada(P);
+      const pA = {x:e.b.x + e.dir.x*1.0*pxm, y:e.b.y + e.dir.y*1.0*pxm};
+      const O = panoOlho();
+      const alvoPx = temProp ? AMB.props[0].px : g.C;
+      const alvo = V(alvoPx.x, alvoPx.y, temProp ? 2.6 : 1.0);
+      planos.push({dur:7, legenda:nomeDe(P), fusao:true,
+        pos:linear(V(pA.x,pA.y,OLHO), V(O.x,O.y,OLHO)), look:linear(V(g.C.x,g.C.y,1.2), alvo)});
+      /* órbita curta: na árvore (raio 5,5 m, fora da caixa de vidro e acima
+         das cadeiras) ou, sem prop, na mesa mais próxima do ponto aberto */
+      let centroPx = alvoPx, raio = 5.5, alt = OLHO + .3, olharH = 2.8;
+      if(!temProp){
+        let menor = Infinity; centroPx = O;
+        for(const m of PROPOSTA.mesas){ const d = (m.x-O.x)*(m.x-O.x) + (m.y-O.y)*(m.y-O.y); if(d<menor){ menor = d; centroPx = m; } }
+        raio = 2.5; alt = 1.5; olharH = .8;
+      }
+      const cM = V(centroPx.x, centroPx.y, olharH), cPiso = pisoYEm(centroPx.x, centroPx.y);
+      const Opos = V(O.x, O.y, alt);
+      const a0 = Math.atan2(Opos.z-cM.z, Opos.x-cM.x);
+      const orbP = a=>new TH.Vector3(cM.x + raio*Math.cos(a), cPiso + alt, cM.z + raio*Math.sin(a));
+      planos.push({dur:8, legenda:nomeDe(P), fusao:true, pos:k=>orbP(a0 + Math.PI*.9*k), look:fixo(cM)});
+    }else{
+      /* dolly lento + pan pelo PISO LIVRE da área (células válidas da máscara,
+         que já vem erodida em 0,8 m: a câmera nunca nasce dentro de parede,
+         tabique ou balcão — o retângulo do registro inclui tudo isso). Eixo
+         principal das células (PCA): ida a 1,65 m sobre o piso DA ÁREA
+         olhando o fundo com um pan lateral, e um contraplano voltando. */
+      const m = tourPisoLivre(P) || {C:g.C, ax:g.ax, lat:g.lat, aMin:-.4*g.L, aMax:.4*g.L, lMin:-.4*g.T, lMax:.4*g.T, pts:null};
+      const no = (a, l)=>{ const p = {x:m.C.x + m.ax.x*a + m.lat.x*l, y:m.C.y + m.ax.y*a + m.lat.y*l}; return m.pts ? tourCelulaPerto(m.pts, p) : p; };
+      const olhar = (a, l)=>({x:m.C.x + m.ax.x*a + m.lat.x*l, y:m.C.y + m.ax.y*a + m.lat.y*l});
+      const p0 = no(.6*m.aMin, .3*m.lMin), p1 = no(.1*m.aMin, .1*m.lMin);
+      const l0 = olhar(.9*m.aMax, .5*m.lMin), l1 = olhar(.9*m.aMax, .5*m.lMax);
+      planos.push({dur:7, legenda:nomeDe(P), fusao:true,
+        pos:linear(V(p0.x,p0.y,OLHO), V(p1.x,p1.y,OLHO)), look:linear(V(l0.x,l0.y,1.4), V(l1.x,l1.y,1.4))});
+      /* contraplano: do outro lado, voltando */
+      const q0 = no(.6*m.aMax, .3*m.lMax), q1 = no(.15*m.aMax, .1*m.lMax);
+      const m0 = olhar(.9*m.aMin, .5*m.lMax), m1 = olhar(.9*m.aMin, .5*m.lMin);
+      planos.push({dur:6, legenda:nomeDe(P), fusao:true,
+        pos:linear(V(q0.x,q0.y,OLHO), V(q1.x,q1.y,OLHO)), look:linear(V(m0.x,m0.y,1.4), V(m1.x,m1.y,1.4))});
+    }
+  }
+  /* 3 · GRUA: sobe do lado da entrada da área principal para a vista geral
+     em diagonal (com corteY o telhado some e o layout — e a copa — aparecem) */
+  const P = SALAO_PRINCIPAL, C = centroPrincipalPx(), e2 = tourEntrada(P);
   const largM = Math.max(P.x1-P.x0, P.y1-P.y0)/pxm;
-  const gruaPx = {x:C.x - ent.dir.x*0.35*(P.x1-P.x0), y:C.y - ent.dir.y*0.35*(P.y1-P.y0)};
-  const grua = V(gruaPx.x, gruaPx.y, .85*largM);
-  const centroC = V(C.x, C.y, 0);
-  return [
-    /* 1 · entra pela porta, baixo, olhando reto para dentro da área principal */
-    {dur:6,  pos:linear(V(porta.x,porta.y,1.6), V(dentro.x,dentro.y,1.7)), look:linear(V(fundo.x,fundo.y,1.3), Opos)},
-    /* 2 · atravessa até o ponto aberto, entre as mesas */
-    {dur:8,  pos:linear(V(dentro.x,dentro.y,1.7), Opos), look:linear(Opos, mesaC)},
-    /* 3 · aproxima da mesa de interesse */
-    {dur:4,  pos:linear(Opos, orbP(a0)), look:fixo(mesaC)},
-    /* 4 · meia-volta lenta ao redor da mesa, a 2,5 m */
-    {dur:12, pos:k=>orbP(a0 + Math.PI*k), look:fixo(mesaC)},
-    /* 5 · grua: sobe para a vista geral em diagonal e encerra */
-    {dur:9,  pos:linear(orbP(a0+Math.PI), grua), look:linear(mesaC, centroC)}
-  ];
+  const gruaPx  = {x:C.x - e2.dir.x*0.35*(P.x1-P.x0), y:C.y - e2.dir.y*0.35*(P.y1-P.y0)};
+  const baixoPx = {x:C.x - e2.dir.x*0.45*(P.x1-P.x0), y:C.y - e2.dir.y*0.45*(P.y1-P.y0)};
+  planos.push({dur:8, legenda:'Vista geral', fusao:true,
+    pos:linear(V(baixoPx.x,baixoPx.y,3.5), V(gruaPx.x,gruaPx.y,.85*largM)),
+    look:linear(V(C.x,C.y,1.5), V(C.x,C.y,0))});
+  return planos;
 }
 function tourRoteiroSalao(){
   const TH = window.THREE;
@@ -3778,20 +3957,31 @@ function tourAtualizar(ts){
     if(TOUR.i >= TOUR.segs.length){ tourParar(true); return; }
     seg = TOUR.segs[TOUR.i];
     k = (ts - TOUR.segIni) / (seg.dur*1000);
+    tourLegenda(seg);                       /* plano novo: legenda com o nome da área */
   }
   const e = easeInOut(limita(k, 0, 1));
   T3.cam.position.copy(seg.pos(e));
   T3.cam.lookAt(seg.look(e));
+  /* fusão em preto (v18.08-22): 0,2 s entrando + 0,2 s saindo de cada plano
+     com fusao:true (os planos do Salão não têm — caminho contínuo) */
+  const t = limita(k, 0, 1)*seg.dur, F = .2;
+  TOUR.fade = seg.fusao ? Math.max(0, 1 - t/F, 1 - (seg.dur - t)/F) : 0;
+}
+/* legenda do tour: nome da área do plano (roteiro genérico) ou o texto de sempre */
+function tourLegenda(seg){
+  $('#tresLegenda').textContent = (seg && seg.legenda)
+    ? `Tour · ${seg.legenda} — Esc para parar`
+    : `Tour com o layout atual (versão ${PROPOSTA.rev}) — Esc para parar`;
 }
 function tourIniciar(gravar){
   if(!T3.pronto || T3.falhou || TOUR.ativo) return;
   tresMesas();                             /* garantia dupla: a cena SEMPRE nasce do estado salvo */
   TOUR.segs = tourMontarRoteiro();
-  TOUR.i = 0; TOUR.segIni = 0; TOUR.ativo = true;   /* o 1º quadro já posiciona a câmera no início */
+  TOUR.i = 0; TOUR.segIni = 0; TOUR.fade = 0; TOUR.ativo = true;   /* o 1º quadro já posiciona a câmera no início */
   if(gravar) tourGravarComecar();
   $('#btnTour').textContent = '◼ Parar';
   $('#btnGravarTour').disabled = true;
-  $('#tresLegenda').textContent = `Tour com o layout atual (versão ${PROPOSTA.rev}) — Esc para parar`;
+  tourLegenda(TOUR.segs[0]);
 }
 function tourParar(completo){
   if(!TOUR.ativo) return;
