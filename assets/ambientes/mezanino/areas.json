@@ -1,0 +1,345 @@
+{
+ "ambiente": "mezanino_itapema",
+ "glbcal": {
+  "px0": 960,
+  "x0": 64.697,
+  "py0": 540,
+  "z0": 23.54
+ },
+ "pxm": 43.55102,
+ "largura_px": 1920,
+ "altura_px": 1080,
+ "pisos": [
+  {
+   "id": "terreo",
+   "nome": "Térreo · Espaço 3",
+   "piso_y": 0.18,
+   "planta": "planta.jpg",
+   "mascara": "mascara.b64",
+   "corte_render_y": 2.8,
+   "celulas_validas": 19685
+  },
+  {
+   "id": "mezanino",
+   "nome": "Mezanino · deck",
+   "piso_y": 3.3,
+   "planta": "planta-mezanino.jpg",
+   "mascara": "mascara-mezanino.b64",
+   "corte_render_y": 4.8,
+   "celulas_validas": 8429
+  }
+ ],
+ "areas": [
+  {
+   "nome": "Ala esquerda (sob o deck)",
+   "piso": "terreo",
+   "piso_y": 0.18,
+   "x0": 563,
+   "y0": 108,
+   "x1": 1011,
+   "y1": 908,
+   "m2_piso": 136.2,
+   "celulas_validas": 13391,
+   "nota": "piso cerâmico do Espaço 3 sob o deck (3,12 m livres); exclui o bloco fechado NE (espelhos/sanitários + elevador + caixa da escada, px 749,98,1011,434)",
+   "m2_mascara": 113
+  },
+  {
+   "nome": "Ala direita · bar",
+   "piso": "terreo",
+   "piso_y": 0.18,
+   "x0": 1011,
+   "y0": 495,
+   "x1": 1398,
+   "y1": 908,
+   "m2_piso": 64.1,
+   "celulas_validas": 6364,
+   "nota": "ala com pé-direito duplo (5,6 m) e o balcão do bar na parede norte",
+   "m2_mascara": 53.7
+  },
+  {
+   "nome": "Mezanino · deck",
+   "piso": "mezanino",
+   "piso_y": 3.3,
+   "x0": 563,
+   "y0": 108,
+   "x1": 1011,
+   "y1": 908,
+   "m2_piso": 103.8,
+   "celulas_validas": 8429,
+   "nota": "deck de madeira a +3,12 m, em C ao redor da escada/vazio",
+   "m2_mascara": 71.1
+  }
+ ],
+ "escada": {
+  "pe": {
+   "m": [
+    64.07,
+    23.65
+   ],
+   "px": [
+    933,
+    545
+   ],
+   "piso_y": 0.18
+  },
+  "topo": {
+   "m": [
+    64.07,
+    19.6
+   ],
+   "px": [
+    933,
+    368
+   ],
+   "piso_y": 3.3
+  },
+  "largura_m": 1.29,
+  "sentido": "sobe de sul (z 23,65) para norte (z 19,6), reta, 16 degraus; corrimão até 4,25",
+  "bbox_px": [
+   905,
+   334,
+   961,
+   540
+  ]
+ },
+ "pilares": [
+  {
+   "n": 1,
+   "m": [
+    60.45,
+    20.05
+   ],
+   "px": [
+    775,
+    388
+   ],
+   "raio_px": 7,
+   "lado_m": 0.25,
+   "nota": "pilar metálico esbelto (_0136_Charcoal)"
+  },
+  {
+   "n": 2,
+   "m": [
+    60.45,
+    26.06
+   ],
+   "px": [
+    775,
+    650
+   ],
+   "raio_px": 7,
+   "lado_m": 0.25,
+   "nota": "pilar metálico esbelto (_0136_Charcoal)"
+  },
+  {
+   "n": 3,
+   "m": [
+    65,
+    26.06
+   ],
+   "px": [
+    973,
+    650
+   ],
+   "raio_px": 7,
+   "lado_m": 0.25,
+   "nota": "pilar metálico esbelto (_0136_Charcoal)"
+  },
+  {
+   "n": 4,
+   "m": [
+    70,
+    26.06
+   ],
+   "px": [
+    1191,
+    650
+   ],
+   "raio_px": 7,
+   "lado_m": 0.25,
+   "nota": "pilar metálico esbelto (_0136_Charcoal)"
+  },
+  {
+   "n": 5,
+   "m": [
+    64.75,
+    21.4
+   ],
+   "px": [
+    962,
+    447
+   ],
+   "raio_px": 7,
+   "lado_m": 0.25,
+   "nota": "montante junto à caixa da escada (0,4 m)"
+  }
+ ],
+ "pilares_de_fachada": [
+  {
+   "m": [
+    60.45,
+    31.84
+   ],
+   "px": [
+    775,
+    901
+   ]
+  },
+  {
+   "m": [
+    64.8,
+    31.84
+   ],
+   "px": [
+    964,
+    901
+   ]
+  },
+  {
+   "m": [
+    70,
+    31.84
+   ],
+   "px": [
+    1191,
+    901
+   ]
+  },
+  {
+   "m": [
+    55.65,
+    14.1
+   ],
+   "px": [
+    566,
+    129
+   ]
+  },
+  {
+   "m": [
+    55.65,
+    20.1
+   ],
+   "px": [
+    566,
+    390
+   ]
+  },
+  {
+   "m": [
+    55.65,
+    26.1
+   ],
+   "px": [
+    566,
+    651
+   ]
+  },
+  {
+   "m": [
+    55.65,
+    31.9
+   ],
+   "px": [
+    566,
+    904
+   ]
+  }
+ ],
+ "bar": {
+  "balcao_px": [
+   1011,
+   506,
+   1398,
+   584
+  ],
+  "balcao_m": [
+   65.87,
+   22.77,
+   74.75,
+   24.55
+  ],
+  "altura_m": 2,
+  "parede_pedra_px": [
+   1011,
+   584,
+   1398,
+   594
+  ],
+  "passa_prato_parede_leste": {
+   "m": [
+    75,
+    23.6
+   ],
+   "px": [
+    1409,
+    543
+   ],
+   "nota": "Aço_02__Áspero + vidro na parede leste, z 23,07..24,09, do y 1,44 ao 3,78 — janela de serviço do bar, não é porta"
+  }
+ },
+ "porta_entrada": {
+  "parede": "oeste (fachada envidraçada)",
+  "vao_m": {
+   "x": 55.6,
+   "z0": 20.1,
+   "z1": 26.1
+  },
+  "vao_px": {
+   "x": 564,
+   "y0": 390,
+   "y1": 651
+  },
+  "centro_px": [
+   564,
+   521
+  ],
+  "largura_m": 6,
+  "evidencia": "caixilho __Metal_Aluminum_Anodized_1 (x 55,65..55,79, z 19,79..25,89, y 0,18..2,84) entre dois montantes _0136_Charcoal (z 20,1 e 26,1); do lado de fora há um bloco/degrau de acesso (porta-oeste-de-fora.jpg). Fachadas oeste e sul são inteiramente de vidro (Translucent_Glass_Gray); parede leste e norte opacas.",
+  "inicio_tour": {
+   "m": [
+    56.8,
+    23.1
+   ],
+   "px": [
+    616,
+    521
+   ],
+   "olhando_para": {
+    "m": [
+     64,
+     22
+    ],
+    "px": [
+     930,
+     473
+    ]
+   },
+   "nota": "1,2 m para dentro da porta, olhando para a escada/deck"
+  }
+ },
+ "bloco_fechado_ne": {
+  "px": [
+   749,
+   98,
+   1011,
+   434
+  ],
+  "m": [
+   59.85,
+   13.4,
+   65.87,
+   21.1
+  ],
+  "nota": "espelhos (Espelho1/Mirror_01/ESPELHO3), elevador (Color_M05, poço −2,82) e caixa da escada; fechado por faces _0136_Charcoal em x 59,85 e 65,87 — não caminhável"
+ },
+ "elevador_px": [
+  828,
+  272,
+  962,
+  378
+ ],
+ "cortinas": {
+  "nota": "DOSSEL_TWO_SIDED: 11 cortinas do forro (5,88) ao piso (0,18) junto à fachada oeste (x 55,77..64,85) — obstáculo real, ficam fora da máscara pela erosão"
+ }
+}

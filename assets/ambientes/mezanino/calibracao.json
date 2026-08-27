@@ -1,0 +1,642 @@
+{
+ "ambiente": "mezanino",
+ "nome": "Mezanino · Itapema (Espaço 3)",
+ "pxm": 43.55102,
+ "largura_px": 1920,
+ "altura_px": 1080,
+ "offset_x_m": 42.6539,
+ "offset_z_m": 11.1407,
+ "formula": "x_m = px / pxm + offset_x_m ; z_m = py / pxm + offset_z_m  (topo da imagem = -Z, direita = +X)",
+ "glbcal": {
+  "px0": 960,
+  "x0": 64.697,
+  "py0": 540,
+  "z0": 23.54
+ },
+ "piso_y": 0.18,
+ "corte_render_y": 2.8,
+ "bbox": {
+  "min": [
+   54.32,
+   -2.82,
+   13.18
+  ],
+  "max": [
+   75.074,
+   7.326,
+   33.899
+  ]
+ },
+ "grade": {
+  "w": 480,
+  "h": 270,
+  "passo": 4,
+  "celulas_validas": 19685,
+  "tampo_raio_m": 0.4,
+  "tolerancia_m": 0.15,
+  "formato": "bitpack LSB-first, i = gy*w + gx, base64"
+ },
+ "pisos": [
+  {
+   "id": "terreo",
+   "nome": "Térreo · Espaço 3",
+   "piso_y": 0.18,
+   "planta": "planta.jpg",
+   "mascara": "mascara.b64",
+   "corte_render_y": 2.8,
+   "grade": {
+    "w": 480,
+    "h": 270,
+    "passo": 4,
+    "celulas_validas": 19685,
+    "tampo_raio_m": 0.4,
+    "tolerancia_m": 0.15,
+    "formato": "bitpack LSB-first, i = gy*w + gx, base64"
+   },
+   "m2_mascara": 166.1
+  },
+  {
+   "id": "mezanino",
+   "nome": "Mezanino · deck",
+   "piso_y": 3.3,
+   "planta": "planta-mezanino.jpg",
+   "mascara": "mascara-mezanino.b64",
+   "corte_render_y": 4.8,
+   "grade": {
+    "w": 480,
+    "h": 270,
+    "passo": 4,
+    "celulas_validas": 8429,
+    "tampo_raio_m": 0.4,
+    "tolerancia_m": 0.15,
+    "formato": "bitpack LSB-first, i = gy*w + gx, base64"
+   },
+   "m2_mascara": 71.1
+  }
+ ],
+ "areas": [
+  {
+   "nome": "Ala esquerda (sob o deck)",
+   "piso": "terreo",
+   "piso_y": 0.18,
+   "retangulo_px": [
+    563,
+    108,
+    1011,
+    908
+   ],
+   "m2_piso": 136.2,
+   "m2_mascara": 113,
+   "celulas_validas": 13391,
+   "nota": "piso cerâmico do Espaço 3 sob o deck (3,12 m livres); exclui o bloco fechado NE (espelhos/sanitários + elevador + caixa da escada, px 749,98,1011,434)"
+  },
+  {
+   "nome": "Ala direita · bar",
+   "piso": "terreo",
+   "piso_y": 0.18,
+   "retangulo_px": [
+    1011,
+    495,
+    1398,
+    908
+   ],
+   "m2_piso": 64.1,
+   "m2_mascara": 53.7,
+   "celulas_validas": 6364,
+   "nota": "ala com pé-direito duplo (5,6 m) e o balcão do bar na parede norte"
+  },
+  {
+   "nome": "Mezanino · deck",
+   "piso": "mezanino",
+   "piso_y": 3.3,
+   "retangulo_px": [
+    563,
+    108,
+    1011,
+    908
+   ],
+   "m2_piso": 103.8,
+   "m2_mascara": 71.1,
+   "celulas_validas": 8429,
+   "nota": "deck de madeira a +3,12 m, em C ao redor da escada/vazio"
+  }
+ ],
+ "areas_mascara": {
+  "terreo": [
+   {
+    "nome": "Térreo · Espaço 3",
+    "piso_y": 0.18,
+    "materiais_piso": [
+     "material_22_1"
+    ],
+    "retangulo_px": [
+     555,
+     98,
+     1409,
+     917
+    ],
+    "retangulo_m": [
+     55.4,
+     13.4,
+     75,
+     32.2
+    ],
+    "poligono_m": [
+     [
+      55.4,
+      13.4
+     ],
+     [
+      65.87,
+      13.4
+     ],
+     [
+      65.87,
+      22.5
+     ],
+     [
+      75,
+      22.5
+     ],
+     [
+      75,
+      32.2
+     ],
+     [
+      55.4,
+      32.2
+     ]
+    ],
+    "poligono_px": [
+     [
+      555,
+      98
+     ],
+     [
+      1011,
+      98
+     ],
+     [
+      1011,
+      495
+     ],
+     [
+      1409,
+      495
+     ],
+     [
+      1409,
+      917
+     ],
+     [
+      555,
+      917
+     ]
+    ],
+    "celulas_validas": 19685,
+    "area_valida_m2": 166.1
+   }
+  ],
+  "mezanino": [
+   {
+    "nome": "Mezanino (deck de madeira)",
+    "piso_y": 3.3,
+    "materiais_piso": [
+     "Madeira_05__Fileira",
+     "Madeira_05__Fileira_2",
+     "Madeira_41__Fileira"
+    ],
+    "retangulo_px": [
+     555,
+     98,
+     1017,
+     917
+    ],
+    "retangulo_m": [
+     55.4,
+     13.4,
+     66,
+     32.2
+    ],
+    "poligono_m": null,
+    "poligono_px": null,
+    "celulas_validas": 8429,
+    "area_valida_m2": 71.1
+   }
+  ]
+ },
+ "escada": {
+  "pe": {
+   "m": [
+    64.07,
+    23.65
+   ],
+   "px": [
+    933,
+    545
+   ],
+   "piso_y": 0.18
+  },
+  "topo": {
+   "m": [
+    64.07,
+    19.6
+   ],
+   "px": [
+    933,
+    368
+   ],
+   "piso_y": 3.3
+  },
+  "largura_m": 1.29,
+  "sentido": "sobe de sul (z 23,65) para norte (z 19,6), reta, 16 degraus; corrimão até 4,25",
+  "bbox_px": [
+   905,
+   334,
+   961,
+   540
+  ]
+ },
+ "pilares": [
+  {
+   "n": 1,
+   "m": [
+    60.45,
+    20.05
+   ],
+   "px": [
+    775,
+    388
+   ],
+   "raio_px": 7,
+   "lado_m": 0.25,
+   "nota": "pilar metálico esbelto (_0136_Charcoal)"
+  },
+  {
+   "n": 2,
+   "m": [
+    60.45,
+    26.06
+   ],
+   "px": [
+    775,
+    650
+   ],
+   "raio_px": 7,
+   "lado_m": 0.25,
+   "nota": "pilar metálico esbelto (_0136_Charcoal)"
+  },
+  {
+   "n": 3,
+   "m": [
+    65,
+    26.06
+   ],
+   "px": [
+    973,
+    650
+   ],
+   "raio_px": 7,
+   "lado_m": 0.25,
+   "nota": "pilar metálico esbelto (_0136_Charcoal)"
+  },
+  {
+   "n": 4,
+   "m": [
+    70,
+    26.06
+   ],
+   "px": [
+    1191,
+    650
+   ],
+   "raio_px": 7,
+   "lado_m": 0.25,
+   "nota": "pilar metálico esbelto (_0136_Charcoal)"
+  },
+  {
+   "n": 5,
+   "m": [
+    64.75,
+    21.4
+   ],
+   "px": [
+    962,
+    447
+   ],
+   "raio_px": 7,
+   "lado_m": 0.25,
+   "nota": "montante junto à caixa da escada (0,4 m)"
+  }
+ ],
+ "pilares_de_fachada": [
+  {
+   "m": [
+    60.45,
+    31.84
+   ],
+   "px": [
+    775,
+    901
+   ]
+  },
+  {
+   "m": [
+    64.8,
+    31.84
+   ],
+   "px": [
+    964,
+    901
+   ]
+  },
+  {
+   "m": [
+    70,
+    31.84
+   ],
+   "px": [
+    1191,
+    901
+   ]
+  },
+  {
+   "m": [
+    55.65,
+    14.1
+   ],
+   "px": [
+    566,
+    129
+   ]
+  },
+  {
+   "m": [
+    55.65,
+    20.1
+   ],
+   "px": [
+    566,
+    390
+   ]
+  },
+  {
+   "m": [
+    55.65,
+    26.1
+   ],
+   "px": [
+    566,
+    651
+   ]
+  },
+  {
+   "m": [
+    55.65,
+    31.9
+   ],
+   "px": [
+    566,
+    904
+   ]
+  }
+ ],
+ "bar": {
+  "balcao_px": [
+   1011,
+   506,
+   1398,
+   584
+  ],
+  "balcao_m": [
+   65.87,
+   22.77,
+   74.75,
+   24.55
+  ],
+  "altura_m": 2,
+  "parede_pedra_px": [
+   1011,
+   584,
+   1398,
+   594
+  ],
+  "passa_prato_parede_leste": {
+   "m": [
+    75,
+    23.6
+   ],
+   "px": [
+    1409,
+    543
+   ],
+   "nota": "Aço_02__Áspero + vidro na parede leste, z 23,07..24,09, do y 1,44 ao 3,78 — janela de serviço do bar, não é porta"
+  }
+ },
+ "porta_entrada": {
+  "parede": "oeste (fachada envidraçada)",
+  "vao_m": {
+   "x": 55.6,
+   "z0": 20.1,
+   "z1": 26.1
+  },
+  "vao_px": {
+   "x": 564,
+   "y0": 390,
+   "y1": 651
+  },
+  "centro_px": [
+   564,
+   521
+  ],
+  "largura_m": 6,
+  "evidencia": "caixilho __Metal_Aluminum_Anodized_1 (x 55,65..55,79, z 19,79..25,89, y 0,18..2,84) entre dois montantes _0136_Charcoal (z 20,1 e 26,1); do lado de fora há um bloco/degrau de acesso (porta-oeste-de-fora.jpg). Fachadas oeste e sul são inteiramente de vidro (Translucent_Glass_Gray); parede leste e norte opacas.",
+  "inicio_tour": {
+   "m": [
+    56.8,
+    23.1
+   ],
+   "px": [
+    616,
+    521
+   ],
+   "olhando_para": {
+    "m": [
+     64,
+     22
+    ],
+    "px": [
+     930,
+     473
+    ]
+   },
+   "nota": "1,2 m para dentro da porta, olhando para a escada/deck"
+  }
+ },
+ "bloco_fechado_ne": {
+  "px": [
+   749,
+   98,
+   1011,
+   434
+  ],
+  "m": [
+   59.85,
+   13.4,
+   65.87,
+   21.1
+  ],
+  "nota": "espelhos (Espelho1/Mirror_01/ESPELHO3), elevador (Color_M05, poço −2,82) e caixa da escada; fechado por faces _0136_Charcoal em x 59,85 e 65,87 — não caminhável"
+ },
+ "elevador_px": [
+  828,
+  272,
+  962,
+  378
+ ],
+ "cortinas": {
+  "nota": "DOSSEL_TWO_SIDED: 11 cortinas do forro (5,88) ao piso (0,18) junto à fachada oeste (x 55,77..64,85) — obstáculo real, ficam fora da máscara pela erosão"
+ },
+ "niveis_piso": {
+  "deck_mezanino": 3.3,
+  "piso_espaco3_terreo": 0.18,
+  "poco_elevador": -2.82,
+  "forro": 5.8,
+  "topo_cobertura": 7.33,
+  "piso_salao_referencia": 0.588
+ },
+ "altura_livre": {
+  "deck_sobre_piso_espaco3_m": 3.12,
+  "deck_sobre_piso_salao_y0588_m": 2.71,
+  "nota": "o deck fica 2,71 m acima do nível do piso do salão (y 0,588) — mas os dois não estão sobrepostos em planta (ver hipotese_origem)"
+ },
+ "hipotese_origem": {
+  "pergunta": "o mezanino foi exportado com a MESMA origem do térreo? Aplicar o recenterFixed do salão [31.34, 0, -52.91] coloca o mezanino sobre o salão?",
+  "resultado": "FALHOU. Os dois exports compartilham a origem do SketchUp (unit 0.0254, Z_UP, mesma versão 23.0.419), mas os objetos ocupam regiões DISJUNTAS do mundo: o salão está em x 10,11..51,47 / z −67,65..−43,21 (modelo) e o mezanino em x 85,66..106,41 / z −39,73..−19,01. Com o mesmo recentro o mezanino cai em x 54,32..75,07 / z 13,18..33,90 do GLB — 34,2 m a leste da parede de vidro do salão (x 20,13) e 3,5 m ao sul do bordo sul do export do salão (z 9,70). O DAE do salão (117 MB) não tem NENHUM vértice nem matriz de nó nessa caixa (varredura _scan-vertices.mjs: 0 de 714.769 vértices / 0 de 5.422 matrizes).",
+  "por_que_nao_alinhar_na_mao": "não existe correspondência de paredes/pilares para medir um deslocamento: o bloco principal do salão tem 24,5 × 14,35 m sem pilares internos e forro a 4,05 m do piso; o modelo do mezanino é uma sala em L de 19,4 × 18,8 m (“Espaço 3” do CAD, pé-direito 5,6 m no modelo / 5,82 no CAD) com 5 pilares e um deck de madeira interno a +3,1 m. O piso do Espaço 3 (y 0,18) fica 0,41 m ABAIXO do piso do salão (y 0,588) — no mesmo mundo, é uma sala vizinha no nível do chão, não um andar sobre o salão. Qualquer translação que o “pusesse em cima” seria cenário inventado.",
+  "decisao": "mezanino.glb gerado com o MESMO recenterFixed do salão e Y intocado (como pedido): mesma origem, mesma escala, mesmo eixo. Planta/máscara na MESMA pxm do salão (43,551 px/m), mas centradas no mezanino (glbcal próprio em calibracao-mezanino.json), porque na calibração da planta do salão (x −21,87..22,22) o mezanino fica fora do quadro."
+ },
+ "blocos_movidos": [],
+ "recentro_modelo_m": [
+  31.34,
+  0,
+  -52.91
+ ],
+ "unidade_origem": "polegada (0.0254) Z_UP → metros Y-up pelo ColladaLoader",
+ "bbox_modelo": {
+  "min": [
+   85.66,
+   -2.82,
+   -39.73
+  ],
+  "max": [
+   106.414,
+   7.327,
+   -19.011
+  ]
+ },
+ "glb": {
+  "arquivo": "salao.glb",
+  "bytes": 627136,
+  "mb": 0.6,
+  "triangulos": 161872,
+  "meshes": 44,
+  "materiais": 44,
+  "compressao": "gltfpack 1.2 -cc -km (EXT_meshopt_compression + KHR_mesh_quantization, posição 14 bits; -km mantém os nomes de material; sem UV porque não há textura)",
+  "texturas": "NENHUMA — as 27 imagens da pasta \"MZ Vazio/\" não vieram; cores por nome de material (tex-manifest-mezanino.json)",
+  "triangulos_dae_com_instancias": 32916518,
+  "triangulos_apos_remover_instanciados": 742886,
+  "triangulos_raw_final": 161872
+ },
+ "conferencia_cad": {
+  "fonte": "planta-itapema-pdf.jpg (planta da arquiteta): rótulo \"Espaço 3 · a: 229,80 m² · nível −0,70 · Piso: PISO CERÂMICO · Pé direito: 5,82 m\", \"Projeção Mezanino\", \"Parede Acústica\", escada 01–16 \"Sobe\" com \"GUARDA-CORPO H=1,10 / CORRIMÃO 90cm\"",
+  "leitura": "o CAD desenha o TÉRREO do Espaço 3 (229,80 m²) com a projeção do mezanino; o modelo 3D é a mesma sala em L (19,2 × 18,4 m externos) com o deck de madeira em cima da ala esquerda (103,8 m² vistos de cima) — o deck não tem área no CAD",
+  "cotas_cm_vs_modelo_m": {
+   "fachada_inferior_1894": {
+    "modelo": 19.16,
+    "nota": "largura interna do piso material_22_1 (x 55,59..74,75)"
+   },
+   "braco_762_mais_escada_132_mais_112": {
+    "cad": 10.06,
+    "modelo": 10.28,
+    "nota": "largura da ala esquerda/deck (x 55,59..65,87)"
+   },
+   "ala_direita_701_706": {
+    "cad": 7.06,
+    "modelo": 9.23,
+    "nota": "profundidade da ala direita no modelo (z 22,77..32,0) — 2,2 m maior que o CAD"
+   },
+   "escada_132": {
+    "cad": 1.32,
+    "modelo": 1.29
+   },
+   "pe_direito_582": {
+    "cad": 5.82,
+    "modelo": 5.62
+   },
+   "area_terreo_229_80": {
+    "cad": 229.8,
+    "modelo_aprox": 245.4,
+    "nota": "piso visto de cima fora do deck + piso sob o deck (≈ área do deck) + caixa do elevador; o modelo é ~7 % maior que o CAD (ala direita mais funda)"
+   }
+  }
+ },
+ "remocoes": {
+  "cordoes_de_luz_e_lustres": [
+   {
+    "material": "Color_C02",
+    "pecas": 5832,
+    "triangulos": 11384064
+   },
+   {
+    "material": "material",
+    "pecas": 11016,
+    "triangulos": 10575360
+   },
+   {
+    "material": "__Color_D02_1+Emissive1",
+    "pecas": 7344,
+    "triangulos": 6668352
+   },
+   {
+    "material": "Emissive2",
+    "pecas": 3888,
+    "triangulos": 3545856
+   }
+  ],
+  "nota_instanciados": "removeInstanciadas {minInst 100, minTris 50}: toda geometria instanciada ≥100× (bulbos 2756/2636 tris × 1068+768, pingentes 5512/5464 × 648+324, filamentos) — 32,2 M dos 32,9 M de triângulos do DAE",
+  "materiais_removidos": [
+   "Color_C02",
+   "Emissive2",
+   "__Color_D02_1",
+   "Emissive1",
+   "__Color_005_3",
+   "material_101",
+   "Color_C15",
+   "Color_003"
+  ],
+  "decoracao_piso": "__Color_005_3 + material_101 + Color_C15 + Color_003: objeto de 30 cm no piso do térreo (38.828 triângulos)",
+  "linhas_luzes_cameras": "9586 linhas de aresta, 2 câmeras skp_camera_*",
+  "nao_removido": "piso/paredes/pilares do térreo do Espaço 3 NÃO são duplicata do salao-real.glb (são outra sala, 34 m a leste) — mantidos; nada abaixo de 1,5 m foi cortado; o único volume abaixo do piso é o poço do elevador (−2,82)"
+ },
+ "simplificacao": {
+  "DOSSEL_TWO_SIDED": "cortinas: solda por posição + remoção das faces gêmeas (two-sided) + MeshoptSimplifier 0,25 → 45170 de 361.394",
+  "material_6": "luminárias do forro da ala direita: mesmo tratamento → 26302 de 244.000",
+  "GUARDA_CORPO_-_CROMADO": "0,5 → 38536 de 46.800 (montantes já eram mínimos)",
+  "intocados": "piso, deck, paredes, pilares (_0136_Charcoal), escada (__Metal_Seamed_2/Metal_*), guarda-corpo (cabos, inox, cinza), vidros, bar"
+ },
+ "planta_render": {
+  "terreo": {
+   "corte_y": 2.8,
+   "como": "plano de recorte em y = 2,8 (abaixo do deck, que começa em 2,88): mostra o piso inteiro do Espaço 3, pilares, bar, elevador, escada e o fundo das paredes"
+  },
+  "mezanino": {
+   "corte_y": 4.8,
+   "como": "plano de recorte em y = 4,8 (1,5 m acima do deck): some o forro (5,80), a cobertura (7,33), as luminárias (5,76–6,10) e o volume rebaixado da ala direita (4,95); ficam deck, piso do térreo, paredes (fundo), pilares, escada, elevador, bar e as cortinas cortadas"
+  }
+ },
+ "texturas": "tex-manifest.json (27 texturas ausentes → cor por nome de material)",
+ "translacao_hipotetica_nao_aplicada": {
+  "nota": "se algum dia se quiser POUSAR o mezanino sobre o bloco principal do salão (decisão de proposta, não de fidelidade): centro do deck (60,73; 22,80) → centro do bloco principal do salão (7,8; −0,575) = dx −52,9 m, dz −23,4 m; e o piso do Espaço 3 (0,18) teria de subir para cima do forro do salão (4,64) = dy ≥ +4,5 m. Não cabe: a sala tem 18,8 m de fundo contra 14,35 m do salão."
+ }
+}
