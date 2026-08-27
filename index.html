@@ -311,6 +311,8 @@ html.sem-io .reveal{opacity:1;transform:none;}
 .area__fundo{fill:rgba(247,248,249,.82);stroke:rgba(36,43,51,.18);stroke-width:1.5;}
 .area__txt{font-family:var(--serif);font-weight:600;font-size:34px;fill:var(--brown-deep);letter-spacing:.02em;}
 .areas{pointer-events:none;}
+.ambs3d{position:absolute;top:12px;left:12px;z-index:6;display:flex;gap:8px;flex-wrap:wrap;max-width:calc(100% - 24px);}
+.ambs3d .pill{font-size:.74rem;padding:5px 13px;background:rgba(247,248,249,.94);box-shadow:0 2px 8px rgba(20,24,29,.12);}
 .pisos{display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px 8px;background:var(--cream-2);border-bottom:1px solid var(--line);}
 .pisos .pill{font-size:.78rem;padding:6px 14px;}
 .area__sub{font-family:var(--sans);font-size:18px;letter-spacing:.14em;fill:var(--taupe);}
@@ -868,6 +870,8 @@ html.sem-io .reveal{opacity:1;transform:none;}
         <!-- visão 3D: maquete interativa gerada do layout do cliente (three.js, lazy) -->
         <div class="visao" data-v="v3d">
           <div class="visao__frame visao__frame--tres">
+            <!-- atalhos de câmera por ambiente (v18.08-28): só em espaço com abas -->
+            <div class="ambs3d" id="tresAmbs" hidden></div>
             <div class="tres__canvasbox" id="tresBox" tabindex="0" role="img"
               aria-label="Maquete 3D do salão com as suas mesas. Arraste para girar, roda ou pinça para aproximar, toque duplo recentraliza; no teclado, setas giram e as teclas mais e menos aproximam."></div>
             <p class="tres__status" id="tresStatus" hidden>Montando o salão…</p>
@@ -1003,7 +1007,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-27</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-28</span></p>
   </div>
 </footer>
 
@@ -1457,15 +1461,15 @@ const AMBIENTES = {
        AMB.areas (as três, como antes); mesa de aba nova leva m.p no link. */
     pisos:[
       {id:'patio', nome:'Pátio da Árvore', mascaraDaArea:true,
-       recorte:{x:60, y:11, w:660, h:634},
+       recorte:{x:0, y:0, w:850, h:780},
        areas:[{nome:'Pátio da Árvore', x0:90, x1:691, y0:41, y1:614, pisoY:0.30,
          poligono:[[160,41],[691,97],[691,614],[90,614]]}]},
       {id:'hall', nome:'Hall / Cerimônia', pisoY:0.85, mascaraDaArea:true,
-       recorte:{x:668, y:275, w:520, h:290}, mesasPadrao:[],
+       recorte:{x:548, y:155, w:760, h:530}, mesasPadrao:[],
        areas:[{nome:'Hall / Cerimônia', x0:698, x1:1153, y0:305, y1:534, pisoY:0.85,
          poligono:[[698,305],[1153,305],[1153,481],[993,481],[993,534],[698,534]]}]},
       {id:'balada', nome:'Salão Balada', pisoY:0.30, mascaraDaArea:true,
-       recorte:{x:1305, y:7, w:540, h:305}, mesasPadrao:[],
+       recorte:{x:1185, y:0, w:735, h:440}, mesasPadrao:[],
        areas:[{nome:'Salão Balada', x0:1335, x1:1812, y0:37, y1:281, pisoY:0.30,
          poligono:[[1335,37],[1812,37],[1812,281],[1335,281]]}]}
     ],
@@ -1595,7 +1599,7 @@ const AMBIENTES = {
     galeriaIntro:'Fotos reais do Mezanino, em Itapema: o salão envidraçado com vista para a cidade, o lounge e o deck de madeira do mezanino.',
     planta:{src:'assets/ambientes/mezanino/planta.jpg', w:1920, h:1080,
       alt:'Planta vazia do térreo do Mezanino, em Itapema, vista de cima',
-      recorte:{x:470, y:60, w:980, h:960}},                    /* o espaço ocupa px 508..1412 × 89..991 */
+      recorte:{x:450, y:20, w:1020, h:1020}},                  /* o espaço ocupa px 508..1412 × 89..991 */
     pxm:43.55102,
     mascara:{b64:MASCARA_MEZ_TERREO_B64, w:480, h:270, passo:4},
     areas:[
@@ -1611,7 +1615,7 @@ const AMBIENTES = {
       {id:'terreo', nome:'Térreo'},
       {id:'mezanino', nome:'Mezanino (deck)', pisoY:3.30,
        planta:{src:'assets/ambientes/mezanino/planta-mezanino.jpg', w:1920, h:1080,
-         alt:'Planta do deck do mezanino vista de cima', recorte:{x:470, y:60, w:980, h:960}},
+         alt:'Planta do deck do mezanino vista de cima', recorte:{x:450, y:20, w:1020, h:1020}},
        mascara:{b64:MASCARA_MEZ_DECK_B64, w:480, h:270, passo:4},
        areas:[{nome:'Deck do mezanino', x0:563, x1:1011, y0:108, y1:908, pisoY:3.30,
          poligono:[[563,108],[1011,108],[1011,908],[563,908]]}],
@@ -3407,6 +3411,8 @@ function tresIniciar(){
   const alvoPx = AMB.camera.alvoPx || centroPrincipalPx();
   const centro = pxParaM(alvoPx.x, alvoPx.y);
   T3.alvo = new TH.Vector3(centro.x, pisoYEm(alvoPx.x, alvoPx.y), centro.z);
+  T3.alvo0 = T3.alvo.clone();                          /* p/ "Espaço inteiro" e o toque duplo (v18.08-28) */
+  pintarAmbs3d();
   T3.cam = new TH.PerspectiveCamera(46, 1, .1, 300);
   /* telhado opaco visto de cima (Solar): plano de corte em corteY — ligado
      só enquanto a câmera está ACIMA dele (tresCorte): a órbita vira
@@ -3495,6 +3501,38 @@ function tresDimensionar(){
   T3.cam.aspect = w/h;
   T3.cam.updateProjectionMatrix();
 }
+/* atalhos de câmera por ambiente (v18.08-28, pedido do dono: 'em 3D parece
+   que só tem uma visão'): uma pill por ABA do espaço + "Espaço inteiro".
+   Clicar enquadra a órbita no ambiente (alvo no centro da área, à altura do
+   piso dela; raio pelo tamanho da área). Não mexe em mesas nem no tour. */
+function pintarAmbs3d(){
+  const box = document.getElementById('tresAmbs'); if(!box) return;
+  box.hidden = PISOS.length<2;
+  if(box.hidden) return;
+  box.innerHTML = ['<button type="button" class="pill" data-amb3d="-1" aria-pressed="true">Espaço inteiro</button>']
+    .concat(PISOS.map((P,i)=>`<button type="button" class="pill" data-amb3d="${i}" aria-pressed="false">${P.nome}</button>`)).join('');
+}
+function olharAmbiente3d(i){
+  if(!T3.pronto || (typeof TOUR!=='undefined' && TOUR.ativo)) return;
+  const box = document.getElementById('tresAmbs');
+  if(box) [...box.querySelectorAll('[data-amb3d]')].forEach(b=>b.setAttribute('aria-pressed', String(+b.dataset.amb3d===i)));
+  if(i<0 || !PISOS[i]){
+    if(T3.alvo0) T3.alvo.copy(T3.alvo0);
+    T3.orb = {...T3.orb0};
+    tresCamera(); return;
+  }
+  const Pz = PISOS[i], A = Pz.areas[Pz.principal] || Pz.areas[0]; if(!A) return;
+  const cx = (A.x0+A.x1)/2, cy = (A.y0+A.y1)/2, c = pxParaM(cx, cy);
+  const y = (i>0 && Pz.pisoY!=null) ? Pz.pisoY : pisoYEm(cx, cy);
+  T3.alvo.set(c.x, y+1, c.z);
+  T3.orb.raio = limita(Math.max(A.x1-A.x0, A.y1-A.y0)/pxm * 1.05, 12, 40);
+  T3.orb.phi = .62;
+  tresCamera();
+}
+document.addEventListener('click', ev=>{
+  const b = ev.target.closest('#tresAmbs [data-amb3d]');
+  if(b) olharAmbiente3d(+b.dataset.amb3d);
+});
 function tresCamera(){
   const o = T3.orb;
   o.phi  = limita(o.phi, .25, 1.22);
@@ -3609,8 +3647,7 @@ tresBox.addEventListener('wheel', ev=>{
 }, {passive:false});
 tresBox.addEventListener('dblclick', ()=>{
   if(!T3.pronto || TOUR.ativo) return;
-  T3.orb = {...T3.orb0};
-  tresCamera();
+  olharAmbiente3d(-1);                                 /* espaço inteiro (alvo + órbita iniciais) */
 });
 tresBox.addEventListener('keydown', ev=>{
   if(!T3.pronto || TOUR.ativo) return;
