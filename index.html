@@ -1003,7 +1003,7 @@ html.sem-io .reveal{opacity:1;transform:none;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-26</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-27</span></p>
   </div>
 </footer>
 
@@ -2561,13 +2561,12 @@ function montarPlanta(){
   const solto = !!R || PISOS.length>1;
   if(frame) frame.style.aspectRatio = solto ? 'auto' : '';
   if(rolagem) rolagem.style.height = solto ? 'auto' : '';
-  /* v18.08-25 (pedido do dono: 'ficou muito grande pra visualizar em 2D'):
-     com a altura solta, a planta INTEIRA tem de caber na tela — limita a
-     largura do canvas para a altura resultante não passar de ~68vh
-     (planta quadrada do Mezanino deixava o quadro maior que a janela) */
+  /* v18.08-27 (pedido do dono: 'a planta em 2D ficou gigante, precisa
+     reduzir'): com a altura solta, a planta inteira cabe na tela E fica
+     compacta — altura alvo ~52vh com teto de 540 px */
   if(canvasPl){
     const prop = R ? R.w/R.h : PL.w/PL.h;
-    canvasPl.style.maxWidth = solto ? `min(100%, calc(68vh * ${prop.toFixed(4)}))` : '';
+    canvasPl.style.maxWidth = solto ? `min(100%, calc(52vh * ${prop.toFixed(4)}), ${Math.round(540*prop)}px)` : '';
   }
   let fundo = svgPlanta.querySelector('#plantaFundo');
   if(R){
