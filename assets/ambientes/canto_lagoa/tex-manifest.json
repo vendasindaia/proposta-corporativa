@@ -1,0 +1,378 @@
+{
+ "Arch30_wood.JPG": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 68,
+  "max": 1024,
+  "orig": "2000x2000 yuvj444p",
+  "arquivoOrigem": "Arch30_wood.JPG"
+ },
+ "Arch30_wood_6.JPG": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 68,
+  "max": 1024,
+  "orig": "2000x2000 yuvj444p",
+  "arquivoOrigem": "Arch30_wood_6.JPG"
+ },
+ "CalamagrostisFlower-1.png": {
+  "mime": "image/png",
+  "alpha": true,
+  "kb": 41,
+  "max": 1024,
+  "orig": "75x364 rgba",
+  "arquivoOrigem": "CalamagrostisFlower-1.png"
+ },
+ "Hosta_var1.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 59,
+  "max": 1024,
+  "orig": "790x600 yuvj420p",
+  "arquivoOrigem": "Hosta_var1.jpg"
+ },
+ "Madeira_15_2.png": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 93,
+  "max": 1024,
+  "orig": "1024x1024 rgb24",
+  "arquivoOrigem": "Madeira_15_2.png"
+ },
+ "Madeira_18__T_buas.png": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 100,
+  "max": 1024,
+  "orig": "1024x1024 rgb24",
+  "arquivoOrigem": "Madeira_18__T_buas.png"
+ },
+ "Mirror_01.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 5,
+  "max": 1024,
+  "orig": "700x700 yuvj444p",
+  "arquivoOrigem": "Mirror_01.jpg"
+ },
+ "Mirror_01_0.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 5,
+  "max": 1024,
+  "orig": "700x700 yuvj444p",
+  "arquivoOrigem": "Mirror_01_0.jpg"
+ },
+ "Spider_leaf_clean1.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 300,
+  "max": 1024,
+  "orig": "1024x1024 yuvj420p",
+  "arquivoOrigem": "Spider_leaf_clean1.jpg"
+ },
+ "Vegetation_Grass1.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 15,
+  "max": 1024,
+  "orig": "256x256 yuvj420p",
+  "arquivoOrigem": "Vegetation_Grass1.jpg"
+ },
+ "Water_Deep.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 6,
+  "max": 1024,
+  "orig": "256x256 yuvj420p",
+  "arquivoOrigem": "Water_Deep.jpg"
+ },
+ "Wood_Plywood_Knots.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 5,
+  "max": 1024,
+  "orig": "256x256 yuvj420p",
+  "arquivoOrigem": "Wood_Plywood_Knots.jpg"
+ },
+ "_1_ground.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 306,
+  "max": 1024,
+  "orig": "1024x1024 yuvj444p",
+  "arquivoOrigem": "_1_ground.jpg"
+ },
+ "_1_leaf.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 109,
+  "max": 1024,
+  "orig": "1644x1776 yuvj444p",
+  "arquivoOrigem": "_1_leaf.jpg"
+ },
+ "__Plant_Cover_Kudzu_1.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 6,
+  "max": 1024,
+  "orig": "128x128 yuvj420p",
+  "arquivoOrigem": "__Plant_Cover_Kudzu_1.jpg"
+ },
+ "__Translucent_Glass_Gold_1.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 0,
+  "max": 1024,
+  "orig": "144x144 yuvj420p",
+  "arquivoOrigem": "__Translucent_Glass_Gold_1.jpg"
+ },
+ "__Vegetation_Grass1_5.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 14,
+  "max": 1024,
+  "orig": "256x256 yuvj420p",
+  "arquivoOrigem": "__Vegetation_Grass1_5.jpg"
+ },
+ "__Vegetation_Grass1_5_4.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 14,
+  "max": 1024,
+  "orig": "256x256 yuvj420p",
+  "arquivoOrigem": "__Vegetation_Grass1_5_4.jpg"
+ },
+ "asplenium_adiantum2.png": {
+  "mime": "image/png",
+  "alpha": true,
+  "kb": 164,
+  "max": 1024,
+  "orig": "600x400 rgba",
+  "arquivoOrigem": "asplenium_adiantum2.png"
+ },
+ "asplenium_adiantum3.png": {
+  "mime": "image/png",
+  "alpha": true,
+  "kb": 169,
+  "max": 1024,
+  "orig": "600x400 rgba",
+  "arquivoOrigem": "asplenium_adiantum3.png"
+ },
+ "blank1.png": {
+  "mime": "image/png",
+  "alpha": true,
+  "kb": 3,
+  "max": 1024,
+  "orig": "64x64 rgba",
+  "arquivoOrigem": "blank1.png"
+ },
+ "fern1_smaller_clean_smaller1.png": {
+  "mime": "image/png",
+  "alpha": true,
+  "kb": 33,
+  "max": 1024,
+  "orig": "250x117 rgba",
+  "arquivoOrigem": "fern1_smaller_clean_smaller1.png"
+ },
+ "frond_small1.tif": {
+  "mime": "image/png",
+  "alpha": true,
+  "kb": 87,
+  "max": 1024,
+  "orig": "591x237 rgba",
+  "arquivoOrigem": "frond_small1.tif"
+ },
+ "l-Aspidistra-2.png": {
+  "mime": "image/png",
+  "alpha": true,
+  "kb": 31,
+  "max": 1024,
+  "orig": "71x216 rgba",
+  "arquivoOrigem": "l-Aspidistra-2.png"
+ },
+ "maidenhair1.png": {
+  "mime": "image/png",
+  "alpha": true,
+  "kb": 98,
+  "max": 1024,
+  "orig": "191x256 rgba",
+  "arquivoOrigem": "maidenhair1.png"
+ },
+ "material_102.png": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 50,
+  "max": 1024,
+  "orig": "3168x1344 rgb24",
+  "arquivoOrigem": "material_102.png"
+ },
+ "material_102_5.png": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 50,
+  "max": 1024,
+  "orig": "3168x1344 rgb24",
+  "arquivoOrigem": "material_102_5.png"
+ },
+ "material_123.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 24,
+  "max": 1024,
+  "orig": "256x256 yuvj420p",
+  "arquivoOrigem": "material_123.jpg"
+ },
+ "material_126.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 15,
+  "max": 1024,
+  "orig": "256x256 yuvj420p",
+  "arquivoOrigem": "material_126.jpg"
+ },
+ "material_127.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 40,
+  "max": 1024,
+  "orig": "500x436 yuvj420p",
+  "arquivoOrigem": "material_127.jpg"
+ },
+ "material_127_7.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 40,
+  "max": 1024,
+  "orig": "500x436 yuvj420p",
+  "arquivoOrigem": "material_127_7.jpg"
+ },
+ "material_128.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 12,
+  "max": 1024,
+  "orig": "256x256 yuvj420p",
+  "arquivoOrigem": "material_128.jpg"
+ },
+ "material_14.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 15,
+  "max": 1024,
+  "orig": "256x256 yuvj420p",
+  "arquivoOrigem": "material_14.jpg"
+ },
+ "material_19.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 44,
+  "max": 1024,
+  "orig": "728x728 yuvj420p",
+  "arquivoOrigem": "material_19.jpg"
+ },
+ "material_25.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 15,
+  "max": 1024,
+  "orig": "450x450 yuvj420p",
+  "arquivoOrigem": "material_25.jpg"
+ },
+ "material_26.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 101,
+  "max": 1024,
+  "orig": "1023x682 yuvj420p",
+  "arquivoOrigem": "material_26.jpg"
+ },
+ "material_27.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 78,
+  "max": 1024,
+  "orig": "600x601 yuvj420p",
+  "arquivoOrigem": "material_27.jpg"
+ },
+ "material_27_2.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 78,
+  "max": 1024,
+  "orig": "600x601 yuvj420p",
+  "arquivoOrigem": "material_27_2.jpg"
+ },
+ "material_30.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 18,
+  "max": 1024,
+  "orig": "336x376 yuvj420p",
+  "arquivoOrigem": "material_30.jpg"
+ },
+ "material_30_1.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 18,
+  "max": 1024,
+  "orig": "336x376 yuvj420p",
+  "arquivoOrigem": "material_30_1.jpg"
+ },
+ "material_31.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 279,
+  "max": 1024,
+  "orig": "1023x695 yuvj444p",
+  "arquivoOrigem": "material_31.jpg"
+ },
+ "material_40.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 126,
+  "max": 1024,
+  "orig": "1000x1000 yuvj420p",
+  "arquivoOrigem": "material_40.jpg"
+ },
+ "material_42.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 13,
+  "max": 1024,
+  "orig": "400x400 yuvj420p",
+  "arquivoOrigem": "material_42.jpg"
+ },
+ "material_42_3.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 13,
+  "max": 1024,
+  "orig": "400x400 yuvj420p",
+  "arquivoOrigem": "material_42_3.jpg"
+ },
+ "shadow1.png": {
+  "mime": "image/png",
+  "alpha": true,
+  "kb": 1,
+  "max": 1024,
+  "orig": "16x16 ya8",
+  "arquivoOrigem": "shadow1.png"
+ },
+ "spath_front_smaller1.jpg": {
+  "mime": "image/jpeg",
+  "alpha": false,
+  "kb": 2,
+  "max": 1024,
+  "orig": "58x110 yuvj420p",
+  "arquivoOrigem": "spath_front_smaller1.jpg"
+ },
+ "spath_pistol1.png": {
+  "mime": "image/png",
+  "alpha": true,
+  "kb": 10,
+  "max": 1024,
+  "orig": "48x164 rgba",
+  "arquivoOrigem": "spath_pistol1.png"
+ }
+}

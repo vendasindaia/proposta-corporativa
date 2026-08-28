@@ -1,0 +1,528 @@
+{
+ "ambiente": "canto_lagoa",
+ "nome": "Canto da Lagoa (Florianópolis) — salão, área de cerimoniais e deck da lagoa",
+ "pxm": 23,
+ "largura_px": 1920,
+ "altura_px": 1080,
+ "offset_x_m": -41.7391,
+ "offset_z_m": -20.4783,
+ "formula": "x_m = px / pxm + offset_x_m ; z_m = py / pxm + offset_z_m  (topo da imagem = -Z, direita = +X)",
+ "glbcal": {
+  "px0": 960,
+  "x0": 0,
+  "py0": 540,
+  "z0": 3
+ },
+ "piso_y": 0.0,
+ "bbox": {
+  "min": [
+   -34.911,
+   -1.77,
+   -39.105
+  ],
+  "max": [
+   17.411,
+   6.522,
+   40.148
+  ]
+ },
+ "grade": {
+  "w": 480,
+  "h": 270,
+  "passo": 4,
+  "celulas_validas": 4933,
+  "tampo_raio_m": 0.4,
+  "tolerancia_m": 0.15,
+  "formato": "bitpack LSB-first, i = gy*w + gx, base64"
+ },
+ "pisos": [
+  {
+   "id": "salao",
+   "nome": "Salão Principal",
+   "piso_y": 0.0,
+   "planta": "planta.jpg",
+   "mascara": "mascara.b64",
+   "corte_render_y": 2.8,
+   "grade": {
+    "w": 480,
+    "h": 270,
+    "passo": 4,
+    "celulas_validas": 4933,
+    "tampo_raio_m": 0.4,
+    "tolerancia_m": 0.15,
+    "formato": "bitpack LSB-first, i = gy*w + gx, base64"
+   },
+   "m2_mascara": 149.2
+  },
+  {
+   "id": "cerimonia",
+   "nome": "Área de Cerimoniais + Ala do Jardim Suspenso",
+   "piso_y": 0.0,
+   "planta": "planta-cerimonia.jpg",
+   "mascara": "mascara-cerimonia.b64",
+   "corte_render_y": 2.25,
+   "grade": {
+    "w": 480,
+    "h": 270,
+    "passo": 4,
+    "celulas_validas": 3613,
+    "tampo_raio_m": 0.4,
+    "tolerancia_m": 0.15,
+    "formato": "bitpack LSB-first, i = gy*w + gx, base64"
+   },
+   "m2_mascara": 109.2
+  },
+  {
+   "id": "deck",
+   "nome": "Deck da Lagoa",
+   "piso_y": 0.0,
+   "planta": "planta-deck.jpg",
+   "mascara": "mascara-deck.b64",
+   "corte_render_y": 2.5,
+   "grade": {
+    "w": 480,
+    "h": 270,
+    "passo": 4,
+    "celulas_validas": 2161,
+    "tampo_raio_m": 0.4,
+    "tolerancia_m": 0.15,
+    "formato": "bitpack LSB-first, i = gy*w + gx, base64"
+   },
+   "m2_mascara": 65.4
+  }
+ ],
+ "areas": [
+  {
+   "nome": "Salão Principal",
+   "piso": "salao",
+   "piso_y": 0,
+   "retangulo_px": [
+    848,
+    260,
+    1072,
+    682
+   ],
+   "m2_mascara": 149.2,
+   "celulas_validas": 4933,
+   "nota": "salão fechado 9,71×18,33; piso de tábuas escuras (material_30), vigas metálicas brancas transversais, paredes com painéis de espelho e tijolinho branco; abre inteiro para o deck ao sul; bar no canto NE (excluído da máscara)"
+  },
+  {
+   "nome": "Área de Cerimoniais",
+   "piso": "cerimonia",
+   "piso_y": 0,
+   "retangulo_px": [
+    848,
+    807,
+    1003,
+    1003
+   ],
+   "m2_mascara": 38.3,
+   "celulas_validas": 1266,
+   "nota": "sala do bloco norte (8,56 de profundidade = CAD); piso de tábuas com faixas de grama; lado oeste em colunata aberta para o gramado; acesso pelo vestíbulo da porta de garagem"
+  },
+  {
+   "nome": "Foyer",
+   "piso": "cerimonia",
+   "piso_y": 0,
+   "retangulo_px": [
+    848,
+    685,
+    1003,
+    807
+   ],
+   "m2_mascara": 10.7,
+   "celulas_validas": 355,
+   "nota": "antessala entre o cerimonial e o salão, com salas de apoio a leste"
+  },
+  {
+   "nome": "Ala do Jardim Suspenso",
+   "piso": "cerimonia",
+   "piso_y": 0,
+   "retangulo_px": [
+    1006,
+    683,
+    1161,
+    1005
+   ],
+   "m2_mascara": 60.2,
+   "celulas_validas": 1992,
+   "nota": "faixa coberta a leste do bloco norte; ilhas de jardim penduradas no teto (plantas removidas do GLB, ilhas mantidas), jardineira na parede leste levemente diagonal, quiosque-bar branco na ponta sul"
+  },
+  {
+   "nome": "Deck da Lagoa",
+   "piso": "deck",
+   "piso_y": 0,
+   "retangulo_px": [
+    848,
+    74,
+    1072,
+    262
+   ],
+   "m2_mascara": 65.4,
+   "celulas_validas": 2161,
+   "nota": "deck de madeira 9,7×8,1 sob pergolado preto com varal de lâmpadas e cobertura de vidro dourado; jardim vertical de hera a oeste, espelho d’água ao sul e muros cenográficos com foto da lagoa"
+  }
+ ],
+ "areas_mascara": {
+  "salao": [
+   {
+    "nome": "Salão Principal",
+    "piso_y": 0,
+    "materiais_piso": [
+     "material_30"
+    ],
+    "retangulo_px": [
+     848,
+     260,
+     1072,
+     682
+    ],
+    "retangulo_m": [
+     -4.87,
+     -9.17,
+     4.86,
+     9.17
+    ],
+    "poligono_m": null,
+    "poligono_px": null,
+    "celulas_validas": 4933,
+    "area_valida_m2": 149.2
+   }
+  ],
+  "cerimonia": [
+   {
+    "nome": "Área de Cerimoniais",
+    "piso_y": 0,
+    "materiais_piso": [
+     "material_42",
+     "material_30"
+    ],
+    "retangulo_px": [
+     848,
+     807,
+     1003,
+     1003
+    ],
+    "retangulo_m": [
+     -4.87,
+     14.6,
+     1.86,
+     23.15
+    ],
+    "poligono_m": null,
+    "poligono_px": null,
+    "celulas_validas": 1266,
+    "area_valida_m2": 38.3
+   },
+   {
+    "nome": "Foyer",
+    "piso_y": 0,
+    "materiais_piso": [
+     "material_42",
+     "material_30",
+     "material_42_3"
+    ],
+    "retangulo_px": [
+     848,
+     685,
+     1003,
+     807
+    ],
+    "retangulo_m": [
+     -4.87,
+     9.3,
+     1.86,
+     14.6
+    ],
+    "poligono_m": null,
+    "poligono_px": null,
+    "celulas_validas": 355,
+    "area_valida_m2": 10.7
+   },
+   {
+    "nome": "Ala do Jardim Suspenso",
+    "piso_y": 0,
+    "materiais_piso": [
+     "material_42_3"
+    ],
+    "retangulo_px": [
+     1006,
+     683,
+     1161,
+     1005
+    ],
+    "retangulo_m": [
+     2,
+     9.2,
+     8.75,
+     23.2
+    ],
+    "poligono_m": [
+     [
+      2,
+      9.2
+     ],
+     [
+      7.05,
+      9.2
+     ],
+     [
+      8.75,
+      23.2
+     ],
+     [
+      2,
+      23.2
+     ]
+    ],
+    "poligono_px": [
+     [
+      1006,
+      683
+     ],
+     [
+      1122,
+      683
+     ],
+     [
+      1161,
+      1005
+     ],
+     [
+      1006,
+      1005
+     ]
+    ],
+    "celulas_validas": 1992,
+    "area_valida_m2": 60.2
+   }
+  ],
+  "deck": [
+   {
+    "nome": "Deck da Lagoa",
+    "piso_y": 0,
+    "materiais_piso": [
+     "Madeira_18__Tábuas"
+    ],
+    "retangulo_px": [
+     848,
+     74,
+     1072,
+     262
+    ],
+    "retangulo_m": [
+     -4.87,
+     -17.25,
+     4.86,
+     -9.1
+    ],
+    "poligono_m": null,
+    "poligono_px": null,
+    "celulas_validas": 2161,
+    "area_valida_m2": 65.4
+   }
+  ]
+ },
+ "escada": {
+  "existe": false,
+  "nota": "todos os ambientes no nível 0,00; terreno externo a -0,15, espelho d’água do deck a -0,30. Sem escadas modeladas."
+ },
+ "pilares": [],
+ "pilares_nota": "sem pilares dentro das áreas caminháveis; a colunata da fachada oeste do bloco norte fica na borda e a erosão de 0,4 m já a exclui",
+ "porta_entrada": {
+  "parede": "fachada norte do bloco de cerimoniais (ripado escuro, estilo porta de garagem) — Entrada Principal do CAD",
+  "vao_m": {
+   "x0": -3.7,
+   "x1": 1.0,
+   "z": 28.1,
+   "nota": "vão ripado ~4,7 m compatível com os 470 cm do CAD; posição do vão lida no mapa de topo da análise (parede em z=28,1), FORA do quadro da planta por ~1,6 m (planta termina em z=26,46)"
+  },
+  "vao_px": {
+   "x0": 875,
+   "x1": 983,
+   "y": 1117,
+   "nota": "py>1080: projeção além da borda inferior da planta"
+  },
+  "centro_px": [
+   929,
+   1117
+  ],
+  "largura_m": 4.7,
+  "evidencia": "portal INDAIÁ EVENTOS + calçada de madeira (material_19/42) levam à fachada ripada; sequência entrada → vestíbulo → Área de Cerimoniais",
+  "inicio_tour": {
+   "m": [
+    -1.5,
+    22.0
+   ],
+   "px": [
+    926,
+    977
+   ],
+   "olhando_para": {
+    "m": [
+     -1.5,
+     15.0
+    ],
+    "px": [
+     926,
+     816
+    ]
+   },
+   "nota": "começa dentro da Área de Cerimoniais, junto ao acesso do vestíbulo da entrada, olhando para o foyer/salão (-z na imagem = para cima)"
+  }
+ },
+ "niveis_piso": {
+  "piso_todos_ambientes": 0.0,
+  "terreno_gramado": -0.15,
+  "espelho_dagua_deck": -0.3,
+  "lago_cenografico": -0.29,
+  "bar_do_salao_ne_topo": 2.2,
+  "quiosque_bar_da_ala_topo": 2.75,
+  "jardim_suspenso_ilhas": [
+   2.38,
+   2.47
+  ],
+  "forro_branco_bloco_norte": [
+   2.65,
+   2.95
+  ],
+  "telhado_salao_e_deck_material_20": 3.4,
+  "forro_salao": [
+   3.85,
+   4.2
+  ],
+  "cobertura_pergolado_deck_vidro_dourado": 3.4,
+  "muro_cenografico_foto_topo": 6.5
+ },
+ "altura_livre": {
+  "salao_ate_forro_m": 3.85,
+  "cerimonial_ate_forro_m": 2.65,
+  "ala_jardim_ate_ilhas_m": 2.38,
+  "deck_ate_pergolado_m": 3.3
+ },
+ "recentro_modelo_m": [
+  5.01,
+  0,
+  -36.59
+ ],
+ "unidade_origem": "SketchUp 23 COLLADA, unit meter=0.0254 (polegada), Z_UP; o conversor assa metros/Y-up",
+ "glb": {
+  "arquivo": "salao.glb",
+  "bytes": 3764632,
+  "mb": 3.59,
+  "triangulos": 235096,
+  "meshes": 41,
+  "draw_calls": 44,
+  "compressao": "gltfpack -cc (EXT_meshopt_compression); sem -vtf (nenhum aviso de erro de UV; conferido visualmente no piso de tábuas)",
+  "texturas": "26 imagens JPEG/PNG embutidas (ver texturas.aplicadas)",
+  "triangulos_dae_com_instancias": 22644830,
+  "triangulos_finais": 235096
+ },
+ "conferencia_cad": {
+  "fontes": [
+   "planta_lagoa_alta_qualidade_300dpi.pdf (Salão Principal 288,60 m², piso cerâmico, pele de vidro na diagonal, mesa de salgados, vigas metálicas)",
+   "Indaia Eventos LagoaCerimonia 2.pdf (Área de Cerimoniais 102,60 m², 1091,2 × 860 cm, grama sintética, Entrada Principal/Porta de Garagem 470 cm, saída de emergência a oeste)",
+   "Lev.Arq Indaia Eventos Lagoa 29-08-2019 P1 (1)/(2) (implantação: toldos retráteis, hall de entrada, salão com 12 mesas)"
+  ],
+  "medidas_raycast_m": {
+   "salao_largura_x": 9.71,
+   "salao_comprimento_z": 18.33,
+   "cerimonial_profundidade_z": 8.56,
+   "cerimonial_largura_coberta_x": 6.65,
+   "ala_jardim_largura_x_em_z17": 6.17,
+   "deck_largura_pergolado_x": 20.63,
+   "deck_piso_madeira_x": 9.7,
+   "deck_profundidade_z": 8.1
+  },
+  "veredito": [
+   "Escala: unidade exata do DAE (0,0254 m). Profundidade da Área de Cerimoniais: GLB 8,56 m vs CAD 8,60 m (-0,5%) — bate.",
+   "Porta de garagem da entrada: CAD 4,70 m; o vão ripado do modelo é compatível (não raycastável por estar fora do quadro).",
+   "Salão Principal: CAD 288,60 m² (um ambiente só, piso cerâmico, pele de vidro na diagonal). O modelo 2026 REMODELA: salão fechado de 9,71×18,33 = 178 m² (piso de tábuas escuras, vigas metálicas brancas ✓, paredes com espelhos ✓/tijolinho branco) + Ala do Jardim Suspenso (~90 m²) — juntos ≈ o footprint do CAD.",
+   "A pele de vidro diagonal do CAD não existe no modelo: a parede leste da ala é quase reta (afila ~1,7 m em 14,9 m ≈ 6°) e cega, com jardineira; o \"visual da lagoa\" vem dos muros cenográficos com foto.",
+   "Área de Cerimoniais: CAD 10,91 m de largura; no modelo a largura coberta é ~6,65 m e o lado oeste virou colunata aberta para o gramado. Piso: CAD grama sintética; modelo: tábuas com faixas de grama embutidas.",
+   "Divergências são de PROJETO (o \"Layout Vazio\" 2026 é uma remodelação), não de escala."
+  ]
+ },
+ "remocoes": {
+  "total_triangulos": "22.644.830 (com instâncias) → 235.096",
+  "instanciados_9_53M": [
+   {
+    "oque": "cortina de luz da ala (parede x=2,11, z 10,4..20,7): fios \"material\" 2756/2636 tris × 392/280 inst",
+    "tris": 3870720
+   },
+   {
+    "oque": "idem, pontos de luz __Color_D02_1+Emissive1 908 tris × 392/280 inst",
+    "tris": 2440704
+   },
+   {
+    "oque": "samambaias instanciadas do jardim suspenso (fern1 26 tris × 3105) e afins",
+    "tris": "~80k"
+   },
+   {
+    "oque": "grama selvagem instanciada do jardim externo sul (wild_grass 1/2/3 — texturas .tga que o SketchUp não exportou)",
+    "tris": 2462094
+   }
+  ],
+  "materiais_removidos": [
+   "Madeira_15_2 (8,39 M): deck ripado SOBREPOSTO ao piso da ala (27 módulos ultra-modelados, +12 cm); o piso material_42_3 embaixo permanece — altura da faixa fica 0,00 em vez de 0,17",
+   "plantas do jardim suspenso (material_123, material_126, Vegetation_Grass1, Hosta_var1, frond, spath, Spider, aspidistra, kudzu, avencas, maidenhair etc. ~3,1 M) — as ILHAS verdes (material_128) ficaram",
+   "shadow1 (decalques de sombra, 278 k) e blank1 (flores, 53 k)",
+   "jardineira da diagonal da ala: folhagem Color_E05/__Color_F12_1/__Color_F19_1 (928 k) + caixas Wood_Plywood_Knots (290 k); as caixas Arch30_wood ficaram"
+  ],
+  "nao_removido": "muros cenográficos com foto da lagoa (material_102/102_5), espelho d’água e lago (Water_Deep), jardim vertical de hera do deck (_1_leaf/_1_stem, simplificados), varal de lâmpadas do deck (EMISSIVO_50), quiosques, espelhos, portas, portal INDAIÁ"
+ },
+ "simplificacao": {
+  "material (paredes/estruturas sem textura)": "305.924 → 152.300 (weldPos, ratio 0,5, err 0,02)",
+  "_1_leaf / _1_stem (jardim vertical de hera do deck)": "225.352 → 16.901 / 104.544 → 11.422 (weldPos, ratio 0,15)",
+  "__Translucent_Glass_Gold_1 (cobertura de vidro dourado do pergolado)": "66.262 → 9.939 (weldPos, ratio 0,3)",
+  "_0062_YellowGreen (arbustos do caminho leste)": "11.060 → 1.934",
+  "intocados": "pisos, paredes com textura, telhados, forros, espelhos, portas, quiosques, muros de foto"
+ },
+ "planta_render": {
+  "salao": {
+   "corte_y": 2.8,
+   "como": "abaixo do telhado (3,4) e do forro (3,85–4,2); acima do bar do NE (2,2); o bloco norte aparece coberto pelo forro branco (2,65–2,95)"
+  },
+  "cerimonia": {
+   "corte_y": 2.25,
+   "como": "abaixo do forro do bloco norte (2,65) e das ilhas do jardim suspenso (2,38); acima das portas (2,2)"
+  },
+  "deck": {
+   "corte_y": 2.5,
+   "como": "abaixo do pergolado (3,3+) e do ponto mais baixo do varal de lâmpadas (2,7); mapa de altura do deck fica limpo"
+  },
+  "dollhouse": {
+   "corte_y": 2.35,
+   "como": "único corte que abre os três ambientes ao mesmo tempo"
+  }
+ },
+ "texturas": {
+  "aplicadas": [
+   "material_30.jpg (piso do salão + faixa do cerimonial)",
+   "material_42.jpg (piso cerimonial/vestíbulo)",
+   "material_42_3.jpg (piso da ala do jardim suspenso/foyer)",
+   "Madeira_18__T_buas.png (deck da lagoa)",
+   "material_19.jpg (calçada de concreto da entrada)",
+   "material_25.jpg (tábuas brancas)",
+   "material_31.jpg (parede de pedra do deck)",
+   "material_40.jpg (tijolinho branco do salão)",
+   "Mirror_01.jpg / Mirror_01_0.jpg (espelhos)",
+   "material_26.jpg (escamas decorativas)",
+   "material_27.jpg / material_27_2.jpg (forro/telhado branco)",
+   "material_102.png / material_102_5.png (muros cenográficos com foto da lagoa)",
+   "Arch30_wood.JPG / Arch30_wood_6.JPG (caixas da jardineira)",
+   "material_14.jpg (grama escura)",
+   "__Vegetation_Grass1_5.jpg (faixas de grama e painéis verdes)",
+   "__Vegetation_Grass1_5_4.jpg (gramado do terreno)",
+   "Water_Deep.jpg (lago e espelho d’água)",
+   "_1_leaf.jpg / _1_ground.jpg (jardim vertical de hera)",
+   "material_128.jpg (ilhas do jardim suspenso)",
+   "material_33.jpg",
+   "__Translucent_Glass_Gold_1.jpg (vidro dourado do pergolado)",
+   "CalamagrostisFlower-1.png (capim do caminho leste)",
+   "Madeira_15_2.png (não usada — deck sobreposto removido)"
+  ],
+  "ausentes": "wild_grass_a1_01_mat1/2/3.tga — únicas texturas que falharam no load (formato .tga, não exportado no zip); a geometria correspondente foi removida",
+  "achatadas_para_cor": []
+ }
+}
