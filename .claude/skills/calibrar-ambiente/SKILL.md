@@ -98,6 +98,10 @@ integração; o algoritmo é o do próprio botão "Distribuir automaticamente").
 
 ## 4 · Itens decorativos (props)
 
+> Cadastro de item novo no catálogo: use a skill irmã **`cadastrar-item`**
+> (`assets/itens/README-itens.md` tem o schema do manifesto). Esta seção cobre
+> só o mecanismo de exibição (props) dentro do ambiente.
+
 Um item vira um GLB próprio e entra no registro do ambiente em `props:[]`:
 `{glb, nome, px:{x,y}, alt, escala, rotY}` — posição em px da planta, base no
 piso da área (`pisoYEm`) + `alt`. Regras:

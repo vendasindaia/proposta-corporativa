@@ -1,0 +1,12 @@
+{
+ "slug": "mesa-redonda-160",
+ "nome": "Mesa redonda 1,60 m (8 lugares)",
+ "categoria": "mobiliario",
+ "medidas_m": { "diametro_tampo": 1.6, "altura": 0.78 },
+ "footprint_m": 2.6,
+ "glb": "../../mesa-real-lite.glb",
+ "thumb": "thumb.jpg",
+ "escala_conferida_por": "tampo medido no modelo = 1,60 m (foto oficial com cotas, 18/08/2026)",
+ "espacos": {},
+ "observacoes": "a mesa oficial da casa — o editor a instancia em todas as posições de mesa; footprint 2,60 m inclui as 8 cadeiras"
+}

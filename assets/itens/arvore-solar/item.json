@@ -1,0 +1,14 @@
+{
+ "slug": "arvore-solar",
+ "nome": "Árvore do pátio (Solar 915)",
+ "categoria": "cenografia",
+ "medidas_m": { "altura": 11.4, "poco": "3,25 × 4,0 m" },
+ "footprint_m": 4.0,
+ "glb": "../../ambientes/solar/arvore.glb",
+ "thumb": "thumb.jpg",
+ "escala_conferida_por": "altura da árvore real da arquiteta = 11,36 m; poda validada contra o poço do telhado (smoke com 0 vértices fora)",
+ "espacos": {
+  "solar": [ { "aba": 0, "x": 356, "y": 283, "rotY": 0, "alt": 0.05 } ]
+ },
+ "observacoes": "exemplo de item POSICIONADO: também está em AMBIENTES.solar.props[] e a máscara do pátio exclui o canteiro"
+}

@@ -40,6 +40,16 @@ pilares e vãos), **Ver em 3D** (pills de câmera por ambiente), **360°** e **t
 - Item decorativo (pérgola, palco, árvore, lounge...): `.dae` isolado + texturas
   + uma medida de referência (ex.: "tampo 1,60 m").
 
+## Itens decorativos (mesa de espelho, telão de LED, pérgola…)
+
+Além dos ambientes, você cadastra **itens individuais**, na proporção real, em
+`assets/itens/<slug>/` (modelo GLB + `item.json` + foto). O padrão completo está em
+`assets/itens/README-itens.md`, e existe uma skill só para isso — peça ao Claude:
+*"cadastra este item decorativo"* ou *"coloca o telão de LED no Salão de Eventos"*.
+Cada item precisa de **uma medida real de referência** (ex.: "painel de 4,00 m") —
+é assim que a escala é conferida. O CRM importa o catálogo automaticamente por
+script interno: você publica no repositório e pronto, sem acesso ao sistema.
+
 ## O que já está na tua fila (pendências conhecidas)
 
 1. **Solar**: export com o **2º pavimento** (hoje só existem os panoramas dele).
