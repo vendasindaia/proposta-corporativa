@@ -1,0 +1,36 @@
+import { createRequire } from 'module';
+const require = createRequire('c:/Users/usuário/Desktop/Projetos/crm-backend/package.json');
+const puppeteer = require('puppeteer');
+const S = 'C:/Users/USURIO~1/AppData/Local/Temp/claude/c--Users-usu-rio-Desktop-Projetos/b42bf2eb-7914-4252-bbe8-6e2b90755015/scratchpad/mezanino';
+const browser = await puppeteer.launch({ headless: 'new', executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', args: ['--window-size=1500,900'] });
+let falhas = 0;
+const ok = (c, m) => { console.log((c ? 'OK   ' : 'FALHOU ✗ ') + m); if (!c) falhas++; };
+for (const [amb, iAlvo, esperado] of [['solar', 2, [33.8, -4.4]], ['mezanino', 1, [60.7, 22.8]], ['mirante', 2, [-7.7, 4.1]]]) {
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1500, height: 900 });
+  const erros = []; page.on('pageerror', e => erros.push(String(e).slice(0, 200)));
+  await page.evaluateOnNewDocument(() => { try { localStorage.clear(); } catch (e) {} });
+  await page.goto('http://127.0.0.1:8140/index.html?espaco=' + amb + '&a3d=' + Date.now(), { waitUntil: 'networkidle2', timeout: 90000 });
+  await page.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; const r = document.querySelector('#visoes').getBoundingClientRect(); window.scrollTo(0, window.scrollY + r.top - 20); });
+  await page.evaluate(() => trocarVisao('v3d'));
+  await page.waitForFunction(() => T3.pronto && T3.raf > 0, { timeout: 240000 });
+  await new Promise(r => setTimeout(r, 1500));
+  const t0 = await page.evaluate(() => ({ pills: [...document.querySelectorAll('#tresAmbs [data-amb3d]')].map(b => b.textContent), oculto: document.querySelector('#tresAmbs').hidden }));
+  console.log(amb, JSON.stringify(t0));
+  ok(!t0.oculto && t0.pills.length >= 3 && t0.pills[0] === 'Espaço inteiro', amb + ': pills de ambiente na maquete');
+  await page.evaluate((i) => { document.querySelector('#tresAmbs [data-amb3d="' + i + '"]').click(); }, iAlvo);
+  await new Promise(r => setTimeout(r, 500));
+  const t1 = await page.evaluate(() => ({ alvo: [T3.alvo.x, T3.alvo.z].map(v => +v.toFixed(1)), raio: +T3.orb.raio.toFixed(1) }));
+  console.log(amb, JSON.stringify(t1));
+  ok(Math.abs(t1.alvo[0] - esperado[0]) < 1.5 && Math.abs(t1.alvo[1] - esperado[1]) < 1.5, amb + `: câmera enquadrou o ambiente (alvo ${t1.alvo}, raio ${t1.raio})`);
+  await (await page.$('#tresBox')).screenshot({ path: `${S}/shot-ambs3d-${amb}.png` });
+  await page.evaluate(() => { document.querySelector('#tresAmbs [data-amb3d="-1"]').click(); });
+  await new Promise(r => setTimeout(r, 400));
+  const t2 = await page.evaluate(() => [T3.alvo.x, T3.alvo.z].map(v => +v.toFixed(1)));
+  console.log(amb, 'volta:', JSON.stringify(t2));
+  ok(erros.length === 0, amb + ': erros JS: ' + (erros.join(' | ') || 'nenhum'));
+  await page.close();
+}
+await browser.close();
+console.log(falhas ? `✗ ${falhas} FALHA(S)` : '✅ ATALHOS 3D OK');
+process.exit(falhas ? 1 : 0);
