@@ -1,0 +1,12 @@
+{
+ "slug": "estante-velas",
+ "nome": "Estante de velas (1 módulo)",
+ "categoria": "mobiliario",
+ "medidas_m": { "largura": 1.65, "profundidade": 0.3, "altura": 2.5 },
+ "footprint_m": 1.7,
+ "glb": "item.glb",
+ "thumb": "thumb.jpg",
+ "escala_conferida_por": "desenho técnico da arquiteta (03/09/2026): 1650 × 300 × 2500 mm — modelo bate exato (1,65 × 0,30 × 2,52 m)",
+ "espacos": {},
+ "observacoes": "versão sem flores exportada do SketchUp em 03/09/2026; estrutura em metalon 20×20 com vasos de vidro suspensos. O modelo tem 3 colunas × 6 vasos; o desenho técnico indica 5 × 5 — conferir com a arquiteta qual é o definitivo. A versão com flores (DAE de 1,5 GB) não converteu; se for necessária, pedir export mais leve."
+}
