@@ -1,0 +1,12 @@
+{
+ "slug": "estante-velas-165",
+ "nome": "Estante de Velas 1,65 m (módulo)",
+ "categoria": "mobiliario",
+ "medidas_m": { "largura": 1.65, "profundidade": 0.3, "altura": 2.5 },
+ "footprint_m": 1.65,
+ "glb": "item.glb",
+ "thumb": "thumb.jpg",
+ "escala_conferida_por": "bbox do GLB = 1,65 × 0,30 × 2,52 m, conferida contra o desenho técnico (1650 × 300 × 2500 mm, recebido 03/09/2026)",
+ "espacos": {},
+ "observacoes": "estrutura em metalon 20×20 mm com vasos de vidro Ø150 suspensos; módulo individual — o desenho prevê uso combinado de 2 módulos (3,30 m). Modelo 3D sem as flores; versão com garland floral existe em SketchUp mas o export .dae veio impraticável (≈1,5 GB). GLB atual tem 3 colunas de velas; desenho técnico mostra 5 — confirmar com a arquiteta qual versão vale."
+}
