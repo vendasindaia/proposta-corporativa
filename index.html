@@ -714,7 +714,10 @@ html.so-layout body{padding-bottom:0;}
         </div>
         <p class="rcard__sub">de 30 a 500 · os itens por pessoa acompanham</p>
       </div>
-      <div class="rcard reveal" data-d="3">
+      <!-- v18.08-33 (decisão do dono): o cliente NÃO simula mais o dia da semana —
+           mudar dia ou data é conversa com o consultor, que refaz a proposta.
+           O card fica no markup, hidden, para religar se a decisão mudar. -->
+      <div class="rcard reveal" data-d="3" id="cardDia" hidden>
         <p class="rcard__lbl">Simule o dia da semana</p>
         <div class="pills" role="group" aria-label="Simular dia da semana" id="pillsDia"></div>
         <p class="rcard__nota" id="notaDia">Neste espaço, o investimento é o mesmo em qualquer dia da semana.</p>
@@ -1020,7 +1023,7 @@ html.so-layout body{padding-bottom:0;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-32</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-33</span></p>
   </div>
 </footer>
 
@@ -2193,7 +2196,7 @@ function carregar(){
     const s = JSON.parse(raw);
     return {
       convidados: limita(parseInt(s.convidados,10)||PADRAO.convidados, 30, 500),
-      dia: DIAS.some(d=>d[0]===s.dia) ? s.dia : PADRAO.dia,
+      dia: PADRAO.dia,   /* v18.08-33: dia é o do orçamento — cliente não altera */
       coquetel: COQUETEIS.some(c=>c.id===s.coquetel) ? s.coquetel : PADRAO.coquetel,
       menu: MENUS.some(m=>m.id===s.menu) ? s.menu : PADRAO.menu,
       openbar: OPENBARS.some(b=>b.id===s.openbar) ? s.openbar : PADRAO.openbar,
