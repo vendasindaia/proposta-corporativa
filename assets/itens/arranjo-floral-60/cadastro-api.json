@@ -1,0 +1,26 @@
+{
+  "nome": "Arranjo floral de mesa · 45 cm de altura",
+  "slug": "arranjo-floral-60",
+  "categoria": "decoracao",
+  "ativo": true,
+  "medidas": {
+    "largura": 0.506,
+    "profundidade": 0.574,
+    "altura": 0.45
+  },
+  "glb_url": "https://wnhdvlavbtljjyzevocz.supabase.co/storage/v1/object/public/maquetes-3d/assets/itens/arranjo-floral-60/item.glb",
+  "thumb_url": "https://wnhdvlavbtljjyzevocz.supabase.co/storage/v1/object/public/maquetes-3d/assets/itens/arranjo-floral-60/thumb.jpg",
+  "cadastro": {
+    "cor": "#8ca087",
+    "material": "Flores naturais e folhagens",
+    "subcategoria": "Arranjos florais de mesa",
+    "fornecedor": "Acervo Indaiá",
+    "origem": "proprio",
+    "forma": "elipse",
+    "lugares": 0,
+    "conferido": true,
+    "superficie_apoio": false,
+    "posicionamento": "sobre_movel",
+    "observacoes": "Altura 45 cm; reservar 60 cm de espaço para o arranjo. O desenho é ilustrativo: o modelo possui contorno assimétrico, aproximadamente 51 × 57 cm. Escala uniforme, sem esticar flores. Posicionar sobre uma mesa pelo campo Apoiar sobre. Quantidade física do acervo ainda não informada."
+  }
+}
