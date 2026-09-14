@@ -1023,7 +1023,7 @@ html.so-layout body{padding-bottom:0;}
   <div class="wrap footer__inner">
     <span class="brand__mono">DIMY</span>
     <p class="footer__fine">Proposta ORC-2026-01837 · Indaiá Eventos · válida até <span class="js-validade">25/08/2026</span>.
-      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.08-33</span></p>
+      Protótipo de proposta interativa — este material não substitui o contrato. <span id="versaoBuild">v18.09-1</span></p>
   </div>
 </footer>
 
@@ -1229,7 +1229,7 @@ const ITENS_EDITAVEIS = [
    Tudo em CENTAVOS; arredondamentos replicam o Math.round(×100)/100
    do CRM (em reais) como Math.round em centavos.
    ================================================================= */
-const DATA_EVENTO = new Date(2026, 8, 24);   /* 24/09/2026 (quinta) */
+let DATA_EVENTO = new Date(2026, 8, 24);   /* 24/09/2026 (quinta); o orçamento real do CRM escreve por cima */
 /* feriados nacionais que tocam o cálculo (calendario_feriado do CRM):
    07/09 é o único de setembro — não afeta 24/09, mas o TETO de feriado/
    véspera está implementado (fiel ao computeFator do CRM) */
@@ -2102,6 +2102,31 @@ const LAYOUT_SUGERIDO = lerLayoutDaURL();  /* layout sugerido vindo do link (ou 
 const MODO_EQUIPE = new URLSearchParams(location.search).get('equipe')==='1';
 const MODO_LAYOUT = new URLSearchParams(location.search).get('modo')==='layout';   /* só a dinâmica do layout (CRM) */
 
+/* ---- proposta REAL do CRM (?proposta=TOKEN&api=BASE) — v18.09 ----
+   Com token, a página busca o orçamento na rota pública do CRM
+   (GET /api/public/proposta/:token) e veste a proposta com os dados dele:
+   cliente, número, data, convidados, cardápios escolhidos e validade.
+   `api` (a base do CRM) só é aceita rodando em localhost — no site publicado
+   vale a base oficial. Sem token, a página segue como a demo DIMY. */
+const QS_PROPOSTA = new URLSearchParams(location.search);
+const PROPOSTA_TOKEN = /^[0-9a-f]{32,128}$/i.test(QS_PROPOSTA.get('proposta')||'')
+  ? QS_PROPOSTA.get('proposta') : null;
+const API_CRM_OFICIAL = '';   /* base pública oficial do CRM — entra no deploy da Fase 4 */
+const API_CRM = (()=>{
+  const emLocalhost = ['localhost','127.0.0.1'].includes(location.hostname);
+  const a = QS_PROPOSTA.get('api')||'';
+  if(emLocalhost && /^https?:\/\//i.test(a)){ try{ return new URL(a).origin; }catch(e){} }
+  return API_CRM_OFICIAL;
+})();
+/* identidade da proposta — padrão demo; o orçamento real escreve por cima.
+   Regra (09/09): material de UM cliente nunca aparece na proposta de OUTRO —
+   sem a identidade do cliente, o fallback é a marca Indaiá, nunca a demo. */
+let CLIENTE_NOME = 'DIMY';
+let ORC_NUMERO = 'ORC-2026-01837';
+let DATA_EVENTO_BR = '24/09/2026';
+let TELAO_TITULO = 'DIMY';           /* texto desenhado no telão de LED do 3D */
+let TELAO_SUB = 'Convenção 2026';
+
 /* ---- validade efetiva (V do hash > padrão impresso) ---- */
 const VALIDADE_PADRAO = '2026-08-25';
 function validarISO(s){
@@ -2180,7 +2205,8 @@ let ROLE_DEMO = 'consultor';
    ================================================================= */
 /* v18.08-21: estado por AMBIENTE — as mesas são px da planta de cada
    espaço; o Salão de Eventos mantém a chave de sempre */
-const CHAVE = 'proposta_dimy_prototipo' + (ESPACO==='salao_eventos' ? '' : '_'+ESPACO);
+const CHAVE = 'proposta_dimy_prototipo' + (ESPACO==='salao_eventos' ? '' : '_'+ESPACO)
+  + (PROPOSTA_TOKEN ? '_t'+PROPOSTA_TOKEN.slice(0,10) : '');   /* cada link real tem o próprio estado salvo */
 const PADRAO = {convidados:200, dia:'seg-qui', coquetel:'c4', menu:'m2', openbar:'b1',
   extras:Object.fromEntries(ITENS_EDITAVEIS.map(it=>[it.id, it.equipeOnly ? valorEquipe(it) : it.padrao])),
   mesas:LAYOUT_SUGERIDO || MESAS_PADRAO, rev:1};
@@ -2584,7 +2610,7 @@ function atualizarTotais(){
      com o cliente já existe no WhatsApp); o builder fica, inofensivo com
      zero elementos, para um futuro canal que precise do resumo. */
   const nMesas = PROPOSTA.mesas.length;
-  const msg = `Olá! Aqui é da DIMY. Estou vendo a proposta ORC-2026-01837 (24/09/2026 · ${AMB.curto}).\n`+
+  const msg = `Olá! Aqui é da ${CLIENTE_NOME}. Estou vendo a proposta ${ORC_NUMERO} (${DATA_EVENTO_BR} · ${AMB.curto}).\n`+
     `Meus ajustes: ${C} convidados · Coquetel ${r.coq.nome} · ${r.menu.nome} · ${r.bar.nome}.\n`+
     (nMesas ? `Layout: ${nMesas} mesas de ${MESA.lugares} lugares.\n` : '')+
     `Total estimado: ${fmt(r.total)}.\n`+
@@ -3489,14 +3515,21 @@ function telaoMaterial(TH){
     ctx.fillStyle = g; ctx.fillRect(0,0,1024,564);
     ctx.textAlign = 'center'; ctx.fillStyle = '#C9AB78';
     if('letterSpacing' in ctx) ctx.letterSpacing = '26px';
-    ctx.font = '600 230px "Cormorant Garamond", Georgia, serif';
-    ctx.fillText('DIMY', 512+13, 330);               /* +13 compensa o tracking da última letra */
+    /* nome do cliente (proposta real) ou DIMY (demo); nomes longos reduzem a
+       fonte até caber no painel — nunca corta */
+    let fonte = 230;
+    ctx.font = `600 ${fonte}px "Cormorant Garamond", Georgia, serif`;
+    while(fonte > 64 && ctx.measureText(TELAO_TITULO).width > 900){
+      fonte -= 10;
+      ctx.font = `600 ${fonte}px "Cormorant Garamond", Georgia, serif`;
+    }
+    ctx.fillText(TELAO_TITULO, 512+13, 330);         /* +13 compensa o tracking da última letra */
     ctx.strokeStyle = 'rgba(201,171,120,.5)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(392,378); ctx.lineTo(632,378); ctx.stroke();
     if('letterSpacing' in ctx) ctx.letterSpacing = '10px';
     ctx.font = 'italic 400 54px "Cormorant Garamond", Georgia, serif';
     ctx.fillStyle = 'rgba(201,171,120,.85)';
-    ctx.fillText('Convenção 2026', 512+5, 448);
+    ctx.fillText(TELAO_SUB, 512+5, 448);
     tx.needsUpdate = true;
   };
   desenhar();
@@ -4597,7 +4630,9 @@ function tourGravarFim(baixar){
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     /* v{rev} no nome: o arquivo declara de qual versão do layout ele saiu */
-    a.download = `tour-dimy-v${PROPOSTA.rev}.${tipo.includes('mp4') ? 'mp4' : 'webm'}`;
+    const slugCli = CLIENTE_NOME.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+      .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'proposta';
+    a.download = `tour-${slugCli}-v${PROPOSTA.rev}.${tipo.includes('mp4') ? 'mp4' : 'webm'}`;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=>URL.revokeObjectURL(a.href), 10000);
     mostrarToast('Vídeo do tour baixado — confira em Downloads');
@@ -4806,6 +4841,121 @@ function aplicarEscassez(){
 aplicarValidade();
 aplicarNotaDia();
 aplicarEscassez();
+
+/* =================================================================
+   PROPOSTA REAL DO CRM (v18.09) — veste a página com o orçamento
+   ================================================================= */
+/* Busca o orçamento pela rota pública e aplica por cima do arranque, com as
+   MESMAS funções idempotentes do painel da equipe. Regras:
+   · convidados/dia/cardápios do orçamento viram o PADRÃO (e o estado vivo no
+     primeiro acesso do link; se o cliente já editou, as escolhas dele ficam —
+     exceto o DIA, que é sempre o do orçamento, v18.08-33);
+   · cardápio/coquetel/bar casados por NOME com os itens do orçamento (os
+     pacotes da página são o catálogo corporativo real, mesmos preços);
+   · falhou a busca (token vencido, CRM fora)? A página segue como demo —
+     nunca quebra na frente do cliente. */
+async function vestirPropostaCRM(){
+  if(!PROPOSTA_TOKEN || !API_CRM) return;
+  let o, raiz;
+  try{
+    const r = await fetch(`${API_CRM}/api/public/proposta/${PROPOSTA_TOKEN}`);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j = await r.json();
+    raiz = j.data || j;                    /* {orcamento, token, expires_at, ...} */
+    o = raiz.orcamento || raiz;
+    if(!o || typeof o !== 'object') throw new Error('resposta vazia');
+  }catch(e){ console.warn('[propostaCRM] não carregou — segue demo:', e); return; }
+  try{
+    const primeiroUso = !localStorage.getItem(CHAVE);
+    const norm = s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+
+    /* data do evento → dia da locação + data por extenso + VMC da equipe */
+    const mData = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(o.data_evento||''));
+    let dataLonga = '';
+    if(mData){
+      const d = new Date(+mData[1], +mData[2]-1, +mData[3]);
+      DATA_EVENTO = d;
+      DATA_EVENTO_BR = d.toLocaleDateString('pt-BR');
+      dataLonga = d.toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+      const dw = d.getDay();
+      PADRAO.dia = dw===5 ? 'sexta' : dw===6 ? 'sabado' : dw===0 ? 'domingo' : 'seg-qui';
+    }
+
+    /* convidados */
+    const nConv = parseInt(o.num_convidados, 10);
+    if(Number.isFinite(nConv) && nConv>0) PADRAO.convidados = limita(nConv, 30, 500);
+
+    /* cardápios: casa os itens do orçamento com os pacotes por nome */
+    const nomesItens = (Array.isArray(o.itens)?o.itens:[]).map(i=>norm(i && i.produto && i.produto.nome));
+    const casar = lista=>{ const hit = lista.find(op=>nomesItens.includes(norm(op.nome))); return hit ? hit.id : null; };
+    const selMenu = casar(MENUS), selCoq = casar(COQUETEIS), selBar = casar(OPENBARS);
+    if(selMenu) PADRAO.menu = selMenu;
+    if(selCoq) PADRAO.coquetel = selCoq;
+    if(selBar) PADRAO.openbar = selBar;
+
+    /* validade: a do orçamento; sem ela, o vencimento do próprio link (7 dias) */
+    const val = validarISO(String(o.validade||'').slice(0,10))
+      || validarISO(String(raiz.expires_at||'').slice(0,10));
+    if(val) VALIDADE_ISO = val;
+
+    /* identidade: cliente e número no lugar da demo */
+    const nomeCli = String(o.cliente_nome||'').trim();
+    if(nomeCli){
+      CLIENTE_NOME = nomeCli;
+      if(o.numero) ORC_NUMERO = String(o.numero);
+      document.title = `Proposta ${nomeCli} · Indaiá Eventos`;
+      document.querySelector('meta[name="description"]')
+        .setAttribute('content', `Proposta interativa corporativa — ${nomeCli} · ${DATA_EVENTO_BR} · ${AMB.nome}, ${AMB.cidadeLonga||''}`);
+      document.querySelectorAll('.brand__mono').forEach(el=>el.textContent = nomeCli);
+      document.querySelectorAll('.eyebrow').forEach(el=>{
+        if(!/DIMY/i.test(el.textContent)) return;
+        el.textContent = dataLonga
+          ? `Proposta corporativa · ${nomeCli} · ${dataLonga}`
+          : el.textContent.replace(/DIMY/gi, nomeCli);
+      });
+      const heroSub = document.querySelector('.hero__sub');
+      if(heroSub && dataLonga) heroSub.innerHTML =
+        `<span class="js-espaco-rotulo">${esc(AMB.rotulo)}</span> — ${esc(dataLonga)}.`;
+      const cardData = document.querySelector('#cardData .rcard__val');
+      if(cardData) cardData.textContent = DATA_EVENTO_BR;
+      const brandLink = document.querySelector('a.brand');
+      if(brandLink) brandLink.setAttribute('aria-label', `${nomeCli} — voltar ao início da proposta`);
+
+      /* material da DIMY nunca vai na proposta de outro cliente (regra 09/09):
+         · telão de LED do 3D: desenha o NOME deste cliente (a logo em imagem
+           entra na fase da personalização por CNPJ);
+         · CTA do salão (render do evento DIMY): troca pela primeira FOTO real
+           da galeria do ambiente. */
+      TELAO_TITULO = nomeCli;
+      const tipoEv = o.tipo_evento && o.tipo_evento.nome;
+      TELAO_SUB = tipoEv ? `${tipoEv}${mData ? ' · '+mData[1] : ''}` : 'Indaiá Eventos';
+      if((AMB.cta||'').includes('dimy')){
+        const fotoReal = (AMB.galeria||[]).find(g=>g && g.url && !/render/i.test(g.selo||''));
+        if(fotoReal) $('#ctaImg').src = fotoReal.url;
+      }
+    }
+
+    /* primeiro acesso deste link: o estado vivo nasce do orçamento */
+    if(primeiroUso){
+      PROPOSTA.convidados = PADRAO.convidados;
+      if(selMenu) PROPOSTA.menu = selMenu;
+      if(selCoq) PROPOSTA.coquetel = selCoq;
+      if(selBar) PROPOSTA.openbar = selBar;
+    }
+    PROPOSTA.dia = PADRAO.dia;   /* dia é sempre o do orçamento — cliente não altera */
+
+    /* repinta tudo que depende do estado (funções idempotentes do arranque) */
+    Object.keys(GRUPOS).forEach(pintarSelecao);
+    pintarPills();
+    $('#convMenos').disabled = PROPOSTA.convidados<=30;
+    $('#convMais').disabled = PROPOSTA.convidados>=500;
+    atualizarTotais();
+    aplicarValidade();
+    /* alça de teste (smokes headless leem daqui — `let` do script não vaza pro window) */
+    window.__PROPOSTA_CRM__ = { numero: ORC_NUMERO, cliente: CLIENTE_NOME, telao: TELAO_TITULO, telaoSub: TELAO_SUB, dia: PROPOSTA.dia };
+  }catch(e){ console.warn('[propostaCRM] falha ao aplicar:', e); }
+}
+vestirPropostaCRM();
 
 /* ---- fileiras roláveis: estado inicial da sombra + reajuste no resize ---- */
 Object.keys(GRUPOS).forEach(t=>sombraNiveis($(GRUPOS[t].alvo)));
