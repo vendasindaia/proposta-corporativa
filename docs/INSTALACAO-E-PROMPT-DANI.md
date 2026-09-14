@@ -30,7 +30,10 @@ item — sempre com teste real antes de publicar, como a skill manda.
 
 Regras: nunca publique sem me mostrar as provas verdes; nunca exponha
 desconto, data real ou disponibilidade na página; qualquer dado que faltar
-do CRM, a gente anota e pede ao Adriano em vez de inventar.
+do CRM, a gente anota e pede ao Adriano em vez de inventar. E atenção: o 3D
+(maquetes, calibração, itens decorativos, as skills calibrar-ambiente e
+cadastrar-item) é trabalho da Grazi — nós só USAMOS o que está pronto; se
+faltar algo do 3D, anotamos e avisamos o Adriano.
 
 ---
 

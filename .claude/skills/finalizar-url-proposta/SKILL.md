@@ -98,9 +98,18 @@ carimbo de versão novo no rodapé (`#versaoBuild`, padrão `v18.09-N`) e
 conferir a URL publicada com `?vN=` de cache-buster + a prova headless.
 Nunca publique com bateria vermelha.
 
-## O que NÃO é deste repo
+## Fronteiras — o que NÃO é trabalho desta skill
 
-O botão do chat, as rotas do CRM (`/external/orcamentos`, token, catálogo) e
-o painel da atendente vivem no crm-backend/indachat — mudanças lá são do
-Adriano. Se a página precisar de um dado que o snapshot não traz, anote o
-campo que falta e peça; não invente contorno do lado de cá.
+- **O 3D é território da GRAZI (arquiteta).** Calibrar ambiente novo,
+  converter export do SketchUp, cadastrar item decorativo, gerar máscara e
+  planta — nada disso é da Dani. As skills `calibrar-ambiente` e
+  `cadastrar-item` que vivem neste mesmo repo são DELA; não as invoque, não
+  mexa em `assets/ambientes/`, `assets/itens/` nem nas calibrações. A URL
+  apenas **consome** as maquetes prontas (e vincula: o layout do orçamento
+  abre na maquete do espaço certo). Precisa de algo no 3D — um ambiente que
+  falta, uma textura ruim, um item novo? Anote e avise o Adriano, que
+  encaminha pra fila da Grazi.
+- O botão do chat, as rotas do CRM (`/external/orcamentos`, token, catálogo)
+  e o painel da atendente vivem no crm-backend/indachat — mudanças lá são do
+  Adriano. Se a página precisar de um dado que o snapshot não traz, anote o
+  campo que falta e peça; não invente contorno do lado de cá.
